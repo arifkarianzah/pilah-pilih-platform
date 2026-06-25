@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS users (
     name        VARCHAR(100)   NOT NULL,
     email       VARCHAR(100)   NOT NULL UNIQUE,
     password    VARCHAR(255)   NOT NULL,
+    phone       VARCHAR(20)    DEFAULT NULL,
+    company_name VARCHAR(100)  DEFAULT NULL,
+    address     TEXT           DEFAULT NULL,
     role        ENUM('user', 'petugas', 'pengepul', 'admin') DEFAULT 'user',
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
