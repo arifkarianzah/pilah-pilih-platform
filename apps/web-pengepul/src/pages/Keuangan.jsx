@@ -79,11 +79,7 @@ const Keuangan = () => {
           <div className="card-title">💡 Analisis Keuntungan per Jenis Sampah</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
-          {[
-            { jenis: 'Besi', masuk: 500, beli: 5000, jual: 6500, emoji: '🔩' },
-            { jenis: 'Kardus', masuk: 300, beli: 800, jual: 1500, emoji: '📦' },
-            { jenis: 'Plastik PET', masuk: 250, beli: 1500, jual: 3000, emoji: '🍾' },
-          ].map(item => {
+          {(keuangan?.analisisKeuntungan || []).map(item => {
             const laba = (item.jual - item.beli) * item.masuk;
             return (
               <div key={item.jenis} style={{
@@ -118,6 +114,9 @@ const Keuangan = () => {
               </div>
             );
           })}
+          {(!keuangan?.analisisKeuntungan || keuangan.analisisKeuntungan.length === 0) && (
+            <div style={{ color: 'var(--text-muted)', fontSize: 13, padding: '10px 0' }}>Belum ada data riwayat sampah masuk.</div>
+          )}
         </div>
       </div>
 
