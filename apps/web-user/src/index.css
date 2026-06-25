@@ -465,8 +465,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  max-width: 1400px;
+  max-width: 1100px;
   width: 100%;
+  margin: 0 auto;
 }
 
 @media (min-width: 1024px) {
@@ -539,13 +540,13 @@ body {
 
 /* ── Balance Card ── */
 .balance-card {
-  background: linear-gradient(135deg, var(--brand-green-deep) 0%, var(--brand-green) 50%, var(--brand-green-light) 100%);
+  background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #065f46 100%);
   border-radius: var(--radius-lg);
   padding: 1.75rem;
   color: white;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(10, 92, 52, 0.3);
+  box-shadow: 0 10px 40px rgba(6, 78, 59, 0.4);
 }
 
 .balance-card::before {
