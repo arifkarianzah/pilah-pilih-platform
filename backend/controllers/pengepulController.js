@@ -252,19 +252,26 @@ exports.getFactorySales = (req, res) => {
 exports.getKeuangan = (req, res) => {
     const pengepulId = req.user.id;
 
-    // Hitung total pembelian (dari pickups yang diterima)
-    // Asumsi harga beli rata-rata Rp 1.500/kg
     const queryPembelian = `
         SELECT IFNULL(SUM(actual_weight * 1500), 0) as total_pembelian 
         FROM pickups 
         WHERE pengepul_id = ? AND status = 'completed'
     `;
 
-    // Hitung total penjualan (dari pengepul_sales)
     const queryPenjualan = `
         SELECT IFNULL(SUM(total_price), 0) as total_penjualan 
         FROM pengepul_sales 
         WHERE pengepul_id = ? AND status = 'completed'
+    `;
+
+    const queryAnalisis = `
+        SELECT 
+            p.waste_type as jenis,
+            IFNULL(SUM(p.actual_weight), 0) as masuk,
+            (SELECT IFNULL(AVG(s.price_per_kg), 0) FROM pengepul_sales s WHERE s.pengepul_id = p.pengepul_id AND s.waste_type = p.waste_type AND s.status = 'completed') as jual
+        FROM pickups p
+        WHERE p.pengepul_id = ? AND p.status = 'completed'
+        GROUP BY p.waste_type
     `;
 
     db.query(queryPembelian, [pengepulId], (err, resPembelian) => {
@@ -273,16 +280,29 @@ exports.getKeuangan = (req, res) => {
         db.query(queryPenjualan, [pengepulId], (err, resPenjualan) => {
             if (err) return res.status(500).json({ error: err.message });
 
-            const totalPembelian = parseFloat(resPembelian[0].total_pembelian);
-            const totalPenjualan = parseFloat(resPenjualan[0].total_penjualan);
-            const totalPengeluaran = totalPembelian * 0.1; // Contoh: biaya operasional 10% dari pembelian
-            const totalLaba = totalPenjualan - totalPembelian - totalPengeluaran;
+            db.query(queryAnalisis, [pengepulId], (err, resAnalisis) => {
+                if (err) return res.status(500).json({ error: err.message });
 
-            res.json({
-                totalPembelian,
-                totalPenjualan,
-                totalLaba,
-                totalPengeluaran
+                const totalPembelian = parseFloat(resPembelian[0].total_pembelian);
+                const totalPenjualan = parseFloat(resPenjualan[0].total_penjualan);
+                const totalPengeluaran = totalPembelian * 0.1;
+                const totalLaba = totalPenjualan - totalPembelian - totalPengeluaran;
+
+                const analisisKeuntungan = resAnalisis.map(a => ({
+                    jenis: a.jenis,
+                    masuk: parseFloat(a.masuk),
+                    beli: 1500, // Harga beli flat (dummy)
+                    jual: parseFloat(a.jual) || 2000, // Default jika blm ada jual
+                    emoji: a.jenis === 'Besi' ? '🔩' : a.jenis === 'Kardus' ? '📦' : a.jenis === 'Plastik PET' ? '🍾' : '♻️'
+                }));
+
+                res.json({
+                    totalPembelian,
+                    totalPenjualan,
+                    totalLaba,
+                    totalPengeluaran,
+                    analisisKeuntungan
+                });
             });
         });
     });
