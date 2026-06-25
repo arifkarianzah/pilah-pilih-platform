@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS pickups (
     address          TEXT,
     waste_type       VARCHAR(100),
     estimated_weight DECIMAL(10,2),
+    actual_weight    DECIMAL(10,2) DEFAULT NULL,
     pickup_date      DATE,
     notes            TEXT,
     status           ENUM(
