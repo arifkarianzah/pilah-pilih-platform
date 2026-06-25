@@ -1,21 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Search, MessageSquare, X } from 'lucide-react';
 import Badge from '../components/Badge';
 import Modal from '../components/Modal';
-
-const tiketData = [
-  { id: 'TKT-001', user: 'Budi Santoso', email: 'budi@email.com', subjek: 'Saldo tidak bertambah setelah penjemputan', pesan: 'Halo admin, saya sudah melakukan penjemputan 3 hari lalu tapi saldo saya belum bertambah. Mohon dicek ya.', status: 'open', tgl: '2026-06-23 10:00', balasan: [] },
-  { id: 'TKT-002', user: 'Siti Rahayu', email: 'siti@email.com', subjek: 'Petugas tidak datang sesuai jadwal', pesan: 'Sudah menunggu 2 jam tapi petugas tidak kunjung datang. Order saya PP-0237.', status: 'open', tgl: '2026-06-23 08:30', balasan: [] },
-  { id: 'TKT-003', user: 'Ahmad Dahlan', email: 'ahmad@email.com', subjek: 'Tidak bisa melakukan penarikan saldo', pesan: 'Setiap kali saya klik tarik saldo, aplikasi error. Sudah coba berkali-kali.', status: 'replied', tgl: '2026-06-22 14:00', balasan: ['Admin: Mohon maaf atas ketidaknyamanannya. Tim teknis kami sedang memperbaiki masalah ini. Estimasi selesai 24 jam.'] },
-  { id: 'TKT-004', user: 'Dewi Kurnia', email: 'dewi@email.com', subjek: 'Pertanyaan tentang jenis sampah yang diterima', pesan: 'Apakah baterai bekas bisa dikumpulkan? Saya punya banyak di rumah.', status: 'closed', tgl: '2026-06-21 09:00', balasan: ['Admin: Untuk saat ini kami belum menerima baterai bekas. Silakan pantau update aplikasi kami. Terima kasih!'] },
-];
+import { tiketAPI } from '../services/api';
 
 export default function PusatBantuan() {
-  const [tikets, setTikets] = useState(tiketData);
+  const [tikets, setTikets] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [selected, setSelected] = useState(null);
   const [balasanText, setBalasanText] = useState('');
+
+  const loadData = useCallback(async () => {
+    try {
+      const res = await tiketAPI.getAll();
+      if (res.success) {
+        setTikets(res.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const filtered = tikets.filter(t => {
     const matchSearch = t.user.toLowerCase().includes(search.toLowerCase()) || t.subjek.toLowerCase().includes(search.toLowerCase());
@@ -23,20 +35,54 @@ export default function PusatBantuan() {
     return matchSearch && matchStatus;
   });
 
-  const kirimBalasan = () => {
-    if (!balasanText.trim()) return;
-    setTikets(t => t.map(x => x.id === selected.id ? { ...x, status: 'replied', balasan: [...x.balasan, `Admin: ${balasanText}`] } : x));
-    setSelected(prev => ({ ...prev, status: 'replied', balasan: [...prev.balasan, `Admin: ${balasanText}`] }));
-    setBalasanText('');
+  const kirimBalasan = async () => {
+    if (!balasanText.trim() || !selected) return;
+    try {
+      const res = await tiketAPI.reply(selected.id, balasanText);
+      if (res.success) {
+        setBalasanText('');
+        // Refresh data
+        loadData();
+        // Update selected locally so modal shows it instantly
+        setSelected(prev => ({
+          ...prev, 
+          status: 'replied', 
+          balasan: [...prev.balasan, `Admin: ${balasanText}`]
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Gagal mengirim balasan');
+    }
   };
 
-  const tutupTiket = (id) => {
-    setTikets(t => t.map(x => x.id === id ? { ...x, status: 'closed' } : x));
-    if (selected?.id === id) setSelected(prev => ({ ...prev, status: 'closed' }));
+  const tutupTiket = async (id) => {
+    if (!window.confirm('Yakin ingin menutup tiket ini?')) return;
+    try {
+      const res = await tiketAPI.close(id);
+      if (res.success) {
+        loadData();
+        if (selected?.id === id) {
+          setSelected(prev => ({ ...prev, status: 'closed' }));
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Gagal menutup tiket');
+    }
   };
 
   const statusLabel = { open: 'Terbuka', replied: 'Dibalas', closed: 'Ditutup' };
   const statusBadge = { open: 'badge-warning', replied: 'badge-info', closed: 'badge-neutral' };
+
+  if (loading) return (
+    <div className="page-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}>
+      <div style={{ textAlign: 'center' }}>
+        <div className="spinner" style={{ width: 40, height: 40, borderWidth: 4, margin: '0 auto 1rem' }} />
+        <p style={{ color: 'var(--text-muted)' }}>Memuat tiket...</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="page-content">
@@ -149,7 +195,7 @@ export default function PusatBantuan() {
               </div>
             </div>
 
-            {selected.balasan.length > 0 && (
+            {selected.balasan && selected.balasan.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 {selected.balasan.map((b, i) => (
                   <div key={i} style={{ background: '#dcfce7', padding: '0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.875rem', borderLeft: '3px solid var(--primary)' }}>

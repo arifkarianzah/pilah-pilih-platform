@@ -116,4 +116,11 @@ export const notifAPI = {
   read: (id) => put(`/admin/notifications/${id}/read`),
 };
 
+// ─── TIKET (PUSAT BANTUAN) ────────────────────────────────────────────────────
+export const tiketAPI = {
+  getAll: () => get('/admin/tickets'),
+  reply: (id, reply) => post(`/admin/tickets/${id}/reply`, { reply }),
+  close: (id) => put(`/admin/tickets/${id}/close`),
+};
+
 export default api;
