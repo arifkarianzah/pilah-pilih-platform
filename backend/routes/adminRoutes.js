@@ -3,6 +3,7 @@ const router = express.Router();
 const verifyToken = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 const a = require("../controllers/adminController");
+const ticketController = require("../controllers/ticketController");
 
 const admin = [verifyToken, roleMiddleware("admin")];
 
@@ -60,5 +61,10 @@ router.get("/transactions",     ...admin, a.getTransactionHistory);
 router.get("/notifications",           ...admin, a.getAdminNotifications);
 router.put("/notifications/read-all",  ...admin, a.markAllNotificationsAsRead);
 router.put("/notifications/:id/read",  ...admin, a.markNotificationAsRead);
+
+// ── Pusat Bantuan (Tickets) ──────────────────────────────
+router.get("/tickets",          ...admin, ticketController.getAllTickets);
+router.post("/tickets/:id/reply", ...admin, ticketController.replyTicket);
+router.put("/tickets/:id/close",  ...admin, ticketController.closeTicket);
 
 module.exports = router;
