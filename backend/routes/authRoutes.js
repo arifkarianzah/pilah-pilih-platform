@@ -7,6 +7,7 @@ const authController = require("../controllers/authController");
 router.post("/register", authController.register);
 router.post("/register-petugas", authController.registerPetugas);
 router.post("/register-pengepul", authController.registerPengepul);
+router.post("/register-admin", authController.registerAdmin);
 router.post("/login", authController.login);
 
 // Protected routes
