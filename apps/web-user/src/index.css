@@ -542,7 +542,7 @@ body {
 .balance-card {
   background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #065f46 100%);
   border-radius: var(--radius-lg);
-  padding: 1.75rem;
+  padding: 1.25rem 1.75rem;
   color: white;
   position: relative;
   overflow: hidden;
@@ -586,7 +586,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   font-weight: 500;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .balance-eye-btn {
@@ -600,11 +600,11 @@ body {
 }
 
 .balance-amount {
-  font-size: 2.4rem;
+  font-size: 2.2rem;
   font-weight: 800;
   letter-spacing: -1px;
   line-height: 1.1;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 @media (max-width: 480px) {
@@ -617,7 +617,7 @@ body {
   gap: 0.3rem;
   background: rgba(255,255,255,0.15);
   border: 1px solid rgba(255,255,255,0.2);
-  padding: 0.35rem 0.8rem;
+  padding: 0.25rem 0.6rem;
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
@@ -625,9 +625,9 @@ body {
 }
 
 .balance-card-badge {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   background: rgba(255,255,255,0.15);
   border: 1px solid rgba(255,255,255,0.2);
   display: flex;
@@ -640,7 +640,7 @@ body {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 0.5rem;
-  margin-top: 1.75rem;
+  margin-top: 1.25rem;
   position: relative;
   z-index: 2;
 }
@@ -671,12 +671,13 @@ body {
 .level-card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.85rem;
+  justify-content: center;
 }
 
 .level-card-header {
@@ -686,10 +687,10 @@ body {
 }
 
 .level-badge-icon {
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
   background: linear-gradient(135deg, #fde68a, #d97706);
-  border-radius: 14px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
