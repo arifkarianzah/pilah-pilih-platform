@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS users (
     phone       VARCHAR(20)    DEFAULT NULL,
     company_name VARCHAR(100)  DEFAULT NULL,
     address     TEXT           DEFAULT NULL,
+    is_active   BOOLEAN        DEFAULT TRUE,
+    is_verified BOOLEAN        DEFAULT FALSE,
     role        ENUM('user', 'petugas', 'pengepul', 'admin') DEFAULT 'user',
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
