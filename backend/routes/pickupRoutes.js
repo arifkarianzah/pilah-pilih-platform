@@ -1,0 +1,44 @@
+const express = require("express");
+const router = express.Router();
+const verifyToken = require("../middleware/authMiddleware");
+const roleMiddleware = require("../middleware/roleMiddleware");
+const upload = require("../middleware/multerConfig");
+
+const {
+    createPickup,
+    getMyPickups,
+    getPickupById,
+    getPendingPickups,
+    getMyActivePickups,
+    updateStatus,
+    uploadPhoto,
+    getWaitingPickups,
+    weighItems,
+    confirmAndComplete,
+    getPetugasContacts,
+    getAllMyPickups
+} = require("../controllers/pickupController");
+
+// ================= USER =================
+router.post("/", verifyToken, roleMiddleware("user"), createPickup);
+router.get("/my", verifyToken, roleMiddleware("user"), getMyPickups);
+
+// ================= PETUGAS =================
+router.get("/pending", verifyToken, roleMiddleware("petugas", "admin"), getPendingPickups);
+router.get("/petugas/active", verifyToken, roleMiddleware("petugas"), getMyActivePickups);
+router.get("/petugas/all", verifyToken, roleMiddleware("petugas"), getAllMyPickups);
+router.get("/contacts", verifyToken, roleMiddleware("petugas", "admin"), getPetugasContacts);
+
+// ================= PENGEPUL =================
+router.get("/pengepul/waiting", verifyToken, roleMiddleware("pengepul"), getWaitingPickups);
+router.put("/pengepul/weigh/:id", verifyToken, roleMiddleware("pengepul"), weighItems);
+router.put("/pengepul/confirm/:id", verifyToken, roleMiddleware("pengepul"), confirmAndComplete);
+
+// ================= SHARED MUTATIONS =================
+router.put("/status/:id", verifyToken, roleMiddleware("user", "petugas", "pengepul", "admin"), updateStatus);
+router.post("/photo/:id", verifyToken, roleMiddleware("petugas", "pengepul"), upload.single("photo"), uploadPhoto);
+
+// ================= UNIVERSAL (GET DETAIL) =================
+router.get("/:id", verifyToken, getPickupById);
+
+module.exports = router;
