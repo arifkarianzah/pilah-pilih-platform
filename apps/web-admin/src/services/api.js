@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // ─── Base URL ──────────────────────────────────────────────────────────────────
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'https://pilahpilih-backend-abc-gfa9dgdtfmfjbsgp.southeastasia-01.azurewebsites.net/api';
 
 // ─── Axios Instance ────────────────────────────────────────────────────────────
 const api = axios.create({ baseURL: BASE_URL });
