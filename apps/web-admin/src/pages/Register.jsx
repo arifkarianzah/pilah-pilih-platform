@@ -2,30 +2,28 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
     try {
-      const res = await authAPI.login(form.email, form.password);
+      const res = await authAPI.registerAdmin(form.name, form.email, form.password);
       if (res.success) {
-        if (res.user.role !== 'admin') {
-          setError('Akun Anda bukan admin. Akses ditolak.');
-          setLoading(false);
-          return;
-        }
-        localStorage.setItem('adminToken', res.token);
-        localStorage.setItem('adminUser', JSON.stringify(res.user));
-        navigate('/dashboard', { replace: true });
+        setSuccess('Registrasi admin berhasil! Silakan login.');
+        setTimeout(() => {
+          navigate('/login', { replace: true });
+        }, 2000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login gagal. Periksa email & password.');
+      setError(err.response?.data?.message || 'Registrasi gagal. Periksa kembali data Anda.');
       setLoading(false);
     }
   };
@@ -59,16 +57,16 @@ export default function Login() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '2rem', margin: '0 auto 1rem',
             boxShadow: '0 8px 24px rgba(15,76,42,0.3)',
-          }}>♻️</div>
+          }}>📝</div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.5px' }}>
-            Pilah Pilih Admin
+            Daftar Admin Baru
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-            Masuk ke panel administrasi
+            Buat akun untuk panel administrasi
           </p>
         </div>
 
-        {/* Error */}
+        {/* Status Messages */}
         {error && (
           <div style={{
             background: 'var(--danger-light)', color: '#991b1b', padding: '0.75rem 1rem',
@@ -78,20 +76,39 @@ export default function Login() {
             ⚠️ {error}
           </div>
         )}
+        {success && (
+          <div style={{
+            background: '#dcfce7', color: '#166534', padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600,
+            marginBottom: '1rem', border: '1px solid #bbf7d0',
+          }}>
+            ✅ {success}
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="form-group">
+            <label className="form-label">Nama Lengkap</label>
+            <input
+              className="form-control"
+              type="text"
+              placeholder="Masukkan nama"
+              value={form.name}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              required
+              autoFocus
+            />
+          </div>
           <div className="form-group">
             <label className="form-label">Email Admin</label>
             <input
               className="form-control"
               type="email"
-              id="admin-email"
               placeholder="admin@pilahpilih.id"
               value={form.email}
               onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
               required
-              autoFocus
             />
           </div>
           <div className="form-group">
@@ -99,30 +116,25 @@ export default function Login() {
             <input
               className="form-control"
               type="password"
-              id="admin-password"
               placeholder="••••••••"
               value={form.password}
               onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
               required
+              minLength={6}
             />
           </div>
           <button
             type="submit"
             className="btn btn-primary btn-lg"
             disabled={loading}
-            id="admin-login-btn"
             style={{ marginTop: '0.5rem', width: '100%' }}
           >
-            {loading ? <><span className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> Masuk...</> : '🔐 Masuk sebagai Admin'}
+            {loading ? <><span className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> Mendaftar...</> : '🚀 Daftar Admin'}
           </button>
         </form>
 
         <p style={{ textAlign: 'center', fontSize: '0.875rem', marginTop: '1.5rem', color: 'var(--text-muted)' }}>
-          Belum punya akun admin? <Link to="/register" style={{ color: 'var(--brand)', fontWeight: 600, textDecoration: 'none' }}>Daftar di sini</Link>
-        </p>
-
-        <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-light)', marginTop: '1.5rem' }}>
-          Pilah Pilih Admin Panel v1.0
+          Sudah punya akun admin? <Link to="/login" style={{ color: 'var(--brand)', fontWeight: 600, textDecoration: 'none' }}>Masuk di sini</Link>
         </p>
       </div>
     </div>

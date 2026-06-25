@@ -5,6 +5,7 @@ import Topbar from './components/Topbar';
 
 // Pages
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import KelolaUser from './pages/KelolaUser';
 import KelolaPetugas from './pages/KelolaPetugas';
@@ -52,6 +53,7 @@ export default function App() {
       <Routes>
         {/* Public */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Protected admin routes */}
         <Route element={<RequireAdmin />}>

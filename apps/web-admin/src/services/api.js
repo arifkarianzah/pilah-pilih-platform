@@ -35,6 +35,7 @@ const del = (url) => api.delete(url).then(r => r.data);
 // ─── AUTH ──────────────────────────────────────────────────────────────────────
 export const authAPI = {
   login: (email, password) => post('/auth/login', { email, password }),
+  registerAdmin: (name, email, password) => post('/auth/register-admin', { name, email, password }),
 };
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
