@@ -244,6 +244,31 @@ function JualSampah() {
         @media (max-width: 1024px) {
           .jsp-grid { grid-template-columns: 1fr; }
         }
+
+        @media (max-width: 640px) {
+          .jsp-header { padding: 1rem 4%; }
+          .jsp-title { font-size: 1.1rem; }
+          .jsp-subtitle { font-size: 0.78rem; }
+          .jsp-grid { padding: 1rem 4%; gap: 1.25rem; }
+          .jsp-card { padding: 1.25rem; border-radius: 16px; }
+          .jsp-card-title { font-size: 1rem; }
+          .jsp-summary-box { flex-direction: column; gap: 1rem; align-items: flex-start; }
+          .jsp-summary-box > div:last-child { width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
+          .jsp-summary-item { align-items: flex-start; }
+          .jsp-summary-total { font-size: 1.2rem; }
+          .jsp-tips-grid { grid-template-columns: 1fr 1fr; }
+          .jsp-price-right { gap: 0.5rem; }
+          .jsp-price-right span { font-size: 0.78rem; }
+          .jsp-btn-submit { padding: 0.9rem; font-size: 0.95rem; }
+          .jsp-upload-box { padding: 1.5rem; }
+          .jsp-cat-tabs { gap: 0.4rem; }
+          .jsp-cat-tab { padding: 0.5rem 0.75rem; font-size: 0.8rem; }
+        }
+
+        @media (max-width: 400px) {
+          .jsp-tips-grid { grid-template-columns: 1fr; }
+          .jsp-summary-box > div:last-child { grid-template-columns: 1fr 1fr; }
+        }
       `}</style>
 
       {/* Header */}

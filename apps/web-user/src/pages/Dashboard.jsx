@@ -241,78 +241,34 @@ function Dashboard() {
         {/* ── Page Content ── */}
         <div className="dash-content">
 
-          {/* ─── Row 1: Saldo Card + Level Card ─── */}
-          <div className="dash-row-1">
-            {/* Saldo Card */}
-            <div className="balance-card">
-              <div className="balance-card-top">
-                <div>
-                  <div className="balance-label">
-                    Saldo Aktif
-                    <button className="balance-eye-btn" onClick={() => setBalanceVisible(!balanceVisible)}>
-                      {balanceVisible ? <EyeOff size={15} /> : <Eye size={15} />}
-                    </button>
-                  </div>
-                  <div className="balance-amount">
-                    {balanceVisible
-                      ? `Rp ${balance.toLocaleString("id-ID")}`
-                      : "Rp ••••••••"}
-                  </div>
-                  <div className="balance-points-chip">
-                    <Star size={12} />
-                    <span>{(stats * 25).toLocaleString("id-ID")} Poin</span>
-                    <ChevronRight size={12} />
-                  </div>
+          {/* ─── Row 1: Saldo Card ─── */}
+          <div className="balance-card">
+            <div className="balance-card-top">
+              <div>
+                <div className="balance-label">
+                  Saldo Aktif
+                  <button className="balance-eye-btn" onClick={() => setBalanceVisible(!balanceVisible)}>
+                    {balanceVisible ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
                 </div>
-                <div className="balance-card-badge">
-                  <ShieldCheck size={18} />
+                <div className="balance-amount">
+                  {balanceVisible
+                    ? `Rp ${balance.toLocaleString("id-ID")}`
+                    : "Rp ••••••••"}
+                </div>
+                <div className="balance-points-chip">
+                  <Star size={12} />
+                  <span>{(stats * 25).toLocaleString("id-ID")} Poin</span>
+                  <ChevronRight size={12} />
                 </div>
               </div>
-
-
-            </div>
-
-            {/* Level / Poin Card */}
-            <div className="level-card">
-              <div className="level-card-header">
-                <div className="level-badge-icon">
-                  <ShieldCheck size={28} />
-                </div>
-                <div>
-                  <h3 className="level-title">Gold Member ⭐</h3>
-                  <p className="level-subtitle">Level tertinggi berikutnya: Platinum</p>
-                </div>
-              </div>
-
-              <div className="level-progress-wrap">
-                <div className="level-progress-track">
-                  <div className="level-progress-fill" style={{ width: "58%" }} />
-                </div>
-                <div className="level-progress-labels">
-                  <span>1.153 pts</span>
-                  <span>Target: 2.000 pts</span>
-                </div>
-              </div>
-
-              <div className="level-benefits">
-                {[
-                  { icon: <CheckCircle2 size={16} />, title: "Bonus poin transaksi", desc: "Poin lebih banyak tiap transaksi" },
-                  { icon: <Zap size={16} />,           title: "Prioritas penjemputan", desc: "Antrian lebih cepat" },
-                  { icon: <Gift size={16} />,          title: "Reward eksklusif", desc: "Akses reward spesial Gold" },
-                ].map((b, i) => (
-                  <div key={i} className="level-benefit-item">
-                    <div className="level-benefit-icon">{b.icon}</div>
-                    <div>
-                      <p className="level-benefit-title">{b.title}</p>
-                      <p className="level-benefit-desc">{b.desc}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="balance-card-badge">
+                <ShieldCheck size={18} />
               </div>
             </div>
           </div>
 
-          {/* ─── Row 2: Quick Actions ─── */}
+          {/* ─── Menu Cepat ─── */}
           <div className="section-card">
             <div className="section-card-header">
               <h3>Menu Cepat</h3>
@@ -328,6 +284,45 @@ function Dashboard() {
                   </div>
                   <span className="quick-action-label">{a.label}</span>
                 </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* ─── Gold Member Card ─── */}
+          <div className="level-card">
+            <div className="level-card-header">
+              <div className="level-badge-icon">
+                <ShieldCheck size={28} />
+              </div>
+              <div>
+                <h3 className="level-title">Gold Member ⭐</h3>
+                <p className="level-subtitle">Level tertinggi berikutnya: Platinum</p>
+              </div>
+            </div>
+
+            <div className="level-progress-wrap">
+              <div className="level-progress-track">
+                <div className="level-progress-fill" style={{ width: "58%" }} />
+              </div>
+              <div className="level-progress-labels">
+                <span>1.153 pts</span>
+                <span>Target: 2.000 pts</span>
+              </div>
+            </div>
+
+            <div className="level-benefits">
+              {[
+                { icon: <CheckCircle2 size={16} />, title: "Bonus poin transaksi", desc: "Poin lebih banyak tiap transaksi" },
+                { icon: <Zap size={16} />,           title: "Prioritas penjemputan", desc: "Antrian lebih cepat" },
+                { icon: <Gift size={16} />,          title: "Reward eksklusif", desc: "Akses reward spesial Gold" },
+              ].map((b, i) => (
+                <div key={i} className="level-benefit-item">
+                  <div className="level-benefit-icon">{b.icon}</div>
+                  <div>
+                    <p className="level-benefit-title">{b.title}</p>
+                    <p className="level-benefit-desc">{b.desc}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
