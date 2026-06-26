@@ -693,109 +693,30 @@ body {
   background: rgba(255, 255, 255, 0.22);
 }
 
-/* ── Level Card ── */
-.level-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: 1rem 1.5rem;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  justify-content: center;
-}
-
-.level-card-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.level-badge-icon {
-  width: 46px;
-  height: 46px;
-  background: linear-gradient(135deg, #fde68a, #d97706);
+/* ── Compact Points Card ── */
+.mini-level-card {
+  background: #064e3b;
   border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 1rem 1.25rem;
   color: white;
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
-}
-
-.level-title {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--text);
-}
-
-.level-subtitle {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.level-progress-wrap {}
-
-.level-progress-track {
-  height: 8px;
-  background: var(--bg);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
-}
-
-.level-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--brand-green-light));
-  border-radius: 4px;
-  transition: width 0.8s ease;
-}
-
-.level-progress-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-.level-benefits {
+  box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.35rem;
 }
 
-.level-benefit-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-}
-
-.level-benefit-icon {
-  width: 32px;
-  height: 32px;
-  background: var(--primary-soft);
-  color: var(--primary);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.level-benefit-title {
-  font-size: 0.85rem;
+.mini-level-title {
+  font-size: 0.95rem;
   font-weight: 700;
-  color: var(--text);
+  margin: 0;
+  color: #f8fafc;
 }
 
-.level-benefit-desc {
+.mini-level-desc {
   font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 1px;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.4;
 }
 
 /* ═══════════════════════════════════════════════

@@ -288,43 +288,12 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* ─── Gold Member Card ─── */}
-          <div className="level-card">
-            <div className="level-card-header">
-              <div className="level-badge-icon">
-                <ShieldCheck size={28} />
-              </div>
-              <div>
-                <h3 className="level-title">Gold Member ⭐</h3>
-                <p className="level-subtitle">Level tertinggi berikutnya: Platinum</p>
-              </div>
-            </div>
-
-            <div className="level-progress-wrap">
-              <div className="level-progress-track">
-                <div className="level-progress-fill" style={{ width: "58%" }} />
-              </div>
-              <div className="level-progress-labels">
-                <span>1.153 pts</span>
-                <span>Target: 2.000 pts</span>
-              </div>
-            </div>
-
-            <div className="level-benefits">
-              {[
-                { icon: <CheckCircle2 size={16} />, title: "Bonus poin transaksi", desc: "Poin lebih banyak tiap transaksi" },
-                { icon: <Zap size={16} />,           title: "Prioritas penjemputan", desc: "Antrian lebih cepat" },
-                { icon: <Gift size={16} />,          title: "Reward eksklusif", desc: "Akses reward spesial Gold" },
-              ].map((b, i) => (
-                <div key={i} className="level-benefit-item">
-                  <div className="level-benefit-icon">{b.icon}</div>
-                  <div>
-                    <p className="level-benefit-title">{b.title}</p>
-                    <p className="level-benefit-desc">{b.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* ─── Compact Points Card ─── */}
+          <div className="mini-level-card">
+            <h4 className="mini-level-title">Total Poin Anda: {(stats * 25).toLocaleString("id-ID")} pts</h4>
+            <p className="mini-level-desc">
+              Level Gold ⭐ • Perlu {2000 - (stats * 25)} poin lagi untuk naik ke Platinum.
+            </p>
           </div>
 
           {/* ─── Row 3: Chart + Active Pickup ─── */}
