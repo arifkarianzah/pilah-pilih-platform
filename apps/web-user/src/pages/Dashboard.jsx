@@ -148,14 +148,14 @@ function Dashboard() {
   };
 
   const quickActions = [
-    { to: "/jual-sampah", icon: <Recycle size={24} />, label: "Jual Sampah", color: "#10b981", bg: "rgba(16,185,129,0.1)" },
-    { to: "/ai-scan",    icon: <Bot size={24} />,     label: "AI Scan",    color: "#6366f1", bg: "rgba(99,102,241,0.1)" },
-    { to: "/pickup",     icon: <Truck size={24} />,   label: "Jemput Sampah", color: "#f59e0b", bg: "rgba(245,158,11,0.1)" },
-    { to: "/withdraw",   icon: <Wallet size={24} />,  label: "Tarik Saldo", color: "#3b82f6", bg: "rgba(59,130,246,0.1)" },
-    { to: "/reward",     icon: <Gift size={24} />,    label: "Reward",     color: "#ec4899", bg: "rgba(236,72,153,0.1)" },
-    { to: "/history",    icon: <FileText size={24} />,label: "Riwayat",    color: "#8b5cf6", bg: "rgba(139,92,246,0.1)" },
-    { to: "/edukasi",    icon: <BookOpen size={24} />,label: "Edukasi",    color: "#14b8a6", bg: "rgba(20,184,166,0.1)" },
-    { to: "/chat",       icon: <MessageCircle size={24} />, label: "Chat", color: "#f97316", bg: "rgba(249,115,22,0.1)", badge: unreadChatCount },
+    { to: "/jual-sampah", icon: <Recycle size={24} />, label: "Jual Sampah", color: "#166534", bg: "rgba(22,101,52,0.12)" },
+    { to: "/ai-scan",    icon: <Bot size={24} />,     label: "AI Scan",    color: "#166534", bg: "rgba(22,101,52,0.12)" },
+    { to: "/pickup",     icon: <Truck size={24} />,   label: "Jemput Sampah", color: "#166534", bg: "rgba(22,101,52,0.12)" },
+    { to: "/withdraw",   icon: <Wallet size={24} />,  label: "Tarik Saldo", color: "#166534", bg: "rgba(22,101,52,0.12)" },
+    { to: "/reward",     icon: <Gift size={24} />,    label: "Reward",     color: "#166534", bg: "rgba(22,101,52,0.12)" },
+    { to: "/history",    icon: <FileText size={24} />,label: "Riwayat",    color: "#166534", bg: "rgba(22,101,52,0.12)" },
+    { to: "/edukasi",    icon: <BookOpen size={24} />,label: "Edukasi",    color: "#166534", bg: "rgba(22,101,52,0.12)" },
+    { to: "/chat",       icon: <MessageCircle size={24} />, label: "Chat", color: "#166534", bg: "rgba(22,101,52,0.12)", badge: unreadChatCount },
   ];
 
   if (loading) {
@@ -265,24 +265,11 @@ function Dashboard() {
                   </div>
                 </div>
                 <div className="balance-card-badge">
-                  <ShieldCheck size={28} />
+                  <ShieldCheck size={18} />
                 </div>
               </div>
 
-              <div className="balance-card-actions">
-                {[
-                  { to: "/jual-sampah", icon: <Recycle size={20} />, label: "Jual Sampah" },
-                  { to: "/ai-scan",     icon: <Bot size={20} />,     label: "AI Scan" },
-                  { to: "/pickup",      icon: <Truck size={20} />,   label: "Jemput" },
-                  { to: "/withdraw",    icon: <Wallet size={20} />,  label: "Tarik Saldo" },
-                  { to: "/history",     icon: <FileText size={20} />,label: "Riwayat" },
-                ].map((a) => (
-                  <Link key={a.to} to={a.to} className="balance-action-btn">
-                    {a.icon}
-                    <span>{a.label}</span>
-                  </Link>
-                ))}
-              </div>
+
             </div>
 
             {/* Level / Poin Card */}
