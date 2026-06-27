@@ -28,9 +28,31 @@ function Chat() {
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
+    
+    const handleResize = () => {
+      if (window.visualViewport) {
+        document.documentElement.style.setProperty('--chat-vh', `${window.visualViewport.height}px`);
+      } else {
+        document.documentElement.style.setProperty('--chat-vh', `${window.innerHeight}px`);
+      }
+    };
+    
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+    } else {
+      window.addEventListener('resize', handleResize);
+    }
+    handleResize();
+
     return () => {
       document.body.style.overflow = 'unset';
       document.documentElement.style.overflow = 'unset';
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize);
+      } else {
+        window.removeEventListener('resize', handleResize);
+      }
+      document.documentElement.style.removeProperty('--chat-vh');
     };
   }, []);
 
@@ -139,7 +161,7 @@ function Chat() {
   }
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#f1f5f9', display: 'flex', justifyContent: 'center', overflow: 'hidden', zIndex: 9999 }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 'var(--chat-vh, 100vh)', background: '#f1f5f9', display: 'flex', justifyContent: 'center', overflow: 'hidden', zIndex: 9999 }}>
       <style>{`
         .chat-container { width: 100%; max-width: 768px; margin: 0 auto; height: 100%; background: #efeae2; font-family: 'Inter', sans-serif; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
         .chat-header { position: absolute; top: 0; left: 0; right: 0; height: 64px; background: #075E54; padding: 0 1rem; display: flex; align-items: center; gap: 1rem; z-index: 10; color: white; }
