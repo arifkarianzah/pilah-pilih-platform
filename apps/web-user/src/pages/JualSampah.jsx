@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import BottomNav from "../components/BottomNav";
-import { ArrowLeft, Bell, ChevronDown, UploadCloud, ShieldCheck, TrendingUp, MapPin, Search } from "lucide-react";
+import { ArrowLeft, Bell, ChevronDown, UploadCloud, ShieldCheck, TrendingUp, MapPin, Search, Menu } from "lucide-react";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -185,7 +185,7 @@ function JualSampah() {
   const estimatedTotal = currentPrice * currentWeight;
 
   return (
-    <div style={{ background: "#f8fafc", minHeight: "100vh", paddingBottom: "100px", fontFamily: "'Inter', sans-serif" }}>
+    <div className="app-container" style={{ background: "#f8fafc", minHeight: "100vh", paddingBottom: "100px", fontFamily: "'Inter', sans-serif" }}>
       <style>{`
         .jsp-header { background: white; padding: 1.5rem 2.5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; zIndex: 10; border-bottom: 1px solid #f1f5f9; }
         .jsp-title { font-size: 1.4rem; font-weight: 800; color: #1e293b; margin: 0; }
@@ -274,6 +274,9 @@ function JualSampah() {
       {/* Header */}
       <div className="jsp-header">
         <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+          <button className="topbar-menu-btn" onClick={() => window.dispatchEvent(new Event("toggle-sidebar"))} style={{ display: "flex" }}>
+            <Menu size={22} />
+          </button>
           <div>
             <h2 className="jsp-title">Jual Sampah</h2>
             <p className="jsp-subtitle">Tukar sampahmu menjadi cuan <span style={{ color: "#16a34a" }}>💚</span></p>

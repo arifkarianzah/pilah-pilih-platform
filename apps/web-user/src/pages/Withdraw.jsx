@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import BottomNav from "../components/BottomNav";
-import { Wallet, Smartphone, Coins, Upload, Bell, Moon, Sun, ArrowUpRight, Clock, CheckCircle2, XCircle, ShieldCheck, Crown, Send, ChevronRight, FileText } from "lucide-react"; 
+import { Wallet, Smartphone, Coins, Upload, Bell, Moon, Sun, ArrowUpRight, Clock, CheckCircle2, XCircle, ShieldCheck, Crown, Send, ChevronRight, FileText, Menu } from "lucide-react"; 
 
 const withdrawalMethods = [
   { id: "dana", name: "DANA", color: "#118EEA", icon: "dana" },
@@ -104,7 +104,7 @@ function Withdraw() {
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div style={{ background: "#f8fafc", minHeight: "100vh", paddingBottom: "120px", fontFamily: "'Inter', sans-serif" }}>
+    <div className="app-container" style={{ background: "#f8fafc", minHeight: "100vh", paddingBottom: "120px", fontFamily: "'Inter', sans-serif" }}>
       <style>{`
         .wd-grid-top { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
         .wd-grid-main { display: grid; grid-template-columns: 1fr 1.2fr; gap: 1.5rem; }
@@ -144,11 +144,16 @@ function Withdraw() {
         
         {/* Header Title */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-          <div>
-            <h1 style={{ fontSize: "1.5rem", fontWeight: "800", margin: "0 0 0.25rem 0", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <button className="topbar-menu-btn" onClick={() => window.dispatchEvent(new Event("toggle-sidebar"))} style={{ display: "flex" }}>
+              <Menu size={22} />
+            </button>
+            <div>
+              <h1 style={{ fontSize: "1.5rem", fontWeight: "800", margin: "0 0 0.25rem 0", display: "flex", alignItems: "center", gap: "0.5rem" }}>
               Selamat sore, {profile?.name ? profile.name.split(' ')[0] : 'User'} 👋
             </h1>
             <p style={{ color: "#64748b", margin: 0, fontSize: "0.9rem" }}>Kelola saldo dan tarik dana dengan mudah dan aman.</p>
+          </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <div onClick={() => navigate('/notifications')} style={{ position: "relative", cursor: "pointer", background: "white", width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>

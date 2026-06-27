@@ -29,7 +29,6 @@ function Dashboard() {
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [activePickup, setActivePickup] = useState(null);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [previewPic, setPreviewPic] = useState(null);
   const navigate = useNavigate();
 
@@ -169,16 +168,12 @@ function Dashboard() {
 
   return (
     <div className="dash-shell">
-      {/* ── Sidebar ── */}
-      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
       {/* ── Main Content ── */}
       <div className="dash-main">
         {/* ── Top Header ── */}
         <header className="dash-topbar">
           <div className="topbar-left">
-            <button className="topbar-menu-btn" onClick={() => setSidebarOpen(true)}>
+            <button className="topbar-menu-btn" onClick={() => window.dispatchEvent(new Event("toggle-sidebar"))}>
               <Menu size={22} />
             </button>
             <div className="topbar-greeting">

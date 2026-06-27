@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import BottomNav from "../components/BottomNav";
-import { Wallet as WalletIcon, ArrowUpRight, History } from "lucide-react";
+import { Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, History, Menu } from "lucide-react";
 
 function Wallet() {
   const [balance, setBalance] = useState(0);
@@ -39,6 +39,9 @@ function Wallet() {
       {/* Header Hijau */}
       <div className="dash-header-bg" style={{ paddingBottom: "4rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}>
+          <button className="topbar-menu-btn" onClick={() => window.dispatchEvent(new Event("toggle-sidebar"))} style={{ display: "flex", background: "rgba(255,255,255,0.2)", color: "white", border: "none", padding: "8px", borderRadius: "8px" }}>
+            <Menu size={22} />
+          </button>
           <div className="icon-btn" style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)" }}>
             <WalletIcon size={20} color="white" />
           </div>

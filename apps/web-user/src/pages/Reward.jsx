@@ -5,7 +5,7 @@ import BottomNav from "../components/BottomNav";
 import {
   ArrowLeft, Bell, Sun, ChevronDown, Trophy, Medal, Award,
   Diamond, Gift, RefreshCcw, Star, Share2, Wallet,
-  ShoppingBag, ShoppingCart, ChevronRight, Truck, Smartphone
+  ShoppingBag, ShoppingCart, ChevronRight, Truck, Smartphone, Menu
 } from "lucide-react";
 
 function Reward() {
@@ -42,7 +42,9 @@ function Reward() {
 
           {/* Left Header */}
           <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
-
+            <button className="topbar-menu-btn" onClick={() => window.dispatchEvent(new Event("toggle-sidebar"))} style={{ display: "flex" }}>
+              <Menu size={22} />
+            </button>
             <div>
               <h1 style={{ fontSize: "1.5rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.2rem 0" }}>Reward & Poin</h1>
               <p style={{ fontSize: "0.85rem", color: "#64748b", margin: 0 }}>Kumpulkan poin dan tukar dengan berbagai hadiah menarik</p>

@@ -175,8 +175,8 @@ body {
 }
 
 .sidebar-nav-item.active {
-  background: var(--primary-soft);
-  color: var(--brand-green);
+  background: var(--brand-green);
+  color: white;
 }
 
 .sidebar-nav-icon {
@@ -192,8 +192,8 @@ body {
 }
 
 .sidebar-nav-item.active .sidebar-nav-icon {
-  background: var(--primary-border);
-  color: var(--brand-green);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 /* Footer */
@@ -1270,3 +1270,13 @@ body {
 /* ═══════════════════════════════════════════════
    AUTH PAGES (keep as is)
 ═══════════════════════════════════════════════ */
+
+.app-container {
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 1024px) {
+  .app-container {
+    margin-left: var(--sidebar-w);
+  }
+}

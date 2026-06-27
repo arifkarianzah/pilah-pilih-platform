@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Recycle, ScanLine, Gift, Menu } from "lucide-react";
+import { Home, Recycle, ScanLine, Gift, User } from "lucide-react";
 import Sidebar from "./Layout/Sidebar";
 
 function BottomNav() {
   const location = useLocation();
   const isActive = (path) => location.pathname === path ? "active" : "";
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const handleToggle = () => setSidebarOpen(true);
+    window.addEventListener("toggle-sidebar", handleToggle);
+    return () => window.removeEventListener("toggle-sidebar", handleToggle);
+  }, []);
 
   return (
     <>
@@ -36,10 +42,10 @@ function BottomNav() {
           <span>Reward</span>
         </Link>
 
-        <button className="nav-item" onClick={() => setSidebarOpen(true)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: "0" }}>
-          <Menu size={22} />
-          <span>Menu</span>
-        </button>
+        <Link to="/profile" className={`nav-item ${isActive("/profile")}`}>
+          <User size={22} />
+          <span>Profil</span>
+        </Link>
       </div>
     </>
   );

@@ -36,7 +36,7 @@ function Chat() {
           if (pickupId) {
             targetPickup = res.data.find(p => p.id === parseInt(pickupId));
           } else if (res.data.length > 0) {
-            targetPickup = res.data[0];
+            targetPickup = res.data.find(p => p.petugas_id) || res.data[0];
           }
           setActivePickup(targetPickup);
         }
@@ -101,7 +101,7 @@ function Chat() {
     scrollToBottom();
 
     try {
-      await sendMessage(null, receiverId, tempMessage.message);
+      await sendMessage(activePickup.id, receiverId, tempMessage.message);
       fetchMessages();
     } catch (err) {
       console.error("Gagal mengirim pesan", err);
