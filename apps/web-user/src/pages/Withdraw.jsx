@@ -137,6 +137,10 @@ function Withdraw() {
         @media (max-width: 640px) {
           .wd-grid-top { grid-template-columns: 1fr; }
           .wd-grid-top > div:first-child { grid-column: span 1; }
+          .wd-header-title { font-size: 1.2rem !important; }
+          .wd-header-subtitle { font-size: 0.75rem !important; line-height: 1.2 !important; }
+          .wd-saldo-value { font-size: 1.6rem !important; }
+          .wd-card-value { font-size: 1.1rem !important; }
         }
       `}</style>
 
@@ -149,10 +153,10 @@ function Withdraw() {
               <Menu size={22} />
             </button>
             <div>
-              <h1 style={{ fontSize: "1.5rem", fontWeight: "800", margin: "0 0 0.25rem 0", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <h1 className="wd-header-title" style={{ fontSize: "1.5rem", fontWeight: "800", margin: "0 0 0.25rem 0", display: "flex", alignItems: "center", gap: "0.5rem" }}>
               Selamat sore, {profile?.name ? profile.name.split(' ')[0] : 'User'} 👋
             </h1>
-            <p style={{ color: "#64748b", margin: 0, fontSize: "0.9rem" }}>Kelola saldo dan tarik dana dengan mudah dan aman.</p>
+            <p className="wd-header-subtitle" style={{ color: "#64748b", margin: 0, fontSize: "0.9rem" }}>Kelola saldo dan tarik dana dengan mudah dan aman.</p>
           </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
@@ -179,11 +183,11 @@ function Withdraw() {
         {/* Top Stats Grid */}
         <div className="wd-grid-top">
           {/* Card 1: Saldo */}
-          <div style={{ background: "linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-light) 100%)", borderRadius: "16px", padding: "1.25rem", color: "white", display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative", overflow: "hidden" }}>
+          <div style={{ background: "linear-gradient(135deg, #064e3b 0%, #047857 100%)", borderRadius: "16px", padding: "1.25rem", color: "white", display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative", overflow: "hidden" }}>
             <div style={{ position: "absolute", right: "-10%", bottom: "-10%", opacity: 0.1 }}><Wallet size={120} /></div>
             <div>
               <p style={{ fontSize: "0.85rem", opacity: 0.9, marginBottom: "0.25rem", fontWeight: "500" }}>Saldo Tersedia</p>
-              <h2 style={{ fontSize: "2.2rem", fontWeight: "800", margin: 0 }}>Rp {balance.toLocaleString("id-ID")}</h2>
+              <h2 className="wd-saldo-value" style={{ fontSize: "2.2rem", fontWeight: "800", margin: 0 }}>Rp {balance.toLocaleString("id-ID")}</h2>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8rem", marginTop: "1rem", fontWeight: "600" }}>
               <span style={{ color: "#fbbf24" }}>★</span> Total Poin <span>★ {points.toLocaleString('id-ID')} pts</span>
@@ -193,28 +197,28 @@ function Withdraw() {
           {/* Card 2: Penarikan */}
           <div className="wd-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <p style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "600", marginBottom: "0.25rem" }}>Total Penarikan</p>
-            <h3 style={{ fontSize: "1.4rem", fontWeight: "800", color: "var(--brand-green)", margin: "0 0 0.5rem 0" }}>Rp {totalPenarikan.toLocaleString("id-ID")}</h3>
+            <h3 className="wd-card-value" style={{ fontSize: "1.4rem", fontWeight: "800", color: "var(--brand-green)", margin: "0 0 0.5rem 0" }}>Rp {totalPenarikan.toLocaleString("id-ID")}</h3>
             <p style={{ fontSize: "0.75rem", color: "#10b981", display: "flex", alignItems: "center", gap: "0.25rem", fontWeight: "600", margin: 0 }}><ArrowUpRight size={14}/> 8% dari bulan lalu</p>
           </div>
 
           {/* Card 3: Menunggu */}
           <div className="wd-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <p style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "600", marginBottom: "0.25rem" }}>Menunggu</p>
-            <h3 style={{ fontSize: "1.4rem", fontWeight: "800", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Rp {totalMenunggu.toLocaleString("id-ID")}</h3>
+            <h3 className="wd-card-value" style={{ fontSize: "1.4rem", fontWeight: "800", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Rp {totalMenunggu.toLocaleString("id-ID")}</h3>
             <p style={{ fontSize: "0.75rem", color: "#f59e0b", display: "flex", alignItems: "center", gap: "0.25rem", fontWeight: "600", margin: 0 }}><Clock size={14}/> {countMenunggu} transaksi</p>
           </div>
 
           {/* Card 4: Berhasil */}
           <div className="wd-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <p style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "600", marginBottom: "0.25rem" }}>Berhasil</p>
-            <h3 style={{ fontSize: "1.4rem", fontWeight: "800", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Rp {totalBerhasil.toLocaleString("id-ID")}</h3>
+            <h3 className="wd-card-value" style={{ fontSize: "1.4rem", fontWeight: "800", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Rp {totalBerhasil.toLocaleString("id-ID")}</h3>
             <p style={{ fontSize: "0.75rem", color: "#10b981", display: "flex", alignItems: "center", gap: "0.25rem", fontWeight: "600", margin: 0 }}><CheckCircle2 size={14}/> {countBerhasil} transaksi</p>
           </div>
 
           {/* Card 5: Ditolak */}
           <div className="wd-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <p style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "600", marginBottom: "0.25rem" }}>Ditolak</p>
-            <h3 style={{ fontSize: "1.4rem", fontWeight: "800", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Rp {totalDitolak.toLocaleString("id-ID")}</h3>
+            <h3 className="wd-card-value" style={{ fontSize: "1.4rem", fontWeight: "800", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Rp {totalDitolak.toLocaleString("id-ID")}</h3>
             <p style={{ fontSize: "0.75rem", color: "#ef4444", display: "flex", alignItems: "center", gap: "0.25rem", fontWeight: "600", margin: 0 }}><XCircle size={14}/> {countDitolak} transaksi</p>
           </div>
         </div>
