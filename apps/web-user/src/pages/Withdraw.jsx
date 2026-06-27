@@ -147,7 +147,7 @@ function Withdraw() {
       <div style={{ padding: "1.5rem 2.5%", maxWidth: "1440px", margin: "0 auto" }}>
         
         {/* Header Title */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <button className="topbar-menu-btn" onClick={() => window.dispatchEvent(new Event("toggle-sidebar"))} style={{ display: "flex" }}>
               <Menu size={22} />
