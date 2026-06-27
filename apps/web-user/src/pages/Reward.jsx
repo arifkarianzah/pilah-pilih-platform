@@ -46,8 +46,8 @@ function Reward() {
               <Menu size={22} />
             </button>
             <div>
-              <h1 style={{ fontSize: "1.5rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.2rem 0" }}>Reward & Poin</h1>
-              <p style={{ fontSize: "0.85rem", color: "#64748b", margin: 0 }}>Kumpulkan poin dan tukar dengan berbagai hadiah menarik</p>
+              <h1 className="reward-title" style={{ fontSize: "1.5rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.2rem 0" }}>Reward & Poin</h1>
+              <p className="reward-subtitle" style={{ fontSize: "0.85rem", color: "#64748b", margin: 0 }}>Kumpulkan poin dan tukar dengan berbagai hadiah menarik</p>
             </div>
           </div>
 
@@ -65,15 +65,15 @@ function Reward() {
         {/* === TABS === */}
         <div style={{ display: "flex", gap: "0.75rem", marginTop: "1rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
 
-          <button style={{ background: "#064e3b", color: "white", border: "none", padding: "0.6rem 1.25rem", borderRadius: "12px", fontSize: "0.85rem", fontWeight: "700", display: "flex", alignItems: "center", gap: "0.4rem", cursor: "pointer", boxShadow: "0 2px 6px rgba(6, 78, 59, 0.2)" }}>
+          <button className="reward-tab-btn" style={{ background: "#064e3b", color: "white", border: "none", padding: "0.6rem 1.25rem", borderRadius: "12px", fontSize: "0.85rem", fontWeight: "700", display: "flex", alignItems: "center", gap: "0.4rem", cursor: "pointer", boxShadow: "0 2px 6px rgba(6, 78, 59, 0.2)" }}>
             <Gift size={16} /> Tukar Poin
           </button>
 
-          <button style={{ background: "white", color: "#0f172a", border: "1px solid #e2e8f0", padding: "0.6rem 1.25rem", borderRadius: "12px", fontSize: "0.85rem", fontWeight: "700", display: "flex", alignItems: "center", gap: "0.4rem", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.borderColor = "#064e3b"} onMouseLeave={e => e.currentTarget.style.borderColor = "#e2e8f0"}>
+          <button className="reward-tab-btn" style={{ background: "white", color: "#0f172a", border: "1px solid #e2e8f0", padding: "0.6rem 1.25rem", borderRadius: "12px", fontSize: "0.85rem", fontWeight: "700", display: "flex", alignItems: "center", gap: "0.4rem", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.borderColor = "#064e3b"} onMouseLeave={e => e.currentTarget.style.borderColor = "#e2e8f0"}>
             <Trophy size={16} color="#64748b" /> Leaderboard
           </button>
 
-          <button style={{ background: "white", color: "#0f172a", border: "1px solid #e2e8f0", padding: "0.6rem 1.25rem", borderRadius: "12px", fontSize: "0.85rem", fontWeight: "700", display: "flex", alignItems: "center", gap: "0.4rem", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.borderColor = "#064e3b"} onMouseLeave={e => e.currentTarget.style.borderColor = "#e2e8f0"}>
+          <button className="reward-tab-btn" style={{ background: "white", color: "#0f172a", border: "1px solid #e2e8f0", padding: "0.6rem 1.25rem", borderRadius: "12px", fontSize: "0.85rem", fontWeight: "700", display: "flex", alignItems: "center", gap: "0.4rem", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.borderColor = "#064e3b"} onMouseLeave={e => e.currentTarget.style.borderColor = "#e2e8f0"}>
             <Medal size={16} color="#64748b" /> Badge
           </button>
 
@@ -84,7 +84,7 @@ function Reward() {
 
           {/* COLUMN 1: Cara Mendapatkan Poin */}
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.5rem 0" }}>Cara Mendapatkan Poin</h3>
+            <h3 className="reward-section-title" style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.5rem 0" }}>Cara Mendapatkan Poin</h3>
 
             <div style={{ background: "white", borderRadius: "24px", padding: "1.5rem", boxShadow: "0 4px 20px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", gap: "0" }}>
 
@@ -95,11 +95,11 @@ function Reward() {
                     <RefreshCcw size={18} color="#064e3b" />
                   </div>
                   <div>
-                    <h4 style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Jual Sampah</h4>
-                    <p style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Dapatkan poin dari setiap penjualan sampah</p>
+                    <h4 className="reward-item-title" style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Jual Sampah</h4>
+                    <p className="reward-item-desc" style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Dapatkan poin dari setiap penjualan sampah</p>
                   </div>
                 </div>
-                <span style={{ fontSize: "0.75rem", fontWeight: "700", color: "#0f172a", whiteSpace: "nowrap", marginLeft: "0.5rem" }}>10 poin / Rp 1k</span>
+                <span className="reward-item-point" style={{ fontSize: "0.75rem", fontWeight: "700", color: "#0f172a", whiteSpace: "nowrap", marginLeft: "0.5rem" }}>10 poin / Rp 1k</span>
               </div>
 
               {/* Item 2 */}
@@ -109,11 +109,11 @@ function Reward() {
                     <Truck size={18} color="#064e3b" />
                   </div>
                   <div>
-                    <h4 style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Pickup Selesai</h4>
-                    <p style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Dapatkan poin setiap pickup berhasil</p>
+                    <h4 className="reward-item-title" style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Pickup Selesai</h4>
+                    <p className="reward-item-desc" style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Dapatkan poin setiap pickup berhasil</p>
                   </div>
                 </div>
-                <span style={{ fontSize: "0.75rem", fontWeight: "700", color: "#0f172a", whiteSpace: "nowrap", marginLeft: "0.5rem" }}>50 poin</span>
+                <span className="reward-item-point" style={{ fontSize: "0.75rem", fontWeight: "700", color: "#0f172a", whiteSpace: "nowrap", marginLeft: "0.5rem" }}>50 poin</span>
               </div>
 
               {/* Item 3 */}
@@ -123,11 +123,11 @@ function Reward() {
                     <Star size={18} color="#064e3b" fill="#064e3b" />
                   </div>
                   <div>
-                    <h4 style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Aktivitas Harian</h4>
-                    <p style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Check-in harian & aktivitas</p>
+                    <h4 className="reward-item-title" style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Aktivitas Harian</h4>
+                    <p className="reward-item-desc" style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Check-in harian & aktivitas</p>
                   </div>
                 </div>
-                <span style={{ fontSize: "0.75rem", fontWeight: "700", color: "#0f172a", whiteSpace: "nowrap", marginLeft: "0.5rem" }}>5 - 20 poin</span>
+                <span className="reward-item-point" style={{ fontSize: "0.75rem", fontWeight: "700", color: "#0f172a", whiteSpace: "nowrap", marginLeft: "0.5rem" }}>5 - 20 poin</span>
               </div>
 
               {/* Item 4 */}
@@ -137,11 +137,11 @@ function Reward() {
                     <Share2 size={18} color="#064e3b" />
                   </div>
                   <div>
-                    <h4 style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Ajak Teman</h4>
-                    <p style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Undang teman gabung</p>
+                    <h4 className="reward-item-title" style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Ajak Teman</h4>
+                    <p className="reward-item-desc" style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Undang teman gabung</p>
                   </div>
                 </div>
-                <span style={{ fontSize: "0.75rem", fontWeight: "700", color: "#0f172a", whiteSpace: "nowrap", marginLeft: "0.5rem" }}>100 poin</span>
+                <span className="reward-item-point" style={{ fontSize: "0.75rem", fontWeight: "700", color: "#0f172a", whiteSpace: "nowrap", marginLeft: "0.5rem" }}>100 poin</span>
               </div>
 
               {/* Action Button */}
@@ -155,7 +155,7 @@ function Reward() {
           {/* COLUMN 2: Hadiah Populer */}
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.5rem 0" }}>Hadiah Populer</h3>
+              <h3 className="reward-section-title" style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.5rem 0" }}>Hadiah Populer</h3>
               <span style={{ fontSize: "0.8rem", color: "#16a34a", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center" }}>Lihat Semua <ChevronRight size={14} /></span>
             </div>
 
@@ -168,12 +168,12 @@ function Reward() {
                     <Smartphone size={18} color="#064e3b" />
                   </div>
                   <div>
-                    <h4 style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Pulsa Rp 10.000</h4>
-                    <p style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Telkomsel, XL, Indosat, Tri</p>
+                    <h4 className="reward-item-title" style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Pulsa Rp 10.000</h4>
+                    <p className="reward-item-desc" style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Telkomsel, XL, Indosat, Tri</p>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ fontSize: "0.75rem", fontWeight: "800", color: "#eab308" }}>1.200 poin</span>
+                  <span className="reward-item-point" style={{ fontSize: "0.75rem", fontWeight: "800", color: "#eab308" }}>1.200 poin</span>
                   <ChevronRight size={14} color="#cbd5e1" />
                 </div>
               </div>
@@ -185,12 +185,12 @@ function Reward() {
                     <Wallet size={18} color="#064e3b" />
                   </div>
                   <div>
-                    <h4 style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Voucher GoPay Rp 10.000</h4>
-                    <p style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Saldo GoPay</p>
+                    <h4 className="reward-item-title" style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Voucher GoPay Rp 10.000</h4>
+                    <p className="reward-item-desc" style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Saldo GoPay</p>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ fontSize: "0.75rem", fontWeight: "800", color: "#eab308" }}>1.500 poin</span>
+                  <span className="reward-item-point" style={{ fontSize: "0.75rem", fontWeight: "800", color: "#eab308" }}>1.500 poin</span>
                   <ChevronRight size={14} color="#cbd5e1" />
                 </div>
               </div>
@@ -202,12 +202,12 @@ function Reward() {
                     <ShoppingBag size={18} color="#064e3b" />
                   </div>
                   <div>
-                    <h4 style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Voucher Shopee Rp 10.000</h4>
-                    <p style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Voucher Shopee</p>
+                    <h4 className="reward-item-title" style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Voucher Shopee Rp 10.000</h4>
+                    <p className="reward-item-desc" style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Voucher Shopee</p>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ fontSize: "0.75rem", fontWeight: "800", color: "#eab308" }}>1.500 poin</span>
+                  <span className="reward-item-point" style={{ fontSize: "0.75rem", fontWeight: "800", color: "#eab308" }}>1.500 poin</span>
                   <ChevronRight size={14} color="#cbd5e1" />
                 </div>
               </div>
@@ -219,12 +219,12 @@ function Reward() {
                     <Wallet size={18} color="#064e3b" />
                   </div>
                   <div>
-                    <h4 style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Saldo DANA Rp 10.000</h4>
-                    <p style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Saldo DANA</p>
+                    <h4 className="reward-item-title" style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Saldo DANA Rp 10.000</h4>
+                    <p className="reward-item-desc" style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Saldo DANA</p>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ fontSize: "0.75rem", fontWeight: "800", color: "#eab308" }}>1.500 poin</span>
+                  <span className="reward-item-point" style={{ fontSize: "0.75rem", fontWeight: "800", color: "#eab308" }}>1.500 poin</span>
                   <ChevronRight size={14} color="#cbd5e1" />
                 </div>
               </div>
@@ -236,12 +236,12 @@ function Reward() {
                     <ShoppingCart size={18} color="#064e3b" />
                   </div>
                   <div>
-                    <h4 style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Voucher Tokopedia Rp 10.000</h4>
-                    <p style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Voucher Tokopedia</p>
+                    <h4 className="reward-item-title" style={{ margin: "0 0 0.15rem 0", fontSize: "0.85rem", fontWeight: "700", color: "#0f172a" }}>Voucher Tokopedia Rp 10.000</h4>
+                    <p className="reward-item-desc" style={{ margin: 0, fontSize: "0.7rem", color: "#64748b" }}>Voucher Tokopedia</p>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ fontSize: "0.75rem", fontWeight: "800", color: "#eab308" }}>1.500 poin</span>
+                  <span className="reward-item-point" style={{ fontSize: "0.75rem", fontWeight: "800", color: "#eab308" }}>1.500 poin</span>
                   <ChevronRight size={14} color="#cbd5e1" />
                 </div>
               </div>
@@ -258,6 +258,17 @@ function Reward() {
           .reward-columns {
              grid-template-columns: 1fr !important;
           }
+        }
+        @media (max-width: 640px) {
+          .reward-title { font-size: 1.1rem !important; }
+          .reward-subtitle { font-size: 0.7rem !important; line-height: 1.3 !important; }
+          .mini-level-title { font-size: 1rem !important; }
+          .mini-level-desc { font-size: 0.75rem !important; line-height: 1.3 !important; }
+          .reward-tab-btn { font-size: 0.75rem !important; padding: 0.5rem 0.8rem !important; }
+          .reward-section-title { font-size: 0.95rem !important; }
+          .reward-item-title { font-size: 0.8rem !important; }
+          .reward-item-desc { font-size: 0.65rem !important; line-height: 1.2 !important; }
+          .reward-item-point { font-size: 0.7rem !important; }
         }
       `}</style>
 
