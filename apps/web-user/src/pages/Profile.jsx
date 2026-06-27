@@ -138,21 +138,21 @@ function Profile() {
                   <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
                     <input 
                       type="text" value={editName} onChange={(e) => setEditName(e.target.value)}
-                      style={{ fontSize: "1.5rem", fontWeight: "800", color: "#0f172a", border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.2rem 0.5rem", outline: "none" }}
+                      style={{ fontSize: "1.5rem", fontWeight: "700", color: "#0f172a", border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.2rem 0.5rem", outline: "none" }}
                       autoFocus
                     />
-                    <button onClick={handleSaveProfile} style={{ background: "#16a34a", color: "white", border: "none", padding: "0.4rem 1rem", borderRadius: "8px", fontWeight: "700", cursor: "pointer" }}>Simpan</button>
+                    <button onClick={handleSaveProfile} style={{ background: "#16a34a", color: "white", border: "none", padding: "0.4rem 1rem", borderRadius: "8px", fontWeight: "600", cursor: "pointer" }}>Simpan</button>
                   </div>
                 ) : (
-                  <h2 style={{ fontSize: "1.8rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.2rem 0" }}>{userName}</h2>
+                  <h2 className="profile-name" style={{ fontSize: "1.8rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.2rem 0" }}>{userName}</h2>
                 )}
-                <p style={{ fontSize: "0.95rem", color: "#64748b", margin: "0 0 0.8rem 0" }}>{userEmail}</p>
+                <p className="profile-email" style={{ fontSize: "0.95rem", color: "#64748b", margin: "0 0 0.8rem 0" }}>{userEmail}</p>
                 <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
-                  <div style={{ background: "#fef9c3", padding: "0.3rem 0.8rem", borderRadius: "20px", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <div className="profile-level-badge" style={{ background: "#fef9c3", padding: "0.3rem 0.8rem", borderRadius: "20px", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                     <Star size={14} color="#eab308" fill="#eab308" />
                     <span style={{ color: "#ca8a04", fontSize: "0.8rem", fontWeight: "700" }}>Level Emas</span>
                   </div>
-                  <span style={{ fontSize: "0.8rem", color: "#94a3b8", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <span className="profile-member-since" style={{ fontSize: "0.8rem", color: "#94a3b8", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                     <History size={14} /> Member aktif sejak 20 Juni 2026
                   </span>
                 </div>
@@ -160,7 +160,7 @@ function Profile() {
             </div>
 
             {!isEditing && (
-              <button onClick={() => { setEditName(userName); setIsEditing(true); }} style={{ background: "white", border: "1px solid #e2e8f0", padding: "0.6rem 1.2rem", borderRadius: "12px", display: "flex", alignItems: "center", gap: "0.5rem", color: "#0f172a", cursor: "pointer", fontSize: "0.85rem", fontWeight: "700", boxShadow: "0 2px 5px rgba(0,0,0,0.02)" }}>
+              <button className="profile-edit-btn" onClick={() => { setEditName(userName); setIsEditing(true); }} style={{ background: "white", border: "1px solid #e2e8f0", padding: "0.6rem 1.2rem", borderRadius: "12px", display: "flex", alignItems: "center", gap: "0.5rem", color: "#0f172a", cursor: "pointer", fontSize: "0.85rem", fontWeight: "700", boxShadow: "0 2px 5px rgba(0,0,0,0.02)" }}>
                 <Edit size={16} /> Edit Profil
               </button>
             )}
@@ -173,42 +173,42 @@ function Profile() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem", position: "relative", zIndex: 1 }}>
             
             <div style={{ display: "flex", gap: "1rem", alignItems: "center", borderRight: "1px solid #e2e8f0" }}>
-              <div style={{ width: "45px", height: "45px", background: "#dcfce7", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div className="profile-stat-icon" style={{ width: "45px", height: "45px", background: "#dcfce7", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Droplet size={22} color="#16a34a" fill="#16a34a" />
               </div>
               <div>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.1rem 0" }}>{totalSold}</h3>
-                <p style={{ fontSize: "0.75rem", color: "#64748b", margin: 0, fontWeight: "600" }}>Total Terjual</p>
+                <h3 className="profile-stat-value" style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.1rem 0" }}>{totalSold}</h3>
+                <p className="profile-stat-label" style={{ fontSize: "0.75rem", color: "#64748b", margin: 0, fontWeight: "600" }}>Total Terjual</p>
               </div>
             </div>
 
             <div style={{ display: "flex", gap: "1rem", alignItems: "center", borderRight: "1px solid #e2e8f0" }}>
-              <div style={{ width: "45px", height: "45px", background: "#dcfce7", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div className="profile-stat-icon" style={{ width: "45px", height: "45px", background: "#dcfce7", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Truck size={22} color="#16a34a" fill="#16a34a" />
               </div>
               <div>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.1rem 0" }}>{totalPickup}</h3>
-                <p style={{ fontSize: "0.75rem", color: "#64748b", margin: 0, fontWeight: "600" }}>Total Pickup</p>
+                <h3 className="profile-stat-value" style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.1rem 0" }}>{totalPickup}</h3>
+                <p className="profile-stat-label" style={{ fontSize: "0.75rem", color: "#64748b", margin: 0, fontWeight: "600" }}>Total Pickup</p>
               </div>
             </div>
 
             <div style={{ display: "flex", gap: "1rem", alignItems: "center", borderRight: "1px solid #e2e8f0" }}>
-              <div style={{ width: "45px", height: "45px", background: "#fef9c3", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div className="profile-stat-icon" style={{ width: "45px", height: "45px", background: "#fef9c3", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Star size={22} color="#eab308" fill="#eab308" />
               </div>
               <div>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.1rem 0" }}>{points} pts</h3>
-                <p style={{ fontSize: "0.75rem", color: "#64748b", margin: 0, fontWeight: "600" }}>Total Poin</p>
+                <h3 className="profile-stat-value" style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.1rem 0" }}>{points} pts</h3>
+                <p className="profile-stat-label" style={{ fontSize: "0.75rem", color: "#64748b", margin: 0, fontWeight: "600" }}>Total Poin</p>
               </div>
             </div>
 
             <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-              <div style={{ width: "45px", height: "45px", background: "#fef3c7", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div className="profile-stat-icon" style={{ width: "45px", height: "45px", background: "#fef3c7", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Award size={22} color="#d97706" fill="#d97706" />
               </div>
               <div>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.1rem 0" }}>Gold</h3>
-                <p style={{ fontSize: "0.75rem", color: "#64748b", margin: 0, fontWeight: "600" }}>Level Member</p>
+                <h3 className="profile-stat-value" style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.1rem 0" }}>Gold</h3>
+                <p className="profile-stat-label" style={{ fontSize: "0.75rem", color: "#64748b", margin: 0, fontWeight: "600" }}>Level Member</p>
               </div>
             </div>
 
@@ -225,18 +225,18 @@ function Profile() {
 
             {/* Menu Akun */}
             <div style={{ background: "white", borderRadius: "24px", padding: "1.5rem", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 1.5rem 0" }}>Akun</h3>
+              <h3 className="profile-section-title" style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 1.5rem 0" }}>Akun</h3>
               
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem", background: "#f8fafc", borderRadius: "16px", cursor: "pointer", transition: "all 0.2s" }}>
                   <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                    <div style={{ background: "#dcfce7", width: "40px", height: "40px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div className="profile-menu-icon" style={{ background: "#dcfce7", width: "40px", height: "40px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <User size={20} color="#16a34a" />
                     </div>
                     <div>
-                      <h4 style={{ margin: "0 0 0.15rem 0", fontSize: "0.95rem", fontWeight: "700", color: "#0f172a" }}>Edit Profil</h4>
-                      <p style={{ margin: 0, fontSize: "0.75rem", color: "#64748b" }}>Ubah informasi nama, email, dan foto</p>
+                      <h4 className="profile-menu-title" style={{ margin: "0 0 0.15rem 0", fontSize: "0.95rem", fontWeight: "700", color: "#0f172a" }}>Edit Profil</h4>
+                      <p className="profile-menu-desc" style={{ margin: 0, fontSize: "0.75rem", color: "#64748b" }}>Ubah informasi nama, email, dan foto</p>
                     </div>
                   </div>
                   <ChevronRight size={18} color="#cbd5e1" />
@@ -244,12 +244,12 @@ function Profile() {
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem", background: "white", borderRadius: "16px", cursor: "pointer", border: "1px solid transparent", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={e => e.currentTarget.style.background = "white"}>
                   <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                    <div style={{ background: "#e0f2fe", width: "40px", height: "40px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div className="profile-menu-icon" style={{ background: "#e0f2fe", width: "40px", height: "40px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <Shield size={20} color="#0284c7" />
                     </div>
                     <div>
-                      <h4 style={{ margin: "0 0 0.15rem 0", fontSize: "0.95rem", fontWeight: "700", color: "#0f172a" }}>Keamanan</h4>
-                      <p style={{ margin: 0, fontSize: "0.75rem", color: "#64748b" }}>Ubah password dan pengaturan keamanan</p>
+                      <h4 className="profile-menu-title" style={{ margin: "0 0 0.15rem 0", fontSize: "0.95rem", fontWeight: "700", color: "#0f172a" }}>Keamanan</h4>
+                      <p className="profile-menu-desc" style={{ margin: 0, fontSize: "0.75rem", color: "#64748b" }}>Ubah password dan pengaturan keamanan</p>
                     </div>
                   </div>
                   <ChevronRight size={18} color="#cbd5e1" />
@@ -257,12 +257,12 @@ function Profile() {
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem", background: "white", borderRadius: "16px", cursor: "pointer", border: "1px solid transparent", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={e => e.currentTarget.style.background = "white"}>
                   <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                    <div style={{ background: "#fef3c7", width: "40px", height: "40px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div className="profile-menu-icon" style={{ background: "#fef3c7", width: "40px", height: "40px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <Bell size={20} color="#d97706" />
                     </div>
                     <div>
-                      <h4 style={{ margin: "0 0 0.15rem 0", fontSize: "0.95rem", fontWeight: "700", color: "#0f172a" }}>Notifikasi</h4>
-                      <p style={{ margin: 0, fontSize: "0.75rem", color: "#64748b" }}>Atur preferensi notifikasi kamu</p>
+                      <h4 className="profile-menu-title" style={{ margin: "0 0 0.15rem 0", fontSize: "0.95rem", fontWeight: "700", color: "#0f172a" }}>Notifikasi</h4>
+                      <p className="profile-menu-desc" style={{ margin: 0, fontSize: "0.75rem", color: "#64748b" }}>Atur preferensi notifikasi kamu</p>
                     </div>
                   </div>
                   <ChevronRight size={18} color="#cbd5e1" />
@@ -382,6 +382,25 @@ function Profile() {
           div[style*="grid-template-columns: 1fr 1fr"] {
              grid-template-columns: 1fr !important;
           }
+        }
+      `}</style>
+      
+      <style>{`
+        @media (max-width: 640px) {
+          .profile-name { font-size: 1.3rem !important; font-weight: 700 !important; }
+          .profile-email { font-size: 0.8rem !important; }
+          .profile-level-badge { padding: 0.2rem 0.6rem !important; font-size: 0.7rem !important; }
+          .profile-member-since { font-size: 0.7rem !important; }
+          .profile-edit-btn { padding: 0.4rem 0.8rem !important; font-size: 0.75rem !important; font-weight: 600 !important; }
+          .profile-stat-value { font-size: 0.95rem !important; font-weight: 700 !important; }
+          .profile-stat-label { font-size: 0.65rem !important; font-weight: 500 !important; }
+          .profile-stat-icon { width: 36px !important; height: 36px !important; }
+          .profile-stat-icon svg { width: 18px !important; height: 18px !important; }
+          .profile-section-title { font-size: 0.95rem !important; font-weight: 700 !important; }
+          .profile-menu-title { font-size: 0.85rem !important; font-weight: 600 !important; }
+          .profile-menu-desc { font-size: 0.65rem !important; }
+          .profile-menu-icon { width: 32px !important; height: 32px !important; }
+          .profile-menu-icon svg { width: 16px !important; height: 16px !important; }
         }
       `}</style>
       
