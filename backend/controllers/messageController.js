@@ -44,33 +44,57 @@ exports.getUnreadCount = (req, res) => {
 // KIRIM PESAN BARU
 // ============================================================
 exports.sendMessage = (req, res) => {
-    const { pickup_id, receiver_id, message } = req.body;
+    let { pickup_id, receiver_id, message } = req.body;
     const sender_id = req.user.id;
 
     if (!receiver_id || !message) {
         return res.status(400).json({ success: false, message: "Receiver ID dan message harus diisi" });
     }
 
-    const sql = `
-        INSERT INTO messages (pickup_id, sender_id, receiver_id, message)
-        VALUES (?, ?, ?, ?)
-    `;
-
-    db.query(sql, [pickup_id || null, sender_id, receiver_id, message], (err, result) => {
-        if (err) return res.status(500).json({ success: false, message: err.message });
-
-        // Retrieve the inserted message with sender info to return it
-        const fetchSql = `
-            SELECT m.*, u.name as sender_name, u.role as sender_role 
-            FROM messages m
-            JOIN users u ON m.sender_id = u.id
-            WHERE m.id = ?
+    if (!pickup_id) {
+        const findSql = `
+            SELECT id FROM pickups 
+            WHERE (user_id = ? AND petugas_id = ?) 
+               OR (user_id = ? AND petugas_id = ?)
+               OR (petugas_id = ? AND pengepul_id = ?)
+               OR (petugas_id = ? AND pengepul_id = ?)
+            ORDER BY id DESC LIMIT 1
         `;
-        db.query(fetchSql, [result.insertId], (errFetch, fetchResults) => {
-            if (errFetch) return res.status(500).json({ success: false, message: errFetch.message });
-            res.status(201).json({ success: true, message: "Pesan terkirim", data: fetchResults[0] });
+        db.query(findSql, [sender_id, receiver_id, receiver_id, sender_id, sender_id, receiver_id, receiver_id, sender_id], (err, pickups) => {
+            if (err) return res.status(500).json({ success: false, message: err.message });
+            
+            if (pickups.length > 0) {
+                pickup_id = pickups[0].id;
+                insertMessage();
+            } else {
+                return res.status(400).json({ success: false, message: "Tidak ada transaksi terkait antara kedua pengguna" });
+            }
         });
-    });
+    } else {
+        insertMessage();
+    }
+
+    function insertMessage() {
+        const sql = `
+            INSERT INTO messages (pickup_id, sender_id, receiver_id, message)
+            VALUES (?, ?, ?, ?)
+        `;
+
+        db.query(sql, [pickup_id, sender_id, receiver_id, message], (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: err.message });
+
+            const fetchSql = `
+                SELECT m.*, u.name as sender_name, u.role as sender_role 
+                FROM messages m
+                JOIN users u ON m.sender_id = u.id
+                WHERE m.id = ?
+            `;
+            db.query(fetchSql, [result.insertId], (errFetch, fetchResults) => {
+                if (errFetch) return res.status(500).json({ success: false, message: errFetch.message });
+                res.status(201).json({ success: true, message: "Pesan terkirim", data: fetchResults[0] });
+            });
+        });
+    }
 };
 
 // ============================================================
