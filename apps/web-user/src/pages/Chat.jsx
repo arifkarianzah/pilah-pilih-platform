@@ -26,6 +26,15 @@ function Chat() {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
+    };
+  }, []);
+
+  useEffect(() => {
     // Ambil detail pickup (untuk tahu mau chat dengan siapa)
     const fetchPickups = async () => {
       try {
