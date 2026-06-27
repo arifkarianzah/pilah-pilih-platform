@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMessagesByUser, sendMessage } from "../services/messageService";
 import { getMyPickups } from "../services/pickupService";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, Smile, Paperclip, Camera } from "lucide-react";
 
 function Chat() {
   const { pickupId } = useParams();
@@ -146,8 +146,11 @@ function Chat() {
         .chat-bubble-bottom { display: flex; justify-content: flex-end; align-items: flex-end; margin-top: 2px; gap: 4px; }
         .chat-bubble-time { font-size: 0.65rem; color: #667781; }
         
-        .chat-input-wrapper { flex-shrink: 0; padding: 0.5rem 1rem; background: #f0f2f5; display: flex; align-items: center; z-index: 10; }
-        .chat-input { flex: 1; padding: 10px 16px; border-radius: 24px; border: none; outline: none; background: #ffffff; font-size: 0.95rem; }
+        .chat-input-wrapper { flex-shrink: 0; padding: 0.5rem; background: #f0f2f5; display: flex; align-items: flex-end; z-index: 10; gap: 0.5rem; }
+        .chat-input-inner { flex: 1; display: flex; align-items: flex-end; background: #ffffff; border-radius: 24px; padding: 0.35rem 0.5rem; min-height: 44px; }
+        .chat-icon-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: none; background: transparent; color: #8696a0; cursor: pointer; flex-shrink: 0; }
+        .chat-input { flex: 1; padding: 8px 4px; border: none; outline: none; background: transparent; font-size: 0.95rem; max-height: 100px; overflow-y: auto; color: #111b21; }
+        .chat-input::placeholder { color: #8696a0; }
         .chat-send-btn { width: 44px; height: 44px; border-radius: 50%; color: white; border: none; display: flex; align-items: center; justify-content: center; transition: 0.2s; background: #00a884; flex-shrink: 0; }
         .chat-send-btn:disabled { background: #a6d8cc; cursor: not-allowed; }
         
@@ -218,14 +221,31 @@ function Chat() {
 
         {/* INPUT AREA */}
         <div className="chat-input-wrapper">
-          <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', width: '100%' }}>
-            <input
-              type="text"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Ketik pesan..."
-              className="chat-input"
-            />
+          <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', width: '100%' }}>
+            
+            <div className="chat-input-inner">
+              <button type="button" className="chat-icon-btn">
+                <Smile size={24} strokeWidth={2} />
+              </button>
+              
+              <input
+                type="text"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Ketik pesan"
+                className="chat-input"
+              />
+              
+              <button type="button" className="chat-icon-btn">
+                <Paperclip size={22} strokeWidth={2} />
+              </button>
+              {!newMessage.trim() && (
+                <button type="button" className="chat-icon-btn" style={{ marginLeft: '-4px' }}>
+                  <Camera size={22} strokeWidth={2} />
+                </button>
+              )}
+            </div>
+
             <button
               type="submit"
               disabled={!newMessage.trim()}
