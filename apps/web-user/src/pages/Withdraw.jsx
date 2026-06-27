@@ -134,9 +134,11 @@ function Withdraw() {
           .wd-grid-top > div:first-child { grid-column: span 2; }
           .wd-grid-main { grid-template-columns: 1fr; }
         }
+        .wd-form-grid { grid-template-columns: 1fr 1fr; }
         @media (max-width: 640px) {
           .wd-grid-top { grid-template-columns: 1fr; }
           .wd-grid-top > div:first-child { grid-column: span 1; }
+          .wd-form-grid { grid-template-columns: 1fr !important; }
           .wd-header-title { font-size: 1rem !important; }
           .wd-header-subtitle { font-size: 0.65rem !important; line-height: 1.2 !important; }
           .wd-header-profile-name { display: none !important; }
@@ -239,7 +241,7 @@ function Withdraw() {
               </div>
 
               <form onSubmit={handleWithdraw}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+                <div className="wd-form-grid" style={{ display: "grid", gap: "1.5rem" }}>
                   {/* Left Form Inputs */}
                   <div>
                     <div className="wd-input-group">
@@ -363,7 +365,7 @@ function Withdraw() {
             </div>
 
             {/* Level Up Card */}
-            <div style={{ background: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)", borderRadius: "16px", padding: "1.5rem", border: "1px solid #fde68a", display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", overflow: "hidden" }}>
+            <div style={{ background: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)", borderRadius: "16px", padding: "1.5rem", border: "1px solid #fde68a", display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", overflow: "hidden", flexWrap: "wrap", gap: "1rem" }}>
               <div style={{ position: "relative", zIndex: 2, flex: 1 }}>
                 <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "#b45309", marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.5rem" }}><Crown size={20} color="#d97706" /> Tingkatkan Level Kamu</h3>
                 <p style={{ fontSize: "0.8rem", color: "#78350f", marginBottom: "1rem" }}>Capai level berikutnya untuk nikmati keuntungan lebih besar!</p>
