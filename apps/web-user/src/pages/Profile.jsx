@@ -272,8 +272,8 @@ function Profile() {
             </div>
 
             {/* Logout Action Area */}
-            <div style={{ background: "white", borderRadius: "24px", padding: "1.5rem", display: "flex", justifyContent: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
-               <button onClick={handleLogout} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "transparent", border: "none", color: "#ef4444", fontSize: "1rem", fontWeight: "700", cursor: "pointer" }}>
+            <div className="profile-logout-container" style={{ background: "white", borderRadius: "24px", padding: "1.5rem", display: "flex", justifyContent: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+               <button className="profile-logout-btn" onClick={handleLogout} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "transparent", border: "none", color: "#ef4444", fontSize: "1rem", fontWeight: "700", cursor: "pointer" }}>
                  <LogOut size={18} /> Keluar Akun
                </button>
             </div>
@@ -401,6 +401,8 @@ function Profile() {
           .profile-menu-desc { font-size: 0.65rem !important; }
           .profile-menu-icon { width: 32px !important; height: 32px !important; }
           .profile-menu-icon svg { width: 16px !important; height: 16px !important; }
+          .profile-logout-container { padding: 1rem !important; }
+          .profile-logout-btn { font-size: 0.9rem !important; width: 100% !important; justify-content: center !important; background: #fee2e2 !important; padding: 0.8rem !important; border-radius: 12px !important; }
         }
       `}</style>
       
