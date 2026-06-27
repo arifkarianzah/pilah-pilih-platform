@@ -25,36 +25,7 @@ function Chat() {
 
   const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    
-    const handleResize = () => {
-      if (window.visualViewport) {
-        document.documentElement.style.setProperty('--chat-vh', `${window.visualViewport.height}px`);
-      } else {
-        document.documentElement.style.setProperty('--chat-vh', `${window.innerHeight}px`);
-      }
-    };
-    
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleResize);
-    } else {
-      window.addEventListener('resize', handleResize);
-    }
-    handleResize();
-
-    return () => {
-      document.body.style.overflow = 'unset';
-      document.documentElement.style.overflow = 'unset';
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleResize);
-      } else {
-        window.removeEventListener('resize', handleResize);
-      }
-      document.documentElement.style.removeProperty('--chat-vh');
-    };
-  }, []);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     // Ambil detail pickup (untuk tahu mau chat dengan siapa)
@@ -161,13 +132,13 @@ function Chat() {
   }
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 'var(--chat-vh, 100vh)', background: '#f1f5f9', display: 'flex', justifyContent: 'center', overflow: 'hidden', zIndex: 9999 }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#f1f5f9', display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
       <style>{`
-        .chat-container { width: 100%; max-width: 768px; margin: 0 auto; height: 100%; background: #efeae2; font-family: 'Inter', sans-serif; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
-        .chat-header { position: absolute; top: 0; left: 0; right: 0; height: 64px; background: #075E54; padding: 0 1rem; display: flex; align-items: center; gap: 1rem; z-index: 10; color: white; }
+        .chat-container { width: 100%; max-width: 768px; margin: 0 auto; display: flex; flex-direction: column; height: 100%; background: #efeae2; font-family: 'Inter', sans-serif; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        .chat-header { flex-shrink: 0; background: #075E54; padding: 1rem; display: flex; align-items: center; gap: 1rem; color: white; z-index: 10; }
         .chat-header-title { font-size: 1.1rem; font-weight: 700; margin: 0; color: white; }
         .chat-header-subtitle { font-size: 0.8rem; color: rgba(255,255,255,0.8); margin: 0; font-weight: 400; text-transform: capitalize; }
-        .chat-area { position: absolute; top: 64px; bottom: 70px; left: 0; right: 0; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
+        .chat-area { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
         
         .chat-bubble-wrapper { display: flex; flex-direction: column; margin-bottom: 0.5rem; }
         .chat-bubble { max-width: 80%; padding: 6px 8px 6px 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.4; position: relative; display: flex; flex-direction: column; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); }
@@ -178,15 +149,15 @@ function Chat() {
         .chat-bubble-bottom { display: flex; justify-content: flex-end; align-items: flex-end; margin-top: 2px; gap: 4px; }
         .chat-bubble-time { font-size: 0.65rem; color: #667781; }
         
-        .chat-input-wrapper { position: absolute; bottom: 0; left: 0; right: 0; height: 70px; padding: 0 1rem; background: #f0f2f5; z-index: 10; display: flex; align-items: center; }
+        .chat-input-wrapper { flex-shrink: 0; padding: 0.5rem 1rem; background: #f0f2f5; display: flex; align-items: center; z-index: 10; }
         .chat-input { flex: 1; padding: 10px 16px; border-radius: 24px; border: none; outline: none; background: #ffffff; font-size: 0.95rem; }
         .chat-send-btn { width: 44px; height: 44px; border-radius: 50%; color: white; border: none; display: flex; align-items: center; justify-content: center; transition: 0.2s; background: #00a884; flex-shrink: 0; }
         .chat-send-btn:disabled { background: #a6d8cc; cursor: not-allowed; }
         
         @media (max-width: 640px) {
-          .chat-header { height: 56px; padding: 0 0.75rem; }
-          .chat-area { top: 56px; bottom: 60px; padding: 0.75rem; }
-          .chat-input-wrapper { height: 60px; padding: 0 0.5rem; }
+          .chat-header { padding: 0.75rem 1rem; }
+          .chat-area { padding: 0.75rem; }
+          .chat-input-wrapper { padding: 0.5rem; }
           .chat-header-title { font-size: 1rem; }
           .chat-header-subtitle { font-size: 0.75rem; }
           .chat-bubble { max-width: 90%; font-size: 0.85rem; }
