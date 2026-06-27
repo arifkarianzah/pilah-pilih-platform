@@ -1,26 +1,35 @@
 const run = async () => {
     try {
-        // Login as admin
+        // Register a temporary user
+        const rand = Math.floor(Math.random() * 100000);
+        const email = `testuser${rand}@example.com`;
+        const regRes = await fetch('https://pilahpilih-backend-abc-gfa9dgdtfmfjbsgp.southeastasia-01.azurewebsites.net/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: 'Test User', email, password: 'password123', phone: '08123456789' })
+        });
+        const regData = await regRes.json();
+        
+        if (!regData.success) {
+            console.log("Register failed:", regData);
+            process.exit();
+        }
+        
+        // Login
         const loginRes = await fetch('https://pilahpilih-backend-abc-gfa9dgdtfmfjbsgp.southeastasia-01.azurewebsites.net/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: 'admin@pilahpilih.id', password: 'admin123' })
+            body: JSON.stringify({ email, password: 'password123' })
         });
         const loginData = await loginRes.json();
-        
-        if (!loginData.token) {
-            console.log("Login failed:", loginData);
-            process.exit();
-        }
-
         const token = loginData.token;
-        console.log("Logged in, token:", token.substring(0, 20) + "...");
+        console.log("Logged in!");
 
         // Try to send a message
         const response = await fetch('https://pilahpilih-backend-abc-gfa9dgdtfmfjbsgp.southeastasia-01.azurewebsites.net/api/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-            body: JSON.stringify({ pickup_id: 8, receiver_id: 7, message: "hai dari test" })
+            body: JSON.stringify({ pickup_id: null, receiver_id: 7, message: "hai dari test" })
         });
         const data = await response.json();
         console.log("Message send Status:", response.status);

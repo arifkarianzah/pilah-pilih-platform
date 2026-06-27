@@ -75,25 +75,43 @@ exports.sendMessage = (req, res) => {
     }
 
     function insertMessage() {
-        const sql = `
-            INSERT INTO messages (pickup_id, sender_id, receiver_id, message)
-            VALUES (?, ?, ?, ?)
-        `;
+        db.query("SELECT MAX(id) as maxId FROM messages", (errMax, rows) => {
+            let nextId = (rows && rows.length > 0 && rows[0].maxId) ? rows[0].maxId + 1 : 1;
+            
+            const sql = `
+                INSERT INTO messages (id, pickup_id, sender_id, receiver_id, message)
+                VALUES (?, ?, ?, ?, ?)
+            `;
 
-        db.query(sql, [pickup_id, sender_id, receiver_id, message], (err, result) => {
-            if (err) return res.status(500).json({ success: false, message: err.message });
+            db.query(sql, [nextId, pickup_id, sender_id, receiver_id, message], (err, result) => {
+                // If it fails with Duplicate entry, it means AUTO_INCREMENT might actually be working but we clashed.
+                // Just fallback to the standard insert if that happens.
+                if (err && err.code === 'ER_DUP_ENTRY') {
+                    const fallbackSql = `INSERT INTO messages (pickup_id, sender_id, receiver_id, message) VALUES (?, ?, ?, ?)`;
+                    db.query(fallbackSql, [pickup_id, sender_id, receiver_id, message], (errFallback, resFallback) => {
+                        if (errFallback) return res.status(500).json({ success: false, message: errFallback.message });
+                        fetchAndReturnMessage(resFallback.insertId || nextId);
+                    });
+                } else if (err) {
+                    return res.status(500).json({ success: false, message: err.message });
+                } else {
+                    fetchAndReturnMessage(nextId);
+                }
+            });
+        });
 
+        function fetchAndReturnMessage(insertedId) {
             const fetchSql = `
                 SELECT m.*, u.name as sender_name, u.role as sender_role 
                 FROM messages m
                 JOIN users u ON m.sender_id = u.id
                 WHERE m.id = ?
             `;
-            db.query(fetchSql, [result.insertId], (errFetch, fetchResults) => {
+            db.query(fetchSql, [insertedId], (errFetch, fetchResults) => {
                 if (errFetch) return res.status(500).json({ success: false, message: errFetch.message });
                 res.status(201).json({ success: true, message: "Pesan terkirim", data: fetchResults[0] });
             });
-        });
+        }
     }
 };
 
