@@ -137,45 +137,41 @@ function Withdraw() {
         @media (max-width: 640px) {
           .wd-grid-top { grid-template-columns: 1fr; }
           .wd-grid-top > div:first-child { grid-column: span 1; }
-          .wd-header-title { font-size: 1.2rem !important; }
-          .wd-header-subtitle { font-size: 0.75rem !important; line-height: 1.2 !important; }
-          .wd-saldo-value { font-size: 1.6rem !important; }
-          .wd-card-value { font-size: 1.1rem !important; }
+          .wd-header-title { font-size: 1rem !important; }
+          .wd-header-subtitle { font-size: 0.65rem !important; line-height: 1.2 !important; }
+          .wd-header-profile-name { display: none !important; }
+          .wd-header-profile-badge { font-size: 0.65rem !important; }
+          .wd-saldo-value { font-size: 1.4rem !important; }
+          .wd-card-value { font-size: 1rem !important; }
         }
       `}</style>
 
       <div style={{ padding: "1.5rem 2.5%", maxWidth: "1440px", margin: "0 auto" }}>
         
         {/* Header Title */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <button className="topbar-menu-btn" onClick={() => window.dispatchEvent(new Event("toggle-sidebar"))} style={{ display: "flex" }}>
-              <Menu size={22} />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2rem", gap: "0.5rem" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
+            <button className="topbar-menu-btn" onClick={() => window.dispatchEvent(new Event("toggle-sidebar"))} style={{ display: "flex", marginTop: "2px" }}>
+              <Menu size={20} />
             </button>
             <div>
-              <h1 className="wd-header-title" style={{ fontSize: "1.5rem", fontWeight: "800", margin: "0 0 0.25rem 0", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <h1 className="wd-header-title" style={{ fontSize: "1.2rem", fontWeight: "800", margin: "0 0 0.15rem 0", display: "flex", alignItems: "center", gap: "0.4rem" }}>
               Selamat sore, {profile?.name ? profile.name.split(' ')[0] : 'User'} 👋
             </h1>
-            <p className="wd-header-subtitle" style={{ color: "#64748b", margin: 0, fontSize: "0.9rem" }}>Kelola saldo dan tarik dana dengan mudah dan aman.</p>
+            <p className="wd-header-subtitle" style={{ color: "#64748b", margin: 0, fontSize: "0.8rem" }}>Kelola saldo dan tarik dana.</p>
           </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div onClick={() => navigate('/notifications')} style={{ position: "relative", cursor: "pointer", background: "white", width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
-              <Bell size={20} color="#475569" />
-              {unreadCount > 0 && (
-                <div style={{ position: "absolute", top: "0px", right: "0px", width: "16px", height: "16px", background: "#ef4444", borderRadius: "50%", border: "2px solid white", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "9px", fontWeight: "bold" }}>{unreadCount > 9 ? '9+' : unreadCount}</div>
-              )}
-            </div>
-            <div onClick={() => navigate('/profile')} style={{ display: "flex", alignItems: "center", gap: "0.75rem", background: "white", padding: "0.4rem 1rem 0.4rem 0.4rem", borderRadius: "30px", border: "1px solid #e2e8f0", cursor: "pointer" }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div onClick={() => navigate('/profile')} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "white", padding: "0.3rem 0.6rem 0.3rem 0.3rem", borderRadius: "30px", border: "1px solid #e2e8f0", cursor: "pointer" }}>
               {profilePic ? (
-                <img src={profilePic} alt="Profile" style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover", border: "2px solid white" }} />
+                <img src={profilePic} alt="Profile" style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover", border: "2px solid white" }} />
               ) : (
-                <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--brand-green)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700", fontSize: "0.9rem" }}>
+                <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "var(--brand-green)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700", fontSize: "0.8rem" }}>
                   {profile?.name ? profile.name.charAt(0).toUpperCase() : 'U'}
                 </div>
               )}
-              <span style={{ fontSize: "0.9rem", fontWeight: "600", color: "#1e293b" }}>{profile?.name ? profile.name.split(' ')[0] : 'User'}</span>
-              <span style={{ fontSize: "0.75rem", background: "#fef3c7", color: "#b45309", padding: "0.1rem 0.5rem", borderRadius: "10px", fontWeight: "600" }}>{profile?.role === 'pengepul' ? 'Mitra' : 'Gold'}</span>
+              <span className="wd-header-profile-name" style={{ fontSize: "0.8rem", fontWeight: "600", color: "#1e293b" }}>{profile?.name ? profile.name.split(' ')[0] : 'User'}</span>
+              <span className="wd-header-profile-badge" style={{ fontSize: "0.7rem", background: "#fef3c7", color: "#b45309", padding: "0.1rem 0.4rem", borderRadius: "10px", fontWeight: "600" }}>{profile?.role === 'pengepul' ? 'Mitra' : 'Gold'}</span>
             </div>
           </div>
         </div>
