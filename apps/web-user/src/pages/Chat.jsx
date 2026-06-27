@@ -25,6 +25,31 @@ function Chat() {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    const setViewport = () => {
+      if (window.visualViewport) {
+        document.documentElement.style.setProperty('--chat-vh', `${window.visualViewport.height}px`);
+        document.documentElement.style.setProperty('--chat-top', `${window.visualViewport.offsetTop}px`);
+      }
+    };
+    
+    setViewport();
+    
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', setViewport);
+      window.visualViewport.addEventListener('scroll', setViewport);
+    }
+    
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', setViewport);
+        window.visualViewport.removeEventListener('scroll', setViewport);
+      }
+      document.documentElement.style.removeProperty('--chat-vh');
+      document.documentElement.style.removeProperty('--chat-top');
+    };
+  }, []);
+
+  useEffect(() => {
     // Ambil detail pickup (untuk tahu mau chat dengan siapa)
     const fetchPickups = async () => {
       try {
@@ -129,7 +154,7 @@ function Chat() {
   }
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#f1f5f9', display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 'var(--chat-top, 0px)', left: 0, right: 0, height: 'var(--chat-vh, 100dvh)', background: '#f1f5f9', display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
       <style>{`
         .chat-container, .chat-container * { box-sizing: border-box; }
         .chat-container { width: 100%; max-width: 768px; margin: 0 auto; display: flex; flex-direction: column; height: 100%; background: #efeae2; font-family: 'Inter', sans-serif; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
@@ -147,10 +172,10 @@ function Chat() {
         .chat-bubble-bottom { display: flex; justify-content: flex-end; align-items: flex-end; margin-top: 2px; gap: 4px; }
         .chat-bubble-time { font-size: 0.65rem; color: #667781; }
         
-        .chat-input-wrapper { flex-shrink: 0; padding: 0.5rem; background: #f0f2f5; display: flex; align-items: flex-end; z-index: 10; gap: 0.5rem; }
-        .chat-input-inner { flex: 1; display: flex; align-items: flex-end; background: #ffffff; border-radius: 24px; padding: 0.35rem 0.5rem; min-height: 44px; }
+        .chat-input-wrapper { flex-shrink: 0; padding: 0.5rem; background: #f0f2f5; display: flex; align-items: flex-end; z-index: 10; gap: 0.5rem; width: 100%; min-width: 0; }
+        .chat-input-inner { flex: 1; min-width: 0; display: flex; align-items: flex-end; background: #ffffff; border-radius: 24px; padding: 0.35rem 0.5rem; min-height: 44px; }
         .chat-icon-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: none; background: transparent; color: #8696a0; cursor: pointer; flex-shrink: 0; }
-        .chat-input { flex: 1; padding: 8px 4px; border: none; outline: none; background: transparent; font-size: 0.95rem; max-height: 100px; overflow-y: auto; color: #111b21; }
+        .chat-input { flex: 1; min-width: 0; width: 100%; padding: 8px 4px; border: none; outline: none; background: transparent; font-size: 0.95rem; max-height: 100px; overflow-y: auto; color: #111b21; }
         .chat-input::placeholder { color: #8696a0; }
         .chat-send-btn { width: 44px; height: 44px; border-radius: 50%; color: white; border: none; display: flex; align-items: center; justify-content: center; transition: 0.2s; background: #00a884; flex-shrink: 0; }
         .chat-send-btn:disabled { background: #a6d8cc; cursor: not-allowed; }
@@ -222,7 +247,7 @@ function Chat() {
 
         {/* INPUT AREA */}
         <div className="chat-input-wrapper">
-          <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', width: '100%' }}>
+          <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', width: '100%', minWidth: 0 }}>
             
             <div className="chat-input-inner">
               <button type="button" className="chat-icon-btn">
