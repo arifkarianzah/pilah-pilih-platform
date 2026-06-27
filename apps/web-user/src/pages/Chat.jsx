@@ -12,7 +12,7 @@ function Chat() {
   const [loading, setLoading] = useState(true);
   const [activePickup, setActivePickup] = useState(null);
   const [allPickups, setAllPickups] = useState([]);
-  
+
   const token = localStorage.getItem("token");
   let currentUser = {};
   if (token) {
@@ -22,9 +22,6 @@ function Chat() {
       console.error("Gagal parse token", e);
     }
   }
-
-  const messagesEndRef = useRef(null);
-
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -112,7 +109,7 @@ function Chat() {
   };
 
   if (loading && !activePickup) {
-    return <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg-color)'}}>Memuat...</div>;
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg-color)' }}>Memuat...</div>;
   }
 
   if (!activePickup && allPickups.length === 0) {
@@ -166,78 +163,78 @@ function Chat() {
           .chat-send-btn svg { width: 18px; height: 18px; }
         }
       `}</style>
-      
-      <div className="chat-container">
-        
-        {/* HEADER */}
-      <div className="chat-header">
-        <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-          <ArrowLeft size={24} />
-        </button>
-        <div>
-          <h2 className="chat-header-title">Chat dengan Petugas</h2>
-          <p className="chat-header-subtitle">
-            Order #{activePickup?.id} • {activePickup?.waste_type}
-          </p>
-        </div>
-      </div>
 
-      {/* CHAT AREA */}
-      <div className="chat-area">
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontWeight: 600 }}>Memuat chat...</div>
-        ) : activePickup && !activePickup.petugas_id ? (
-          <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⏳</div>
-            <p>Order kamu masih dalam status <strong>Menunggu</strong>.</p>
-            <p style={{ fontSize: '0.85rem' }}>Fitur chat akan aktif setelah Petugas menerima pesananmu.</p>
+      <div className="chat-container">
+
+        {/* HEADER */}
+        <div className="chat-header">
+          <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+            <ArrowLeft size={24} />
+          </button>
+          <div>
+            <h2 className="chat-header-title">Chat dengan Petugas</h2>
+            <p className="chat-header-subtitle">
+              Order #{activePickup?.id} • {activePickup?.waste_type}
+            </p>
           </div>
-        ) : messages.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-            Belum ada pesan. Mulai sapa Petugas!
-          </div>
-        ) : (
-          messages.map((msg) => {
-            const isMe = msg.sender_id === currentUser.id;
-            return (
-              <div key={msg.id} className="chat-bubble-wrapper">
-                <div className={`chat-bubble ${isMe ? 'me' : 'other'}`}>
-                  {!isMe && (
-                    <div className="chat-bubble-name">Petugas</div>
-                  )}
-                  <div>{msg.message}</div>
-                  <div className="chat-bubble-bottom">
-                    <span className="chat-bubble-time">
-                      {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+        </div>
+
+        {/* CHAT AREA */}
+        <div className="chat-area">
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontWeight: 600 }}>Memuat chat...</div>
+          ) : activePickup && !activePickup.petugas_id ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⏳</div>
+              <p>Order kamu masih dalam status <strong>Menunggu</strong>.</p>
+              <p style={{ fontSize: '0.85rem' }}>Fitur chat akan aktif setelah Petugas menerima pesananmu.</p>
+            </div>
+          ) : messages.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+              Belum ada pesan. Mulai sapa Petugas!
+            </div>
+          ) : (
+            messages.map((msg) => {
+              const isMe = msg.sender_id === currentUser.id;
+              return (
+                <div key={msg.id} className="chat-bubble-wrapper">
+                  <div className={`chat-bubble ${isMe ? 'me' : 'other'}`}>
+                    {!isMe && (
+                      <div className="chat-bubble-name">Petugas</div>
+                    )}
+                    <div>{msg.message}</div>
+                    <div className="chat-bubble-bottom">
+                      <span className="chat-bubble-time">
+                        {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+              );
+            })
+          )}
+          <div ref={messagesEndRef} />
+        </div>
 
-      {/* INPUT AREA */}
-      <div className="chat-input-wrapper">
-        <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', width: '100%' }}>
-          <input 
-            type="text" 
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Ketik pesan..."
-            className="chat-input"
-          />
-          <button 
-            type="submit" 
-            disabled={!newMessage.trim()} 
-            className="chat-send-btn"
-          >
-            <Send size={20} style={{ marginLeft: -2 }} />
-          </button>
-        </form>
-      </div>
+        {/* INPUT AREA */}
+        <div className="chat-input-wrapper">
+          <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', width: '100%' }}>
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Ketik pesan..."
+              className="chat-input"
+            />
+            <button
+              type="submit"
+              disabled={!newMessage.trim()}
+              className="chat-send-btn"
+            >
+              <Send size={20} style={{ marginLeft: -2 }} />
+            </button>
+          </form>
+        </div>
 
       </div>
     </div>
