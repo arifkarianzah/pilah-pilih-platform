@@ -25,27 +25,21 @@ function Chat() {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    const setViewport = () => {
-      if (window.visualViewport) {
-        document.documentElement.style.setProperty('--chat-vh', `${window.visualViewport.height}px`);
-        document.documentElement.style.setProperty('--chat-top', `${window.visualViewport.offsetTop}px`);
-      }
-    };
-    
-    setViewport();
-    
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', setViewport);
-      window.visualViewport.addEventListener('scroll', setViewport);
-    }
+    // Matikan total pergerakan layar bawaan browser
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.height = '100%';
     
     return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', setViewport);
-        window.visualViewport.removeEventListener('scroll', setViewport);
-      }
-      document.documentElement.style.removeProperty('--chat-vh');
-      document.documentElement.style.removeProperty('--chat-top');
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.height = '';
     };
   }, []);
 
@@ -154,7 +148,7 @@ function Chat() {
   }
 
   return (
-    <div style={{ position: 'fixed', top: 'var(--chat-top, 0px)', left: 0, right: 0, height: 'var(--chat-vh, 100dvh)', background: '#f1f5f9', display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#f1f5f9', display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
       <style>{`
         .chat-container, .chat-container * { box-sizing: border-box; }
         .chat-container { width: 100%; max-width: 768px; margin: 0 auto; display: flex; flex-direction: column; height: 100%; background: #efeae2; font-family: 'Inter', sans-serif; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
