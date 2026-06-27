@@ -131,6 +131,7 @@ function Chat() {
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#f1f5f9', display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
       <style>{`
+        .chat-container, .chat-container * { box-sizing: border-box; }
         .chat-container { width: 100%; max-width: 768px; margin: 0 auto; display: flex; flex-direction: column; height: 100%; background: #efeae2; font-family: 'Inter', sans-serif; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
         .chat-header { flex-shrink: 0; background: #075E54; padding: 1rem; display: flex; align-items: center; gap: 1rem; color: white; z-index: 10; }
         .chat-header-title { font-size: 1.1rem; font-weight: 700; margin: 0; color: white; }
