@@ -130,24 +130,50 @@ function Chat() {
   }
 
   return (
-    <div style={{ background: '#f1f5f9', minHeight: '100vh', display: 'flex', justifyContent: 'center' }}>
-      <div style={{ width: '100%', maxWidth: '768px', display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg-color)', fontFamily: 'Inter, sans-serif', boxShadow: '0 0 20px rgba(0,0,0,0.05)', position: 'relative' }}>
+    <div style={{ background: '#f1f5f9', minHeight: '100vh' }}>
+      <style>{`
+        .chat-container { width: 100%; max-width: 768px; margin: 0 auto; display: flex; flex-direction: column; height: 100vh; height: 100dvh; background: var(--bg-color); font-family: 'Inter', sans-serif; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; }
+        .chat-header { background: white; padding: 1rem; display: flex; align-items: center; gap: 1rem; border-bottom: 1px solid var(--surface-border); position: sticky; top: 0; z-index: 10; }
+        .chat-header-title { font-size: 1.1rem; font-weight: 800; margin: 0; color: var(--text-color); }
+        .chat-header-subtitle { font-size: 0.8rem; color: var(--text-muted); margin: 0; font-weight: 500; text-transform: capitalize; }
+        .chat-area { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+        .chat-bubble { max-width: 75%; padding: 10px 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 0.9rem; line-height: 1.4; }
+        .chat-bubble-name { font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
+        .chat-bubble-time { font-size: 0.65rem; margin-top: 4px; text-align: right; }
+        .chat-input-wrapper { padding: 1rem; background: white; border-top: 1px solid var(--surface-border); position: sticky; bottom: 0; z-index: 10; }
+        .chat-input { flex: 1; padding: 12px 16px; border-radius: 24px; border: 1px solid var(--surface-border); outline: none; background: var(--bg-color); font-size: 0.95rem; }
+        .chat-send-btn { width: 46px; height: 46px; border-radius: 50%; color: white; border: none; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        
+        @media (max-width: 640px) {
+          .chat-header { padding: 0.75rem 1rem; }
+          .chat-header-title { font-size: 1rem; }
+          .chat-header-subtitle { font-size: 0.75rem; }
+          .chat-area { padding: 0.75rem; gap: 0.75rem; }
+          .chat-bubble { max-width: 85%; padding: 8px 12px; font-size: 0.85rem; }
+          .chat-input-wrapper { padding: 0.75rem 1rem; }
+          .chat-input { padding: 10px 14px; font-size: 0.85rem; }
+          .chat-send-btn { width: 40px; height: 40px; }
+          .chat-send-btn svg { width: 18px; height: 18px; }
+        }
+      `}</style>
+      
+      <div className="chat-container">
         
         {/* HEADER */}
-      <div style={{ background: 'white', padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--surface-border)', position: 'sticky', top: 0, zIndex: 10 }}>
+      <div className="chat-header">
         <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-color)' }}>
           <ArrowLeft size={24} />
         </button>
         <div>
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: 'var(--text-color)' }}>Chat dengan Petugas</h2>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0, fontWeight: 500, textTransform: 'capitalize' }}>
+          <h2 className="chat-header-title">Chat dengan Petugas</h2>
+          <p className="chat-header-subtitle">
             Order #{activePickup?.id} • {activePickup?.waste_type}
           </p>
         </div>
       </div>
 
       {/* CHAT AREA */}
-      <div style={{ flex: 1, padding: '1rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="chat-area">
         {loading ? (
           <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontWeight: 600 }}>Memuat chat...</div>
         ) : activePickup && !activePickup.petugas_id ? (
@@ -165,24 +191,19 @@ function Chat() {
             const isMe = msg.sender_id === currentUser.id;
             return (
               <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
-                <div style={{
-                  maxWidth: '75%',
-                  padding: '10px 14px',
+                <div className="chat-bubble" style={{
                   borderRadius: '16px',
                   borderBottomRightRadius: isMe ? '4px' : '16px',
                   borderBottomLeftRadius: isMe ? '16px' : '4px',
                   background: isMe ? 'var(--primary)' : 'white',
                   color: isMe ? 'white' : 'var(--text-color)',
-                  border: isMe ? 'none' : '1px solid var(--surface-border)',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                  border: isMe ? 'none' : '1px solid var(--surface-border)'
                 }}>
                   {!isMe && (
-                    <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--primary)", marginBottom: "2px" }}>
-                      Petugas
-                    </div>
+                    <div className="chat-bubble-name">Petugas</div>
                   )}
-                  <div style={{ fontSize: '0.9rem', lineHeight: 1.4 }}>{msg.message}</div>
-                  <div style={{ fontSize: '0.65rem', marginTop: '4px', color: isMe ? 'rgba(255,255,255,0.7)' : 'var(--text-muted)', textAlign: 'right' }}>
+                  <div>{msg.message}</div>
+                  <div className="chat-bubble-time" style={{ color: isMe ? 'rgba(255,255,255,0.7)' : 'var(--text-muted)' }}>
                     {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
@@ -194,16 +215,24 @@ function Chat() {
       </div>
 
       {/* INPUT AREA */}
-      <div style={{ padding: '1rem', background: 'white', borderTop: '1px solid var(--surface-border)' }}>
-        <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '0.75rem' }}>
+      <div className="chat-input-wrapper">
+        <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <input 
             type="text" 
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Ketik pesan..."
-            style={{ flex: 1, padding: '12px 16px', borderRadius: '24px', border: '1px solid var(--surface-border)', outline: 'none', background: 'var(--bg-color)', fontSize: '0.95rem' }}
+            className="chat-input"
           />
-          <button type="submit" disabled={!newMessage.trim()} style={{ width: 46, height: 46, borderRadius: '50%', background: newMessage.trim() ? 'var(--primary)' : 'var(--surface-border)', color: 'white', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: newMessage.trim() ? 'pointer' : 'not-allowed', transition: '0.2s' }}>
+          <button 
+            type="submit" 
+            disabled={!newMessage.trim()} 
+            className="chat-send-btn"
+            style={{ 
+              background: newMessage.trim() ? 'var(--primary)' : 'var(--surface-border)', 
+              cursor: newMessage.trim() ? 'pointer' : 'not-allowed'
+            }}
+          >
             <Send size={20} style={{ marginLeft: -2 }} />
           </button>
         </form>
