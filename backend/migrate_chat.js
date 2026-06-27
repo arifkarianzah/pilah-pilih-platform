@@ -14,7 +14,7 @@ const connection = mysql.createPool({
 const sql = `
   CREATE TABLE IF NOT EXISTS messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    pickup_id INT NOT NULL,
+    pickup_id INT NULL,
     sender_id INT NOT NULL,
     receiver_id INT NOT NULL,
     message TEXT NOT NULL,

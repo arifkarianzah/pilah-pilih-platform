@@ -16,6 +16,8 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Karena skema database.sql sudah diupdate lengkap, auto-migration dinonaktifkan
 // untuk menghindari konflik tipe data ENUM dan kolom baru.
 const migrations = [
+  // Izinkan pickup_id bernilai null di tabel messages
+  `ALTER TABLE messages MODIFY COLUMN pickup_id INT NULL`,
   // Tabel waste_types (jenis sampah baru dengan icon & deskripsi)
   `CREATE TABLE IF NOT EXISTS waste_types (
       id INT AUTO_INCREMENT PRIMARY KEY,
