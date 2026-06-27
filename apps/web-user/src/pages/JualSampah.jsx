@@ -247,8 +247,16 @@ function JualSampah() {
 
         @media (max-width: 640px) {
           .jsp-header { padding: 1rem 4%; }
-          .jsp-title { font-size: 1.1rem; }
-          .jsp-subtitle { font-size: 0.78rem; }
+          .jsp-title { font-size: 1rem; }
+          .jsp-subtitle { font-size: 0.7rem; }
+          .jsp-header-left { gap: 0.75rem !important; }
+          .jsp-header-right { gap: 0.5rem !important; }
+          .jsp-btn-bell { width: 34px !important; height: 34px !important; }
+          .jsp-btn-profile { padding: 0.3rem 0.6rem 0.3rem 0.3rem !important; gap: 0.5rem !important; }
+          .jsp-btn-profile-img { width: 28px !important; height: 28px !important; }
+          .jsp-btn-profile-text { font-size: 0.8rem !important; }
+          .jsp-btn-profile-badge { font-size: 0.6rem !important; padding: 0.1rem 0.3rem !important; }
+          
           .jsp-grid { padding: 1rem 4%; gap: 1.25rem; }
           .jsp-card { padding: 1.25rem; border-radius: 16px; }
           .jsp-card-title { font-size: 1rem; }
@@ -268,12 +276,14 @@ function JualSampah() {
         @media (max-width: 400px) {
           .jsp-tips-grid { grid-template-columns: 1fr; }
           .jsp-summary-box > div:last-child { grid-template-columns: 1fr 1fr; }
+          .jsp-title { font-size: 0.95rem; }
+          .jsp-subtitle { display: none; }
         }
       `}</style>
 
       {/* Header */}
       <div className="jsp-header">
-        <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+        <div className="jsp-header-left" style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
           <button className="topbar-menu-btn" onClick={() => window.dispatchEvent(new Event("toggle-sidebar"))} style={{ display: "flex" }}>
             <Menu size={22} />
           </button>
@@ -283,23 +293,27 @@ function JualSampah() {
           </div>
         </div>
         
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <div onClick={() => navigate('/notifications')} style={{ position: "relative", cursor: "pointer", background: "white", width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
+        <div className="jsp-header-right" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div className="jsp-btn-bell" onClick={() => navigate('/notifications')} style={{ position: "relative", cursor: "pointer", background: "white", width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
             <Bell size={20} color="#475569" style={{margin: "auto"}} />
             {unreadCount > 0 && (
-              <div style={{ position: "absolute", top: "-2px", right: "-2px", width: "16px", height: "16px", background: "#ef4444", borderRadius: "50%", border: "2px solid white", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "9px", fontWeight: "bold" }}>{unreadCount > 9 ? '9+' : unreadCount}</div>
+              <div className="jsp-btn-profile-badge" style={{ position: "absolute", top: "-2px", right: "-2px", width: "16px", height: "16px", background: "#ef4444", borderRadius: "50%", border: "2px solid white", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "9px", fontWeight: "bold" }}>{unreadCount > 9 ? '9+' : unreadCount}</div>
             )}
           </div>
-          <div onClick={() => navigate('/profile')} style={{ display: "flex", alignItems: "center", gap: "0.75rem", background: "white", padding: "0.4rem 1rem 0.4rem 0.4rem", borderRadius: "30px", border: "1px solid #e2e8f0", cursor: "pointer" }}>
+          <div className="jsp-btn-profile" onClick={() => navigate('/profile')} style={{ display: "flex", alignItems: "center", gap: "0.75rem", background: "white", padding: "0.4rem 1rem 0.4rem 0.4rem", borderRadius: "30px", border: "1px solid #e2e8f0", cursor: "pointer" }}>
             {profilePic ? (
-              <img src={profilePic} alt="Profile" style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover", border: "2px solid white" }} />
+              <img className="jsp-btn-profile-img" src={profilePic} alt="Profile" style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover", border: "2px solid white" }} />
             ) : (
-              <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--brand-green)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700", fontSize: "0.9rem" }}>
+              <div className="jsp-btn-profile-img" style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--brand-green)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700", fontSize: "0.9rem" }}>
                 {profile?.name ? profile.name.charAt(0).toUpperCase() : 'U'}
               </div>
             )}
-            <span style={{ fontSize: "0.9rem", fontWeight: "600", color: "#1e293b", display: "block" }}>{profile?.name ? profile.name.split(' ')[0] : 'User'}</span>
-            <span style={{ fontSize: "0.75rem", background: "#fef3c7", color: "#b45309", padding: "0.1rem 0.5rem", borderRadius: "10px", fontWeight: "600" }}>{profile?.role === 'pengepul' ? 'Mitra' : 'Gold'}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span className="jsp-btn-profile-text" style={{ fontSize: "0.9rem", fontWeight: "700", color: "#1e293b", maxWidth: "80px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {profile?.name ? profile.name.split(' ')[0] : 'User'}
+              </span>
+              <span className="jsp-btn-profile-text" style={{ background: "#fef3c7", color: "#b45309", fontSize: "0.75rem", fontWeight: "700", padding: "0.2rem 0.6rem", borderRadius: "20px" }}>{profile?.role === 'pengepul' ? 'Mitra' : 'Gold'}</span>
+            </div>
           </div>
         </div>
       </div>
