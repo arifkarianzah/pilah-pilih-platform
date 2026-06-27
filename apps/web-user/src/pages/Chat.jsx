@@ -132,25 +132,33 @@ function Chat() {
   return (
     <div style={{ background: '#f1f5f9', minHeight: '100vh' }}>
       <style>{`
-        .chat-container { width: 100%; max-width: 768px; margin: 0 auto; display: flex; flex-direction: column; height: 100vh; height: 100dvh; background: var(--bg-color); font-family: 'Inter', sans-serif; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; }
-        .chat-header { background: white; padding: 1rem; display: flex; align-items: center; gap: 1rem; border-bottom: 1px solid var(--surface-border); position: sticky; top: 0; z-index: 10; }
-        .chat-header-title { font-size: 1.1rem; font-weight: 800; margin: 0; color: var(--text-color); }
-        .chat-header-subtitle { font-size: 0.8rem; color: var(--text-muted); margin: 0; font-weight: 500; text-transform: capitalize; }
-        .chat-area { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
-        .chat-bubble { max-width: 75%; padding: 10px 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 0.9rem; line-height: 1.4; }
-        .chat-bubble-name { font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
-        .chat-bubble-time { font-size: 0.65rem; margin-top: 4px; text-align: right; }
-        .chat-input-wrapper { padding: 1rem; background: white; border-top: 1px solid var(--surface-border); position: sticky; bottom: 0; z-index: 10; }
-        .chat-input { flex: 1; padding: 12px 16px; border-radius: 24px; border: 1px solid var(--surface-border); outline: none; background: var(--bg-color); font-size: 0.95rem; }
-        .chat-send-btn { width: 46px; height: 46px; border-radius: 50%; color: white; border: none; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .chat-container { width: 100%; max-width: 768px; margin: 0 auto; display: flex; flex-direction: column; height: 100vh; height: 100dvh; background: #efeae2; font-family: 'Inter', sans-serif; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; }
+        .chat-header { background: #075E54; padding: 1rem; display: flex; align-items: center; gap: 1rem; position: sticky; top: 0; z-index: 10; color: white; }
+        .chat-header-title { font-size: 1.1rem; font-weight: 700; margin: 0; color: white; }
+        .chat-header-subtitle { font-size: 0.8rem; color: rgba(255,255,255,0.8); margin: 0; font-weight: 400; text-transform: capitalize; }
+        .chat-area { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
+        
+        .chat-bubble-wrapper { display: flex; flex-direction: column; margin-bottom: 0.5rem; }
+        .chat-bubble { max-width: 80%; padding: 6px 8px 6px 12px; border-radius: 8px; font-size: 0.9rem; line-height: 1.4; position: relative; display: flex; flex-direction: column; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); }
+        .chat-bubble.me { background: #dcf8c6; color: #111b21; border-top-right-radius: 0; align-self: flex-end; }
+        .chat-bubble.other { background: #ffffff; color: #111b21; border-top-left-radius: 0; align-self: flex-start; }
+        
+        .chat-bubble-name { font-size: 0.75rem; font-weight: 600; color: #0284c7; margin-bottom: 2px; }
+        .chat-bubble-bottom { display: flex; justify-content: flex-end; align-items: flex-end; margin-top: 2px; gap: 4px; }
+        .chat-bubble-time { font-size: 0.65rem; color: #667781; }
+        
+        .chat-input-wrapper { padding: 0.5rem 1rem; background: #f0f2f5; position: sticky; bottom: 0; z-index: 10; }
+        .chat-input { flex: 1; padding: 10px 16px; border-radius: 24px; border: none; outline: none; background: #ffffff; font-size: 0.95rem; }
+        .chat-send-btn { width: 44px; height: 44px; border-radius: 50%; color: white; border: none; display: flex; align-items: center; justify-content: center; transition: 0.2s; background: #00a884; }
+        .chat-send-btn:disabled { background: #a6d8cc; cursor: not-allowed; }
         
         @media (max-width: 640px) {
           .chat-header { padding: 0.75rem 1rem; }
           .chat-header-title { font-size: 1rem; }
           .chat-header-subtitle { font-size: 0.75rem; }
-          .chat-area { padding: 0.75rem; gap: 0.75rem; }
-          .chat-bubble { max-width: 85%; padding: 8px 12px; font-size: 0.85rem; }
-          .chat-input-wrapper { padding: 0.75rem 1rem; }
+          .chat-area { padding: 0.75rem; }
+          .chat-bubble { max-width: 90%; font-size: 0.85rem; }
+          .chat-input-wrapper { padding: 0.5rem; }
           .chat-input { padding: 10px 14px; font-size: 0.85rem; }
           .chat-send-btn { width: 40px; height: 40px; }
           .chat-send-btn svg { width: 18px; height: 18px; }
@@ -161,7 +169,7 @@ function Chat() {
         
         {/* HEADER */}
       <div className="chat-header">
-        <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-color)' }}>
+        <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
           <ArrowLeft size={24} />
         </button>
         <div>
@@ -190,21 +198,16 @@ function Chat() {
           messages.map((msg) => {
             const isMe = msg.sender_id === currentUser.id;
             return (
-              <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
-                <div className="chat-bubble" style={{
-                  borderRadius: '16px',
-                  borderBottomRightRadius: isMe ? '4px' : '16px',
-                  borderBottomLeftRadius: isMe ? '16px' : '4px',
-                  background: isMe ? 'var(--primary)' : 'white',
-                  color: isMe ? 'white' : 'var(--text-color)',
-                  border: isMe ? 'none' : '1px solid var(--surface-border)'
-                }}>
+              <div key={msg.id} className="chat-bubble-wrapper">
+                <div className={`chat-bubble ${isMe ? 'me' : 'other'}`}>
                   {!isMe && (
                     <div className="chat-bubble-name">Petugas</div>
                   )}
                   <div>{msg.message}</div>
-                  <div className="chat-bubble-time" style={{ color: isMe ? 'rgba(255,255,255,0.7)' : 'var(--text-muted)' }}>
-                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <div className="chat-bubble-bottom">
+                    <span className="chat-bubble-time">
+                      {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -228,10 +231,6 @@ function Chat() {
             type="submit" 
             disabled={!newMessage.trim()} 
             className="chat-send-btn"
-            style={{ 
-              background: newMessage.trim() ? 'var(--primary)' : 'var(--surface-border)', 
-              cursor: newMessage.trim() ? 'pointer' : 'not-allowed'
-            }}
           >
             <Send size={20} style={{ marginLeft: -2 }} />
           </button>
