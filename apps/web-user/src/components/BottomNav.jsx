@@ -33,7 +33,7 @@ function BottomNav() {
 
         <div className="nav-item-center">
           <Link to="/ai-scan" className="fab-button">
-            <ScanLine size={28} />
+            <ScanLine size={38} color="#064e3b" />
           </Link>
         </div>
 

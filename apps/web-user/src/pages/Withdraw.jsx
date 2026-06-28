@@ -107,8 +107,10 @@ function Withdraw() {
     <div className="app-container" style={{ background: "#f8fafc", minHeight: "100vh", paddingBottom: "120px", fontFamily: "'Inter', sans-serif" }}>
       <style>{`
         .wd-grid-top { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        .wd-grid-top > div { min-width: 0; }
         .wd-grid-main { display: grid; grid-template-columns: 1fr 1.2fr; gap: 1.5rem; }
-        .wd-card { background: white; border-radius: 16px; padding: 1.5rem; border: 1px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .wd-grid-main > div { min-width: 0; }
+        .wd-card { background: white; border-radius: 16px; padding: 1.5rem; border: 1px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.02); min-width: 0; }
         .wd-method-pill { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; font-weight: 600; font-size: 0.85rem; border: 1px solid #e2e8f0; }
         .wd-method-pill.active { border-color: var(--brand-green); color: var(--brand-green); background: #f0fdf4; }
         .wd-input-group { margin-bottom: 1rem; }
@@ -367,25 +369,25 @@ function Withdraw() {
             </div>
 
             {/* Level Up Card */}
-            <div style={{ background: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)", borderRadius: "16px", padding: "1.5rem", border: "1px solid #fde68a", display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", overflow: "hidden", flexWrap: "wrap", gap: "1rem" }}>
+            <div style={{ background: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)", borderRadius: "16px", padding: "1.25rem", border: "1px solid #fde68a", display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", overflow: "hidden", flexWrap: "wrap", gap: "1rem" }}>
               <div style={{ position: "relative", zIndex: 2, flex: 1 }}>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "#b45309", marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.5rem" }}><Crown size={20} color="#d97706" /> Tingkatkan Level Kamu</h3>
-                <p style={{ fontSize: "0.8rem", color: "#78350f", marginBottom: "1rem" }}>Capai level berikutnya untuk nikmati keuntungan lebih besar!</p>
+                <h3 style={{ fontSize: "0.95rem", fontWeight: "800", color: "#b45309", marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.5rem" }}><Crown size={18} color="#d97706" /> Tingkatkan Level Kamu</h3>
+                <p style={{ fontSize: "0.7rem", color: "#78350f", marginBottom: "1rem", lineHeight: "1.3" }}>Capai level berikutnya untuk nikmati keuntungan lebih besar!</p>
                 
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
                   <div style={{ flex: 1, height: "6px", background: "white", borderRadius: "3px", overflow: "hidden" }}>
                     <div style={{ width: "57%", height: "100%", background: "#d97706", borderRadius: "3px" }}></div>
                   </div>
-                  <span style={{ fontSize: "0.75rem", color: "#92400e", fontWeight: "600" }}>{points.toLocaleString('id-ID')} / 2.000 pts menuju Platinum</span>
+                  <span style={{ fontSize: "0.65rem", color: "#92400e", fontWeight: "600" }}>{points.toLocaleString('id-ID')} / 2.000 pts menuju Platinum</span>
                 </div>
 
-                <button style={{ background: "white", border: "1px solid #fcd34d", color: "#d97706", padding: "0.4rem 1rem", borderRadius: "20px", fontSize: "0.75rem", fontWeight: "700", cursor: "pointer" }}>
+                <button style={{ background: "white", border: "1px solid #fcd34d", color: "#d97706", padding: "0.35rem 0.8rem", borderRadius: "20px", fontSize: "0.7rem", fontWeight: "700", cursor: "pointer" }}>
                   Lihat Benefit
                 </button>
               </div>
-              <div style={{ width: "100px", height: "100px", background: "var(--brand-green)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2, transform: "rotate(-10deg)", boxShadow: "0 10px 20px rgba(0,0,0,0.1)" }}>
-                <Wallet size={48} color="white" />
-                <div style={{ position: "absolute", top: -15, left: -15, background: "#f59e0b", width: "30px", height: "30px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid white" }}><Coins size={16} color="white"/></div>
+              <div style={{ width: "65px", height: "65px", background: "var(--brand-green)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2, transform: "rotate(-10deg)", boxShadow: "0 8px 15px rgba(0,0,0,0.1)", margin: "0 auto" }}>
+                <Wallet size={32} color="white" />
+                <div style={{ position: "absolute", top: -10, left: -10, background: "#f59e0b", width: "24px", height: "24px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid white" }}><Coins size={12} color="white"/></div>
               </div>
             </div>
 
