@@ -8,6 +8,7 @@ const getBaseUrl = () => {
 
 const socket = io(getBaseUrl(), {
     autoConnect: false, // We'll connect manually when user is authenticated
+    transports: ['polling', 'websocket'], // Prioritize polling first as fallback for Azure
 });
 
 export default socket;
