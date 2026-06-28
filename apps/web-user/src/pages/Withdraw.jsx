@@ -136,15 +136,17 @@ function Withdraw() {
         }
         .wd-form-grid { grid-template-columns: 1fr 1fr; }
         @media (max-width: 640px) {
-          .wd-grid-top { grid-template-columns: 1fr; }
-          .wd-grid-top > div:first-child { grid-column: span 1; }
+          .wd-grid-top { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+          .wd-grid-top > div:first-child { grid-column: span 2; }
+          .wd-card { padding: 1rem; }
           .wd-form-grid { grid-template-columns: 1fr !important; }
           .wd-header-title { font-size: 1rem !important; }
           .wd-header-subtitle { font-size: 0.65rem !important; line-height: 1.2 !important; }
           .wd-header-profile-name { display: none !important; }
           .wd-header-profile-badge { font-size: 0.65rem !important; }
           .wd-saldo-value { font-size: 1.4rem !important; }
-          .wd-card-value { font-size: 1rem !important; }
+          .wd-card-value { font-size: 1rem !important; margin-bottom: 0.25rem !important; }
+          .wd-card > p { font-size: 0.7rem !important; }
         }
       `}</style>
 
@@ -194,30 +196,30 @@ function Withdraw() {
           
           {/* Card 2: Penarikan */}
           <div className="wd-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <p style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "600", marginBottom: "0.25rem" }}>Total Penarikan</p>
-            <h3 className="wd-card-value" style={{ fontSize: "1.4rem", fontWeight: "800", color: "var(--brand-green)", margin: "0 0 0.5rem 0" }}>Rp {totalPenarikan.toLocaleString("id-ID")}</h3>
-            <p style={{ fontSize: "0.75rem", color: "#10b981", display: "flex", alignItems: "center", gap: "0.25rem", fontWeight: "600", margin: 0 }}><ArrowUpRight size={14}/> 8% dari bulan lalu</p>
+            <p style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: "600", marginBottom: "0.25rem" }}>Total Penarikan</p>
+            <h3 className="wd-card-value" style={{ fontSize: "1.2rem", fontWeight: "800", color: "var(--brand-green)", margin: "0 0 0.5rem 0" }}>Rp {totalPenarikan.toLocaleString("id-ID")}</h3>
+            <p style={{ fontSize: "0.7rem", color: "#10b981", display: "flex", alignItems: "center", gap: "0.25rem", fontWeight: "600", margin: 0 }}><ArrowUpRight size={14}/> 8% bln lalu</p>
           </div>
 
           {/* Card 3: Menunggu */}
           <div className="wd-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <p style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "600", marginBottom: "0.25rem" }}>Menunggu</p>
-            <h3 className="wd-card-value" style={{ fontSize: "1.4rem", fontWeight: "800", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Rp {totalMenunggu.toLocaleString("id-ID")}</h3>
-            <p style={{ fontSize: "0.75rem", color: "#f59e0b", display: "flex", alignItems: "center", gap: "0.25rem", fontWeight: "600", margin: 0 }}><Clock size={14}/> {countMenunggu} transaksi</p>
+            <p style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: "600", marginBottom: "0.25rem" }}>Menunggu</p>
+            <h3 className="wd-card-value" style={{ fontSize: "1.2rem", fontWeight: "800", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Rp {totalMenunggu.toLocaleString("id-ID")}</h3>
+            <p style={{ fontSize: "0.7rem", color: "#f59e0b", display: "flex", alignItems: "center", gap: "0.25rem", fontWeight: "600", margin: 0 }}><Clock size={14}/> {countMenunggu} trx</p>
           </div>
 
           {/* Card 4: Berhasil */}
           <div className="wd-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <p style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "600", marginBottom: "0.25rem" }}>Berhasil</p>
-            <h3 className="wd-card-value" style={{ fontSize: "1.4rem", fontWeight: "800", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Rp {totalBerhasil.toLocaleString("id-ID")}</h3>
-            <p style={{ fontSize: "0.75rem", color: "#10b981", display: "flex", alignItems: "center", gap: "0.25rem", fontWeight: "600", margin: 0 }}><CheckCircle2 size={14}/> {countBerhasil} transaksi</p>
+            <p style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: "600", marginBottom: "0.25rem" }}>Berhasil</p>
+            <h3 className="wd-card-value" style={{ fontSize: "1.2rem", fontWeight: "800", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Rp {totalBerhasil.toLocaleString("id-ID")}</h3>
+            <p style={{ fontSize: "0.7rem", color: "#10b981", display: "flex", alignItems: "center", gap: "0.25rem", fontWeight: "600", margin: 0 }}><CheckCircle2 size={14}/> {countBerhasil} trx</p>
           </div>
 
           {/* Card 5: Ditolak */}
           <div className="wd-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <p style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "600", marginBottom: "0.25rem" }}>Ditolak</p>
-            <h3 className="wd-card-value" style={{ fontSize: "1.4rem", fontWeight: "800", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Rp {totalDitolak.toLocaleString("id-ID")}</h3>
-            <p style={{ fontSize: "0.75rem", color: "#ef4444", display: "flex", alignItems: "center", gap: "0.25rem", fontWeight: "600", margin: 0 }}><XCircle size={14}/> {countDitolak} transaksi</p>
+            <p style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: "600", marginBottom: "0.25rem" }}>Ditolak</p>
+            <h3 className="wd-card-value" style={{ fontSize: "1.2rem", fontWeight: "800", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Rp {totalDitolak.toLocaleString("id-ID")}</h3>
+            <p style={{ fontSize: "0.7rem", color: "#ef4444", display: "flex", alignItems: "center", gap: "0.25rem", fontWeight: "600", margin: 0 }}><XCircle size={14}/> {countDitolak} trx</p>
           </div>
         </div>
 
