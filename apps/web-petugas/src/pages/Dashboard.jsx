@@ -17,10 +17,12 @@ const HARGA = {
 const customStyles = `
   .dash-container {
     padding: 2rem 2.5rem;
+    width: 100%;
     max-width: 1400px;
     margin: 0 auto;
     padding-bottom: 100px;
     font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
   }
   .grid-4-res {
     display: grid;
@@ -39,17 +41,68 @@ const customStyles = `
   .action-btn {
     transition: all 0.2s ease;
   }
+  @media (max-width: 1024px) {
+    .dash-container {
+      padding: 1.5rem;
+    }
+    .grid-4-res {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .grid-2-res {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
   @media (max-width: 768px) {
     .dash-container {
       padding: 1rem;
+      overflow-x: hidden;
+      max-width: 100vw;
     }
     .grid-4-res {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 0.6rem;
     }
     .grid-2-res {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 1.5rem;
+    }
+    .responsive-header {
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 0.5rem !important;
+    }
+    .header-left {
+      width: auto !important;
+    }
+    .header-left-title {
+      font-size: 1rem !important;
+    }
+    .header-left-subtitle {
+      font-size: 0.65rem !important;
+    }
+    .header-left-icon {
+      width: 24px !important;
+      height: 24px !important;
+    }
+    .header-actions {
+      width: auto !important;
+      justify-content: flex-end !important;
+      gap: 0.5rem !important;
+    }
+    .online-badge {
+      padding: 0.3rem 0.5rem !important;
+      font-size: 0.65rem !important;
+    }
+    .avatar-badge {
+      width: 32px !important;
+      height: 32px !important;
+      font-size: 0.8rem !important;
+    }
+    .responsive-greeting {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 1rem;
     }
   }
 `;
@@ -58,6 +111,7 @@ function Dashboard() {
   const [pickups, setPickups] = useState([]);
   const [walletBalance, setWalletBalance] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showNotif, setShowNotif] = useState(false);
   const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -95,7 +149,7 @@ function Dashboard() {
     if (!currentOrder) return;
     try {
       await updatePickupStatus(currentOrder.id, "on_the_way");
-      fetchPickups();
+      fetchDashboardData();
       alert("Status order telah diubah menjadi Dalam Perjalanan!");
     } catch (err) {
       console.error(err);
@@ -119,35 +173,82 @@ function Dashboard() {
       <div className="dash-container">
         
         {/* HEADER */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="responsive-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
+          <div className="header-left" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Recycle color="var(--primary)" size={32} />
+              <Recycle className="header-left-icon" color="var(--primary)" size={32} />
               <div>
-                <h1 style={{ fontSize: '1.2rem', fontWeight: 800, lineHeight: 1.1, margin: 0, color: 'var(--text)' }}>PILAH PILIH</h1>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0, fontWeight: 600 }}>Petugas Sampah</p>
+                <h1 className="header-left-title" style={{ fontSize: '1.2rem', fontWeight: 800, lineHeight: 1.1, margin: 0, color: 'var(--text)' }}>PILAH PILIH</h1>
+                <p className="header-left-subtitle" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0, fontWeight: 600 }}>Petugas Sampah</p>
               </div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ background: 'var(--success-light)', color: 'var(--brand)', padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div className="online-badge" style={{ background: 'var(--success-light)', color: 'var(--brand)', padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
               <div style={{ width: 8, height: 8, background: 'var(--success)', borderRadius: '50%' }} /> Online
             </div>
+            
             <div style={{ position: 'relative', cursor: 'pointer' }}>
-              <Bell size={24} color="var(--text)" />
-              <span style={{ position: 'absolute', top: -6, right: -4, background: 'var(--danger)', color: 'white', borderRadius: '50%', width: 18, height: 18, fontSize: '0.65rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}>3</span>
+              <div onClick={() => setShowNotif(!showNotif)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px' }}>
+                <Bell size={22} color="var(--text)" />
+                {pending.length > 0 && (
+                  <span style={{ position: 'absolute', top: -4, right: -4, background: 'var(--danger)', color: 'white', borderRadius: '50%', width: 16, height: 16, fontSize: '0.6rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}>
+                    {pending.length}
+                  </span>
+                )}
+              </div>
+              
+              {showNotif && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: '-10px',
+                  marginTop: '10px',
+                  width: '320px',
+                  background: 'white',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                  border: '1px solid var(--border)',
+                  zIndex: 50,
+                  overflow: 'hidden'
+                }}>
+                  <div style={{ padding: '12px 16px', background: '#f8fafc', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text)' }}>Notifikasi Order</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--brand)', fontWeight: 700, background: 'var(--success-light)', padding: '2px 8px', borderRadius: '10px' }}>{pending.length} Baru</span>
+                  </div>
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    {pending.length === 0 ? (
+                      <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Tidak ada order baru menunggu.</div>
+                    ) : (
+                      pending.map(p => (
+                        <div key={p.id} onClick={() => navigate(`/orders/${p.id}`)} style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-light)', cursor: 'pointer', transition: 'background 0.2s', background: 'white', display: 'flex', gap: '12px' }} onMouseOver={e => e.currentTarget.style.background = '#f8fafc'} onMouseOut={e => e.currentTarget.style.background = 'white'}>
+                          <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <ShoppingBag size={18} />
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text)' }}>Order Baru: {p.waste_type}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.address}</div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--brand)', fontWeight: 700, marginTop: '6px' }}>{new Date(p.created_at).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' })}</div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--brand)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800, cursor: 'pointer' }}>
+
+            <div className="avatar-badge" style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--brand)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer' }} onClick={() => navigate('/profil')}>
               {userInitials}
             </div>
           </div>
         </div>
 
         {/* GREETING */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: '2rem', marginBottom: '2rem' }}>
+        <div className="responsive-greeting" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: '1.5rem', marginBottom: '2rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: 'var(--text)' }}>Selamat malam, {userInitials}! 👋</h2>
-            <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginTop: '8px', marginBottom: 0, fontWeight: 500 }}>Tetap semangat dan jaga lingkungan tetap bersih 🍃</p>
+            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: 'var(--text)' }}>Selamat datang, {userInitials}! 👋</h2>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', marginBottom: 0, fontWeight: 500 }}>Tetap semangat dan jaga lingkungan tetap bersih 🍃</p>
           </div>
           <div style={{ textAlign: 'right', background: 'white', padding: '10px 16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Peringkat Anda ⭐ <span style={{ fontWeight: 800, color: 'var(--text)' }}>4.8</span></div>
@@ -156,38 +257,38 @@ function Dashboard() {
         </div>
 
         {/* STATS GRID (4 cols on desktop, 2 on mobile) */}
-        <div className="grid-4-res" style={{ marginBottom: '2rem' }}>
-          <div className="card" onClick={() => navigate('/orders')} style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', borderRadius: '16px', cursor: 'pointer' }}>
-            <div style={{ width: 42, height: 42, borderRadius: '10px', background: 'var(--success-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ClipboardList size={22} />
+        <div className="grid-4-res" style={{ marginBottom: '1.5rem' }}>
+          <div className="card" onClick={() => navigate('/orders')} style={{ padding: '0.65rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', borderRadius: '12px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid var(--border-light)' }}>
+            <div style={{ width: 28, height: 28, borderRadius: '6px', background: 'var(--success-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ClipboardList size={14} />
             </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text)' }}>Total Order</div>
-            <div style={{ fontSize: '1.8rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{pickups.length}</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: 700 }}>Semua riwayat</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)' }}>Total Order</div>
+            <div style={{ fontSize: '0.9rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{pickups.length}</div>
+            <div style={{ fontSize: '0.6rem', color: 'var(--success)', fontWeight: 700 }}>Semua riwayat</div>
           </div>
-          <div className="card" onClick={() => navigate('/orders')} style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', borderRadius: '16px', cursor: 'pointer' }}>
-            <div style={{ width: 42, height: 42, borderRadius: '10px', background: '#fff7ed', color: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Clock size={22} />
+          <div className="card" onClick={() => navigate('/orders')} style={{ padding: '0.65rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', borderRadius: '12px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid var(--border-light)' }}>
+            <div style={{ width: 28, height: 28, borderRadius: '6px', background: '#fff7ed', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Clock size={14} />
             </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text)' }}>Menunggu</div>
-            <div style={{ fontSize: '1.8rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{pending.length}</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Cek daftar order</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)' }}>Menunggu</div>
+            <div style={{ fontSize: '0.9rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{pending.length}</div>
+            <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 600 }}>Cek daftar order</div>
           </div>
-          <div className="card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', borderRadius: '16px' }}>
-            <div style={{ width: 42, height: 42, borderRadius: '10px', background: '#eff6ff', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Truck size={22} />
+          <div className="card" style={{ padding: '0.65rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid var(--border-light)' }}>
+            <div style={{ width: 28, height: 28, borderRadius: '6px', background: '#eff6ff', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Truck size={14} />
             </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text)' }}>Aktif</div>
-            <div style={{ fontSize: '1.8rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{activePickups.length}</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: 700 }}>● Sedang berjalan</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)' }}>Aktif</div>
+            <div style={{ fontSize: '0.9rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{activePickups.length}</div>
+            <div style={{ fontSize: '0.6rem', color: 'var(--success)', fontWeight: 700 }}>● Sedang berjalan</div>
           </div>
-          <div className="card" onClick={() => navigate('/riwayat')} style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', borderRadius: '16px', cursor: 'pointer' }}>
-            <div style={{ width: 42, height: 42, borderRadius: '10px', background: 'var(--success-light)', color: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CheckCircle2 size={22} />
+          <div className="card" onClick={() => navigate('/riwayat')} style={{ padding: '0.65rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', borderRadius: '12px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid var(--border-light)' }}>
+            <div style={{ width: 28, height: 28, borderRadius: '6px', background: 'var(--success-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CheckCircle2 size={14} />
             </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text)' }}>Total Selesai</div>
-            <div style={{ fontSize: '1.8rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{pickups.filter(p => p.status === "completed").length}</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: 700 }}>▲ {todayCompleted.length} selesai hari ini</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)' }}>Total Selesai</div>
+            <div style={{ fontSize: '0.9rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{pickups.filter(p => p.status === "completed").length}</div>
+            <div style={{ fontSize: '0.6rem', color: 'var(--success)', fontWeight: 700 }}>▲ {todayCompleted.length} hr ini</div>
           </div>
         </div>
 
@@ -195,13 +296,13 @@ function Dashboard() {
         <div className="grid-2-res" style={{ marginBottom: '2rem' }}>
           
           {/* LEFT COLUMN */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>
             {/* INCOME CARD */}
-            <div className="card" onClick={() => navigate('/tarik-saldo')} style={{ background: 'linear-gradient(135deg, #064e3b, #0f4c2a)', color: 'white', padding: '1.5rem', position: 'relative', overflow: 'hidden', borderRadius: '16px', border: 'none', cursor: 'pointer' }}>
+            <div className="card" onClick={() => navigate('/tarik-saldo')} style={{ background: 'linear-gradient(135deg, #064e3b, #0f4c2a)', color: 'white', padding: '1.15rem', position: 'relative', overflow: 'hidden', borderRadius: '12px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(15,76,42,0.2)' }}>
               <div style={{ position: 'relative', zIndex: 1 }}>
-                <div style={{ fontSize: '0.95rem', opacity: 0.9, fontWeight: 600 }}>Saldo Dompet Petugas</div>
-                <div style={{ fontSize: '2.5rem', fontWeight: 800, margin: '8px 0', letterSpacing: '-0.5px' }}>Rp {walletBalance.toLocaleString('id-ID')}</div>
-                <div style={{ fontSize: '0.85rem', color: '#6ee7b7', fontWeight: 600 }}>Tarik Saldo & Top Up &rarr;</div>
+                <div style={{ fontSize: '0.85rem', opacity: 0.9, fontWeight: 600 }}>Saldo Dompet Petugas</div>
+                <div style={{ fontSize: '1.35rem', fontWeight: 800, margin: '6px 0', letterSpacing: '-0.3px' }}>Rp {walletBalance.toLocaleString('id-ID')}</div>
+                <div style={{ fontSize: '0.75rem', color: '#6ee7b7', fontWeight: 600 }}>Tarik Saldo & Top Up &rarr;</div>
               </div>
               <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', opacity: 0.8, width: 48, height: 48, background: 'rgba(255,255,255,0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Wallet size={24} color="white" />
@@ -279,7 +380,7 @@ function Dashboard() {
           </div>
 
           {/* RIGHT COLUMN */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>
             {/* ACTIVE ORDER LIST */}
             <div className="card" style={{ padding: '1.5rem', borderRadius: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
@@ -332,69 +433,69 @@ function Dashboard() {
             </div>
 
             {/* QUICK ACTIONS */}
-            <div>
-              <div style={{ fontWeight: 800, marginBottom: '1rem', fontSize: '1rem' }}>Aksi Cepat</div>
-              <div className="grid-4-res" style={{ gap: '1rem', display: 'flex', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-                <div className="card action-btn" onClick={() => navigate('/timbang')} style={{ minWidth: '70px', flex: 1, padding: '1.25rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', borderRadius: '12px' }}>
-                  <ScanLine size={32} color="var(--success)" />
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, textAlign: 'center' }}>Scan</div>
+            <div className="card" style={{ minWidth: 0, overflow: 'hidden' }}>
+              <div style={{ fontWeight: 800, marginBottom: '0.75rem', fontSize: '0.9rem' }}>Aksi Cepat</div>
+              <div style={{ gap: '0.75rem', display: 'flex', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                <div className="card action-btn" onClick={() => navigate('/timbang')} style={{ minWidth: '65px', flex: 1, padding: '0.85rem 0.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid var(--border-light)' }}>
+                  <ScanLine size={24} color="var(--brand)" />
+                  <div style={{ fontSize: '0.65rem', fontWeight: 700, textAlign: 'center' }}>Scan</div>
                 </div>
-                <div className="card action-btn" onClick={() => navigate('/timbang')} style={{ minWidth: '70px', flex: 1, padding: '1.25rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', borderRadius: '12px' }}>
-                  <Scale size={32} color="#a855f7" />
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, textAlign: 'center' }}>Timbang</div>
+                <div className="card action-btn" onClick={() => navigate('/timbang')} style={{ minWidth: '65px', flex: 1, padding: '0.85rem 0.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid var(--border-light)' }}>
+                  <Scale size={24} color="var(--brand)" />
+                  <div style={{ fontSize: '0.65rem', fontWeight: 700, textAlign: 'center' }}>Timbang</div>
                 </div>
-                <div className="card action-btn" onClick={() => navigate('/riwayat')} style={{ minWidth: '70px', flex: 1, padding: '1.25rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', borderRadius: '12px' }}>
-                  <History size={32} color="#f97316" />
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, textAlign: 'center' }}>Riwayat</div>
+                <div className="card action-btn" onClick={() => navigate('/riwayat')} style={{ minWidth: '65px', flex: 1, padding: '0.85rem 0.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid var(--border-light)' }}>
+                  <History size={24} color="var(--brand)" />
+                  <div style={{ fontSize: '0.65rem', fontWeight: 700, textAlign: 'center' }}>Riwayat</div>
                 </div>
-                <div className="card action-btn" onClick={() => navigate('/tarik-saldo')} style={{ minWidth: '70px', flex: 1, padding: '1.25rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', borderRadius: '12px' }}>
-                  <Wallet size={32} color="#3b82f6" />
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, textAlign: 'center' }}>Tarik Saldo</div>
+                <div className="card action-btn" onClick={() => navigate('/tarik-saldo')} style={{ minWidth: '65px', flex: 1, padding: '0.85rem 0.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid var(--border-light)' }}>
+                  <Wallet size={24} color="var(--brand)" />
+                  <div style={{ fontSize: '0.65rem', fontWeight: 700, textAlign: 'center' }}>Tarik Saldo</div>
                 </div>
-                <div className="card action-btn" onClick={() => navigate('/topup')} style={{ minWidth: '70px', flex: 1, padding: '1.25rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', borderRadius: '12px' }}>
-                  <ShoppingBag size={32} color="#10b981" />
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, textAlign: 'center' }}>Top Up</div>
+                <div className="card action-btn" onClick={() => navigate('/topup')} style={{ minWidth: '65px', flex: 1, padding: '0.85rem 0.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid var(--border-light)' }}>
+                  <ShoppingBag size={24} color="var(--brand)" />
+                  <div style={{ fontSize: '0.65rem', fontWeight: 700, textAlign: 'center' }}>Top Up</div>
                 </div>
-                <div className="card action-btn" onClick={() => navigate('/chat')} style={{ minWidth: '70px', flex: 1, padding: '1.25rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', borderRadius: '12px' }}>
-                  <MessageCircle size={32} color="#ef4444" />
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, textAlign: 'center' }}>Chat</div>
+                <div className="card action-btn" onClick={() => navigate('/chat')} style={{ minWidth: '65px', flex: 1, padding: '0.85rem 0.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid var(--border-light)' }}>
+                  <MessageCircle size={24} color="var(--brand)" />
+                  <div style={{ fontSize: '0.65rem', fontWeight: 700, textAlign: 'center' }}>Chat</div>
                 </div>
               </div>
             </div>
 
             {/* NOTIFICATIONS */}
-            <div style={{ marginTop: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <div style={{ fontWeight: 800, fontSize: '1rem' }}>Notifikasi</div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--brand)', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>Lihat semua <ChevronRight size={18}/></div>
+            <div style={{ marginTop: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>Notifikasi</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--brand)', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>Lihat semua <ChevronRight size={16}/></div>
               </div>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', padding: '1.25rem', background: 'white', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'var(--success-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <ShoppingBag size={22} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.85rem', background: 'white', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'var(--success-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <ShoppingBag size={18} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>Order baru masuk</div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>Ada order baru di sekitar Anda</div>
+                    <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>Order baru masuk</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>Ada order baru di sekitar Anda</div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 500 }}>2 menit lalu</div>
-                    <ChevronRight size={18} color="var(--text-light)" />
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 500 }}>2 menit lalu</div>
+                    <ChevronRight size={14} color="var(--text-light)" />
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', padding: '1.25rem', background: 'white', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#fff7ed', color: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <CheckCircle2 size={22} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.85rem', background: 'white', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'var(--success-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <CheckCircle2 size={18} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>Order selesai</div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>Order #2 telah selesai</div>
+                    <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>Order selesai</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>Order #2 telah selesai</div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 500 }}>1 jam lalu</div>
-                    <ChevronRight size={18} color="var(--text-light)" />
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 500 }}>1 jam lalu</div>
+                    <ChevronRight size={14} color="var(--text-light)" />
                   </div>
                 </div>
               </div>

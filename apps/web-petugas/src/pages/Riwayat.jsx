@@ -79,54 +79,54 @@ function Riwayat() {
       <div className="page-body">
 
         {/* Summary Cards */}
-        <div className="grid-3" style={{ marginBottom: "1.5rem" }}>
-          <div className="card" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div style={{ width: 48, height: 48, background: "var(--success-light)", borderRadius: "var(--radius-lg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand)" }}>
-              <CheckCircle2 size={22} />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "1rem", marginBottom: "1.5rem" }}>
+          <div className="card" style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "1rem", borderRadius: "12px", border: "1px solid var(--border-light)", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+            <div style={{ width: 36, height: 36, background: "var(--success-light)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand)" }}>
+              <CheckCircle2 size={18} />
             </div>
             <div>
-              <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600 }}>Total Selesai</p>
-              <h3 style={{ fontSize: "1.8rem", fontWeight: 900, color: "var(--brand)", lineHeight: 1 }}>{completedCount}</h3>
+              <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 700, margin: 0 }}>Total Selesai</p>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--brand)", lineHeight: 1, margin: "4px 0 0 0" }}>{completedCount}</h3>
             </div>
           </div>
-          <div className="card" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div style={{ width: 48, height: 48, background: "var(--info-light)", borderRadius: "var(--radius-lg)", display: "flex", alignItems: "center", justifyContent: "center", color: "#2563eb" }}>
-              <Weight size={22} />
+          <div className="card" style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "1rem", borderRadius: "12px", border: "1px solid var(--border-light)", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+            <div style={{ width: 36, height: 36, background: "var(--info-light)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "#2563eb" }}>
+              <Weight size={18} />
             </div>
             <div>
-              <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600 }}>Total Berat</p>
-              <h3 style={{ fontSize: "1.8rem", fontWeight: 900, color: "#2563eb", lineHeight: 1 }}>{totalWeight.toFixed(1)} <span style={{ fontSize: "0.9rem" }}>kg</span></h3>
+              <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 700, margin: 0 }}>Total Berat</p>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#2563eb", lineHeight: 1, margin: "4px 0 0 0" }}>{totalWeight.toFixed(1)} <span style={{ fontSize: "0.8rem" }}>kg</span></h3>
             </div>
           </div>
-          <div className="card" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div style={{ width: 48, height: 48, background: "var(--warning-light)", borderRadius: "var(--radius-lg)", display: "flex", alignItems: "center", justifyContent: "center", color: "#d97706" }}>
-              <History size={22} />
+          <div className="card" style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "1rem", borderRadius: "12px", border: "1px solid var(--border-light)", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+            <div style={{ width: 36, height: 36, background: "var(--warning-light)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "#d97706" }}>
+              <History size={18} />
             </div>
             <div>
-              <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600 }}>Total Order</p>
-              <h3 style={{ fontSize: "1.8rem", fontWeight: 900, color: "#d97706", lineHeight: 1 }}>{pickups.length}</h3>
+              <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 700, margin: 0 }}>Total Order</p>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#d97706", lineHeight: 1, margin: "4px 0 0 0" }}>{pickups.length}</h3>
             </div>
           </div>
         </div>
 
         {/* Filter & Sort Bar */}
-        <div className="card" style={{ marginBottom: "1.25rem", padding: "1rem 1.25rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+        <div className="card" style={{ marginBottom: "1.25rem", padding: "0.85rem 1rem", borderRadius: "12px", border: "1px solid var(--border-light)", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <Filter size={15} color="var(--text-muted)" />
-              <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-muted)" }}>Filter:</span>
+              <Filter size={14} color="var(--text-muted)" />
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-muted)" }}>Filter:</span>
             </div>
             {Object.entries({ all: "Semua", completed: "Selesai", cancelled: "Dibatalkan", pending: "Menunggu" }).map(([key, label]) => (
               <button
                 key={key}
                 onClick={() => setFilter(key)}
                 style={{
-                  padding: "0.35rem 0.9rem",
-                  borderRadius: "var(--radius-full)",
-                  border: filter === key ? "none" : "1.5px solid var(--border)",
+                  padding: "0.3rem 0.75rem",
+                  borderRadius: "20px",
+                  border: filter === key ? "none" : "1px solid var(--border)",
                   background: filter === key ? "var(--brand)" : "transparent",
                   color: filter === key ? "white" : "var(--text-muted)",
-                  fontWeight: 700, fontSize: "0.8rem", cursor: "pointer",
+                  fontWeight: 700, fontSize: "0.7rem", cursor: "pointer",
                   transition: "all 0.15s"
                 }}
               >
@@ -136,7 +136,7 @@ function Riwayat() {
             <button
               onClick={() => setSortDesc(!sortDesc)}
               className="btn btn-ghost btn-sm"
-              style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}
+              style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4, fontSize: "0.75rem", padding: "0.3rem 0.75rem" }}
             >
               {sortDesc ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
               {sortDesc ? "Terbaru" : "Terlama"}
@@ -146,15 +146,17 @@ function Riwayat() {
 
         {/* Table */}
         {loading ? (
-          <div className="empty-state card" style={{ minHeight: 300 }}>
-            <div className="spinner" />
-            <p>Memuat riwayat...</p>
+          <div className="empty-state card" style={{ minHeight: 250, padding: '2rem', border: "1px solid var(--border-light)", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+            <div className="spinner" style={{ width: 24, height: 24 }} />
+            <p style={{ fontSize: '0.8rem', marginTop: '1rem' }}>Memuat riwayat...</p>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="empty-state card" style={{ minHeight: 300 }}>
-            <div className="empty-state-icon"><History size={32} /></div>
-            <h3>Belum Ada Riwayat</h3>
-            <p>Riwayat penjemputan akan muncul di sini.</p>
+          <div className="empty-state card" style={{ minHeight: 250, padding: '2rem', border: "1px solid var(--border-light)", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+            <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '50%', marginBottom: '1rem' }}>
+              <History size={24} color="#94a3b8" />
+            </div>
+            <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>Belum Ada Riwayat</div>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>Riwayat penjemputan akan muncul di sini.</p>
           </div>
         ) : (
           <div className="card" style={{ padding: 0 }}>

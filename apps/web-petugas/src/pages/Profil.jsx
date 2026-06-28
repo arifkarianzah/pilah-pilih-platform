@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
+import { useNavigate } from "react-router-dom";
 import { getProfile, updateProfile } from "../services/authService";
 import { getAllPickups } from "../services/pickupService";
 import {
   User, Mail, Shield, Edit3, Save, X,
   CheckCircle2, Truck, Clock, History,
-  Camera, ShieldCheck, AlertCircle
+  Camera, ShieldCheck, AlertCircle, LogOut
 } from "lucide-react";
 
 function Profil() {
   const [user, setUser] = useState(null);
   const [pickups, setPickups] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [newName, setNewName] = useState("");
   const [saving, setSaving] = useState(false);
@@ -63,6 +65,14 @@ function Profil() {
     }
   };
 
+  const handleLogout = () => {
+    if (window.confirm("Apakah Anda yakin ingin keluar?")) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/login", { replace: true });
+    }
+  };
+
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -106,45 +116,38 @@ function Profil() {
           <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
 
             {/* Hero */}
-            <div className="profile-hero">
-              <div style={{ position: "relative" }}>
-                <div className="profile-avatar-lg">
+            <div className="card" style={{ background: "linear-gradient(135deg, var(--brand), #0f4c2a)", color: "white", padding: "1.5rem", borderRadius: "16px", display: "flex", alignItems: "center", gap: "1rem", boxShadow: "0 4px 12px rgba(15,76,42,0.2)", border: "none" }}>
+              <div style={{ position: "relative", flexShrink: 0 }}>
+                <div style={{ width: 64, height: 64, borderRadius: "50%", background: "white", color: "var(--brand)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", fontWeight: 900, overflow: "hidden" }}>
                   {profilePic
-                    ? <img src={profilePic} alt="Profil" />
+                    ? <img src={profilePic} alt="Profil" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     : (user?.name?.charAt(0).toUpperCase() || "P")}
                 </div>
                 <label
                   htmlFor="photo-upload"
                   style={{
-                    position: "absolute", bottom: -4, right: -4,
-                    width: 28, height: 28, background: "var(--primary)",
-                    borderRadius: "50%", border: "2px solid white",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    cursor: "pointer", color: "white"
+                    position: "absolute", bottom: -2, right: -2,
+                    width: 24, height: 24, background: "white",
+                    borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                    cursor: "pointer", color: "var(--brand)", boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
                   }}
                 >
-                  <Camera size={13} />
+                  <Camera size={12} />
                 </label>
-                <input
-                  id="photo-upload"
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={handlePhotoChange}
-                />
+                <input id="photo-upload" type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhotoChange} />
               </div>
-              <div className="profile-info">
-                <h2>{user?.name || "Petugas"}</h2>
-                <p>{user?.email}</p>
-                <div className="profile-role-badge">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h2 style={{ fontSize: "1.1rem", fontWeight: 800, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user?.name || "Petugas"}</h2>
+                <p style={{ fontSize: "0.75rem", opacity: 0.85, margin: "2px 0 8px 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user?.email}</p>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", background: "rgba(255,255,255,0.2)", padding: "4px 8px", borderRadius: "20px", fontSize: "0.65rem", fontWeight: 700 }}>
                   <ShieldCheck size={12} /> Petugas Aktif
                 </div>
               </div>
             </div>
 
             {/* Stats */}
-            <div className="card">
-              <div className="card-title" style={{ marginBottom: "1rem" }}>Statistik Saya</div>
+            <div className="card" style={{ padding: "1.25rem", borderRadius: "16px", border: "1px solid var(--border-light)", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+              <div style={{ fontSize: "0.85rem", fontWeight: 700, marginBottom: "1rem", color: "var(--text)" }}>Statistik Saya</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                 {[
                   { label: "Selesai", val: completedCount, icon: CheckCircle2, color: "var(--brand)", bg: "var(--success-light)" },
@@ -153,12 +156,12 @@ function Profil() {
                   { label: "Total Order", val: myPickups.length, icon: Clock, color: "var(--text)", bg: "var(--surface-2)" },
                 ].map(item => (
                   <div key={item.label} style={{
-                    background: item.bg, borderRadius: "var(--radius-md)",
-                    padding: "1rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem"
+                    background: item.bg, borderRadius: "12px",
+                    padding: "0.85rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem"
                   }}>
-                    <item.icon size={20} color={item.color} />
-                    <div style={{ fontWeight: 900, fontSize: "1.3rem", color: item.color, lineHeight: 1 }}>{item.val}</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600 }}>{item.label}</div>
+                    <item.icon size={16} color={item.color} />
+                    <div style={{ fontWeight: 900, fontSize: "1.1rem", color: item.color, lineHeight: 1 }}>{item.val}</div>
+                    <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", fontWeight: 700 }}>{item.label}</div>
                   </div>
                 ))}
               </div>
@@ -169,54 +172,53 @@ function Profil() {
           <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
 
             {/* Edit Profile */}
-            <div className="card">
-              <div className="card-header">
-                <div className="card-title">Informasi Akun</div>
+            <div className="card" style={{ padding: "1.25rem", borderRadius: "16px", border: "1px solid var(--border-light)", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text)" }}>Informasi Akun</div>
                 {!editing && (
                   <button
-                    className="btn btn-ghost btn-sm"
                     onClick={() => setEditing(true)}
+                    style={{ background: "transparent", border: "none", color: "var(--brand)", fontSize: "0.75rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "4px", cursor: "pointer" }}
                   >
                     <Edit3 size={14} /> Edit
                   </button>
                 )}
               </div>
 
-              <div className="info-row">
-                <div className="info-label"><User size={14} style={{ verticalAlign: -2, marginRight: 4 }} />Nama</div>
-                <div className="info-value">
-                  {editing ? (
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={newName}
-                      onChange={e => setNewName(e.target.value)}
-                      style={{ padding: "0.4rem 0.75rem", fontSize: "0.88rem", width: 200 }}
-                      autoFocus
-                    />
-                  ) : (
-                    user?.name || "-"
-                  )}
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 0", borderBottom: "1px solid var(--border-light)" }}>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600, display: "flex", alignItems: "center" }}><User size={14} style={{ marginRight: 6 }} />Nama</div>
+                  <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text)" }}>
+                    {editing ? (
+                      <input
+                        type="text"
+                        value={newName}
+                        onChange={e => setNewName(e.target.value)}
+                        style={{ padding: "0.3rem 0.6rem", fontSize: "0.8rem", width: 150, borderRadius: "6px", border: "1px solid var(--brand)", outline: "none" }}
+                        autoFocus
+                      />
+                    ) : (
+                      user?.name || "-"
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="info-row">
-                <div className="info-label"><Mail size={14} style={{ verticalAlign: -2, marginRight: 4 }} />Email</div>
-                <div className="info-value" style={{ color: "var(--text-muted)" }}>{user?.email || "-"}</div>
-              </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 0", borderBottom: "1px solid var(--border-light)" }}>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600, display: "flex", alignItems: "center" }}><Mail size={14} style={{ marginRight: 6 }} />Email</div>
+                  <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-muted)" }}>{user?.email || "-"}</div>
+                </div>
 
-              <div className="info-row">
-                <div className="info-label"><Shield size={14} style={{ verticalAlign: -2, marginRight: 4 }} />Role</div>
-                <div className="info-value">
-                  <span className="badge badge-completed" style={{ textTransform: "capitalize" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 0", borderBottom: "1px solid var(--border-light)" }}>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600, display: "flex", alignItems: "center" }}><Shield size={14} style={{ marginRight: 6 }} />Role</div>
+                  <div style={{ fontSize: "0.7rem", fontWeight: 700, background: "var(--success-light)", color: "var(--brand)", padding: "2px 8px", borderRadius: "12px", textTransform: "capitalize" }}>
                     {user?.role || "petugas"}
-                  </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="info-row">
-                <div className="info-label">ID Akun</div>
-                <div className="info-value" style={{ color: "var(--text-muted)" }}>#{user?.id}</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 0" }}>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600, display: "flex", alignItems: "center" }}>ID Akun</div>
+                  <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-muted)" }}>#{user?.id}</div>
+                </div>
               </div>
 
               {editing && (
@@ -240,12 +242,12 @@ function Profil() {
             </div>
 
             {/* Recent Activity */}
-            <div className="card">
-              <div className="card-title" style={{ marginBottom: "1rem" }}>Order Terakhir Saya</div>
+            <div className="card" style={{ padding: "1.25rem", borderRadius: "16px", border: "1px solid var(--border-light)", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+              <div style={{ fontSize: "0.85rem", fontWeight: 700, marginBottom: "1rem", color: "var(--text)" }}>Order Terakhir Saya</div>
               {myPickups.length === 0 ? (
-                <div className="empty-state" style={{ minHeight: 120 }}>
-                  <div className="empty-state-icon"><History size={24} /></div>
-                  <p>Belum ada order yang ditangani.</p>
+                <div className="empty-state" style={{ minHeight: 120, padding: "1.5rem", border: "1px dashed var(--border)", borderRadius: "12px", background: "var(--bg-light)" }}>
+                  <div style={{ background: "white", padding: "0.5rem", borderRadius: "50%", marginBottom: "0.75rem" }}><History size={20} color="#94a3b8" /></div>
+                  <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600 }}>Belum ada order yang ditangani.</p>
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
@@ -281,6 +283,15 @@ function Profil() {
                 </div>
               </div>
             </div>
+
+            {/* Logout Button */}
+            <button
+              className="btn btn-danger"
+              style={{ width: "100%", padding: "0.85rem", fontSize: "0.95rem", display: "flex", justifyContent: "center", alignItems: "center", gap: "0.5rem", borderRadius: "12px", marginTop: "0.5rem" }}
+              onClick={handleLogout}
+            >
+              <LogOut size={18} /> Keluar Akun
+            </button>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 function StatCard({ icon, label, value, color, bg, trend, trendLabel, smallValue }) {
   return (
     <div className="stat-card">
-      <div className="stat-icon" style={{ background: bg, color: color }}>
+      <div className="stat-icon" style={{ background: bg, color: 'var(--brand)' }}>
         {icon}
       </div>
       <div className="stat-info">

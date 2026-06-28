@@ -115,60 +115,158 @@ function Chat() {
   const customStyles = `
     .chat-layout {
       display: flex;
-      height: calc(100vh - 70px); /* minus bottom nav */
-      background: white;
-      font-family: 'Inter', sans-serif;
+      height: calc(100vh - 70px);
+      background: #efeae2;
+      font-family: 'Inter', -apple-system, sans-serif;
     }
     .chat-sidebar {
-      width: 320px;
-      border-right: 1px solid var(--border);
+      width: 350px;
+      border-right: 1px solid #d1d7db;
       display: flex;
       flex-direction: column;
-      background: #f8fafc;
+      background: white;
     }
     .chat-main {
       flex: 1;
       display: flex;
       flex-direction: column;
-      background: #f1f5f9;
+      background: #efeae2;
     }
-    .contact-item {
-      padding: 1rem;
+    .wa-header {
+      background: #008069;
+      color: white;
+      padding: 0.75rem 1rem;
       display: flex;
       align-items: center;
       gap: 1rem;
-      border-bottom: 1px solid var(--border);
+      height: 60px;
+      flex-shrink: 0;
+    }
+    .wa-header h2, .wa-header h3 {
+      margin: 0;
+      color: white;
+      font-weight: 600;
+    }
+    .wa-search {
+      background: #f0f2f5;
+      padding: 0.5rem 0.8rem;
+      border-bottom: 1px solid #f2f2f2;
+    }
+    .wa-search-inner {
+      background: white;
+      border-radius: 8px;
+      padding: 0.4rem 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .wa-search-inner input {
+      border: none;
+      outline: none;
+      width: 100%;
+      background: transparent;
+      font-size: 0.9rem;
+    }
+    .contact-item {
+      padding: 0 1rem;
+      display: flex;
+      align-items: stretch;
+      gap: 1rem;
       cursor: pointer;
+      background: white;
       transition: background 0.2s;
     }
-    .contact-item:hover {
-      background: white;
+    .contact-item:hover, .contact-item.active {
+      background: #f0f2f5;
     }
-    .contact-item.active {
-      background: white;
-      border-left: 4px solid var(--brand);
+    .contact-content {
+      flex: 1;
+      border-bottom: 1px solid #f2f2f2;
+      padding: 0.8rem 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .contact-item:last-child .contact-content {
+      border-bottom: none;
     }
     .msg-bubble {
-      max-width: 75%;
-      padding: 10px 14px;
-      border-radius: 16px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      max-width: 85%;
+      padding: 6px 7px 8px 9px;
+      border-radius: 8px;
+      box-shadow: 0 1px 0.5px rgba(11,20,26,.13);
       font-size: 0.95rem;
-      line-height: 1.4;
+      line-height: 19px;
+      position: relative;
+      margin-bottom: 2px;
     }
     .msg-mine {
-      background: var(--brand);
-      color: white;
-      border-bottom-right-radius: 4px;
+      background: #d9fdd3;
+      color: #111b21;
+      border-top-right-radius: 0;
     }
     .msg-theirs {
       background: white;
-      color: var(--text);
-      border-bottom-left-radius: 4px;
-      border: 1px solid var(--border);
+      color: #111b21;
+      border-top-left-radius: 0;
+    }
+    .msg-time {
+      font-size: 0.68rem;
+      color: #667781;
+      float: right;
+      margin-top: 4px;
+      margin-left: 10px;
+    }
+    .chat-bg {
+      background-color: #efeae2;
+      background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+      background-size: 400px;
+      background-blend-mode: multiply;
+      opacity: 0.6;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 0;
+    }
+    .chat-input-area {
+      background: #f0f2f5;
+      padding: 10px 1rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      z-index: 10;
+    }
+    .chat-input-wrapper {
+      flex: 1;
+      background: white;
+      border-radius: 24px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+    }
+    .chat-input-wrapper input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 0.95rem;
+    }
+    .send-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #00a884;
+      color: white;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .send-btn:disabled {
+      background: #a9a9a9;
     }
     
     @media (max-width: 768px) {
+      .chat-layout { height: 100vh; }
       .chat-sidebar {
         width: 100%;
         display: ${activeContact ? 'none' : 'flex'};
@@ -176,6 +274,7 @@ function Chat() {
       .chat-main {
         display: ${activeContact ? 'flex' : 'none'};
       }
+      .bottom-nav { display: none !important; }
     }
   `;
 
@@ -186,23 +285,32 @@ function Chat() {
         
         {/* SIDEBAR */}
         <div className="chat-sidebar">
-          <div style={{ padding: '1.25rem', background: 'white', borderBottom: '1px solid var(--border)' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: 'var(--text)' }}>Pesan</h2>
-            <div style={{ position: 'relative', marginTop: '1rem' }}>
-              <Search size={18} style={{ position: 'absolute', left: 12, top: 10, color: 'var(--text-muted)' }} />
+          <div className="wa-header">
+            <button 
+              className="d-md-none" 
+              onClick={() => navigate('/dashboard')}
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
+            >
+              <ArrowLeft size={24} color="white" />
+            </button>
+            <h2 style={{ fontSize: '1.25rem' }}>WhatsApp Petugas</h2>
+          </div>
+          
+          <div className="wa-search">
+            <div className="wa-search-inner">
+              <Search size={18} color="#8696a0" />
               <input 
                 type="text" 
-                placeholder="Cari kontak..." 
-                style={{ width: '100%', padding: '10px 10px 10px 36px', borderRadius: '8px', border: '1px solid var(--border)', background: '#f8fafc', outline: 'none' }}
+                placeholder="Cari atau mulai chat baru" 
               />
             </div>
           </div>
           
           <div style={{ flex: 1, overflowY: 'auto' }}>
             {loadingContacts ? (
-              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Memuat kontak...</div>
+              <div style={{ padding: '2rem', textAlign: 'center', color: '#8696a0' }}>Memuat kontak...</div>
             ) : contacts.length === 0 ? (
-              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Belum ada kontak.</div>
+              <div style={{ padding: '2rem', textAlign: 'center', color: '#8696a0' }}>Belum ada kontak.</div>
             ) : (
               contacts.map(c => (
                 <div 
@@ -210,12 +318,19 @@ function Chat() {
                   className={`contact-item ${activeContact?.id === c.id ? 'active' : ''}`}
                   onClick={() => handleSelectContact(c)}
                 >
-                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: c.role === 'pengepul' ? 'var(--brand)' : 'var(--primary-light)', color: c.role === 'pengepul' ? 'white' : 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <User size={22} />
+                  <div style={{ padding: '0.6rem 0' }}>
+                    <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#dfe5e7', color: '#8696a0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <User size={28} />
+                    </div>
                   </div>
-                  <div style={{ flex: 1, overflow: 'hidden' }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.95rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{c.name}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'capitalize' }}>{c.role}</div>
+                  <div className="contact-content">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                      <div style={{ fontWeight: 600, fontSize: '1.05rem', color: '#111b21', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{c.name}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#667781' }}>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: '0.85rem', color: '#667781', textTransform: 'capitalize', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.role}</div>
+                    </div>
                   </div>
                 </div>
               ))
@@ -224,81 +339,80 @@ function Chat() {
         </div>
 
         {/* MAIN CHAT AREA */}
-        <div className="chat-main">
+        <div className="chat-main" style={{ position: 'relative' }}>
           {activeContact ? (
             <>
-              {/* Header */}
-              <div style={{ padding: '1rem', background: 'white', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', zIndex: 10 }}>
+              {/* WA Header */}
+              <div className="wa-header">
                 <button 
-                  className="d-md-none" // assume some responsive utility or just show on mobile
                   onClick={handleBackToList}
-                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
                 >
-                  <ArrowLeft size={24} color="var(--text)" />
+                  <ArrowLeft size={24} color="white" />
                 </button>
-                <div style={{ width: 40, height: 40, borderRadius: '50%', background: activeContact.role === 'pengepul' ? 'var(--brand)' : 'var(--primary-light)', color: activeContact.role === 'pengepul' ? 'white' : 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <User size={20} />
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#dfe5e7', color: '#8696a0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <User size={24} />
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>{activeContact.name}</h3>
-                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'capitalize' }}>{activeContact.role}</p>
+                  <h3 style={{ fontSize: '1.05rem' }}>{activeContact.name}</h3>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)', textTransform: 'capitalize' }}>{activeContact.role}</p>
                 </div>
               </div>
 
-              {/* Messages List */}
-              <div style={{ flex: 1, padding: '1rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {loadingMessages && messages.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>Memuat pesan...</div>
-                ) : messages.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-                    <MessageCircle size={40} style={{ opacity: 0.3, marginBottom: '1rem' }} />
-                    <p>Mulai percakapan dengan {activeContact.name}</p>
-                  </div>
-                ) : (
-                  messages.map((msg, idx) => {
-                    const isMe = msg.sender_id === currentUser.id;
-                    return (
-                      <div key={msg.id || idx} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
-                        <div className={`msg-bubble ${isMe ? 'msg-mine' : 'msg-theirs'}`}>
-                          <div>{msg.message}</div>
-                          <div style={{ fontSize: '0.65rem', marginTop: '4px', opacity: 0.7, textAlign: 'right' }}>
-                            {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {/* Messages Area */}
+              <div style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <div className="chat-bg"></div>
+                <div style={{ flex: 1, padding: '1rem 4%', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.2rem', zIndex: 1 }}>
+                  {loadingMessages && messages.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '2rem', color: '#8696a0' }}>Memuat pesan...</div>
+                  ) : messages.length === 0 ? (
+                    <div style={{ margin: '1rem auto', background: '#ffeecd', padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem', color: '#54656f', textAlign: 'center', boxShadow: '0 1px 0.5px rgba(11,20,26,.13)' }}>
+                      Pesan ini dienkripsi secara end-to-end. Tidak ada seorang pun di luar chat ini, yang dapat membaca atau mendengarkannya.
+                    </div>
+                  ) : (
+                    messages.map((msg, idx) => {
+                      const isMe = msg.sender_id === currentUser.id;
+                      return (
+                        <div key={msg.id || idx} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start', margin: '2px 0' }}>
+                          <div className={`msg-bubble ${isMe ? 'msg-mine' : 'msg-theirs'}`}>
+                            <span>{msg.message}</span>
+                            <span className="msg-time">
+                              {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })
-                )}
-                <div ref={messagesEndRef} />
+                      );
+                    })
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
               </div>
 
               {/* Input Area */}
-              <div style={{ padding: '1rem', background: 'white', borderTop: '1px solid var(--border)' }}>
-                <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '0.75rem' }}>
+              <div className="chat-input-area">
+                <div className="chat-input-wrapper">
                   <input 
                     type="text" 
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Ketik pesan..."
-                    style={{ flex: 1, padding: '12px 16px', borderRadius: '24px', border: '1px solid var(--border)', outline: 'none', background: '#f8fafc', fontSize: '0.95rem' }}
+                    placeholder="Ketik pesan"
                   />
-                  <button 
-                    type="submit" 
-                    disabled={!newMessage.trim()} 
-                    style={{ width: 46, height: 46, borderRadius: '50%', background: newMessage.trim() ? 'var(--brand)' : 'var(--border)', color: 'white', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: newMessage.trim() ? 'pointer' : 'not-allowed', transition: '0.2s' }}
-                  >
-                    <Send size={20} style={{ marginLeft: -2 }} />
-                  </button>
-                </form>
+                </div>
+                <button 
+                  type="submit" 
+                  onClick={handleSendMessage}
+                  disabled={!newMessage.trim()} 
+                  className="send-btn"
+                >
+                  <Send size={18} style={{ marginLeft: -2 }} />
+                </button>
               </div>
             </>
           ) : (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                <MessageCircle size={40} color="var(--brand)" style={{ opacity: 0.5 }} />
-              </div>
-              <h3 style={{ margin: 0, fontWeight: 700, color: 'var(--text)' }}>Pilah Pilih Chat</h3>
-              <p style={{ marginTop: '0.5rem' }}>Pilih kontak di sebelah kiri untuk mulai mengobrol.</p>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f0f2f5', zIndex: 1 }}>
+              <MessageCircle size={80} color="#d1d7db" style={{ marginBottom: '2rem' }} />
+              <h1 style={{ margin: 0, fontWeight: 300, color: '#41525d', fontSize: '2rem' }}>Pilah Pilih WhatsApp</h1>
+              <p style={{ marginTop: '1rem', color: '#8696a0', fontSize: '0.9rem' }}>Pilih kontak di sebelah kiri untuk mulai mengirim pesan.</p>
             </div>
           )}
         </div>
