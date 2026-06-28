@@ -5,8 +5,8 @@ export const login = async (email, password) => {
   return res.data;
 };
 
-export const registerPetugas = async (name, email, password) => {
-  const res = await api.post("/auth/register-petugas", { name, email, password });
+export const registerPetugas = async (name, email, phone, password) => {
+  const res = await api.post("/auth/register-petugas", { name, email, phone, password });
   return res.data;
 };
 

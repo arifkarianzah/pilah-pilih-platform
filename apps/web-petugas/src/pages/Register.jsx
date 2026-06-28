@@ -3,12 +3,13 @@ import { useNavigate, Link } from "react-router-dom";
 import { registerPetugas } from "../services/authService";
 import {
   Recycle, User, Mail, Lock, Eye, EyeOff,
-  AlertCircle, CheckCircle2, ShieldCheck, Truck, ArrowLeft
+  AlertCircle, CheckCircle2, ShieldCheck, Truck, ArrowLeft, Phone
 } from "lucide-react";
 
 function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -23,7 +24,7 @@ function Register() {
     setError("");
     setSuccess("");
 
-    if (!name.trim() || !email.trim() || !password || !confirmPassword) {
+    if (!name.trim() || !email.trim() || !phone.trim() || !password || !confirmPassword) {
       setError("Semua field wajib diisi.");
       return;
     }
@@ -38,7 +39,7 @@ function Register() {
 
     setLoading(true);
     try {
-      const data = await registerPetugas(name.trim(), email.trim(), password);
+      const data = await registerPetugas(name.trim(), email.trim(), phone.trim(), password);
       if (data.success) {
         setSuccess("Akun petugas berhasil dibuat! Mengarahkan ke halaman login...");
         setTimeout(() => navigate("/login"), 2000);
@@ -177,6 +178,24 @@ function Register() {
                   onChange={e => setEmail(e.target.value)}
                   required
                   autoComplete="email"
+                />
+              </div>
+            </div>
+
+            {/* No HP */}
+            <div className="form-group">
+              <label className="form-label">No. HP / WhatsApp</label>
+              <div className="input-with-icon">
+                <span className="input-icon"><Phone size={16} /></span>
+                <input
+                  id="phone-input"
+                  type="tel"
+                  className="form-input"
+                  placeholder="Contoh: 081234567890"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  required
+                  autoComplete="tel"
                 />
               </div>
             </div>

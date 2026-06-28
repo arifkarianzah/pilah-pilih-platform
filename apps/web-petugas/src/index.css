@@ -861,8 +861,9 @@ input, select, textarea { font-family: inherit; }
 }
 
 .btn-lg {
-  padding: 0.85rem 2rem;
-  font-size: 1rem;
+  padding: 0.95rem 2rem;
+  font-size: 1.05rem;
+  font-weight: 700;
   border-radius: var(--radius-lg);
 }
 
@@ -880,16 +881,18 @@ input, select, textarea { font-family: inherit; }
 }
 
 .form-label {
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text);
+  margin-bottom: 0.25rem;
+  display: block;
 }
 
 .form-input {
-  padding: 0.75rem 1rem;
+  padding: 0.9rem 1.15rem;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-md);
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--text);
   background: white;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -1226,15 +1229,16 @@ tr:hover td {
 }
 
 .login-form-box h1 {
-  font-size: 1.8rem;
-  font-weight: 900;
+  font-size: 1.6rem;
+  font-weight: 800;
   color: var(--text);
   margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
 }
 
 .login-form-box > p {
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   margin-bottom: 2.5rem;
 }
 
@@ -1250,7 +1254,7 @@ tr:hover td {
 
 .input-with-icon .input-icon {
   position: absolute;
-  left: 1rem;
+  left: 1.15rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
@@ -1258,13 +1262,13 @@ tr:hover td {
 }
 
 .input-with-icon .form-input {
-  padding-left: 2.75rem;
+  padding-left: 3rem;
   width: 100%;
 }
 
 .input-with-icon .input-toggle {
   position: absolute;
-  right: 1rem;
+  right: 1.15rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
