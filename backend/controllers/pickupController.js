@@ -30,7 +30,8 @@ exports.runMigration = async (req, res) => {
             "ALTER TABLE pickups ADD COLUMN finished_at TIMESTAMP NULL DEFAULT NULL",
             "ALTER TABLE waste_prices CHANGE COLUMN price_per_kg price_user_per_kg DECIMAL(10,2) NOT NULL",
             "ALTER TABLE waste_prices ADD COLUMN price_pengepul_per_kg DECIMAL(10,2) NOT NULL DEFAULT 0.00",
-            "UPDATE waste_prices SET price_pengepul_per_kg = price_user_per_kg + 500"
+            "UPDATE waste_prices SET price_pengepul_per_kg = price_user_per_kg + 500",
+            "UPDATE users SET latitude = 0.5333, longitude = 101.4500, service_radius = 50.00 WHERE role = 'petugas'"
         ];
 
         for (let q of queries) {
