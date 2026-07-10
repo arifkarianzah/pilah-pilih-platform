@@ -45,7 +45,6 @@ function AppLayout() {
       <div className="main-content">
         <Outlet />
       </div>
-      <BottomNav />
     </div>
   );
 }

@@ -5,35 +5,37 @@ import {
   getPickupById, acceptPickup, updatePickupStatus, completePickup
 } from "../services/pickupService";
 import {
-  ArrowLeft, MapPin, Calendar, Weight, User,
+  ArrowLeft, MapPin, Calendar, User,
   CheckCircle2, Truck, Clock, XCircle, Package,
-  AlertTriangle, ChevronRight, Scale, MessageCircle
+  AlertTriangle, ChevronRight, Scale, MessageCircle, Navigation
 } from "lucide-react";
 
+/* ── Status config (label diperbaiki) ── */
 const STATUS_CONFIG = {
-  pending: { label: "Menunggu", color: "#d97706", bg: "var(--warning-light)", icon: Clock },
-  accepted: { label: "Diterima", color: "#2563eb", bg: "var(--info-light)", icon: CheckCircle2 },
-  on_the_way: { label: "Di Perjalanan", color: "#059669", bg: "#f0fdf4", icon: Truck },
-  arrived: { label: "Tiba di Lokasi", color: "#8b5cf6", bg: "#f3e8ff", icon: MapPin },
-  collected: { label: "Sampah Dijemput", color: "#ec4899", bg: "#fce7f3", icon: Package },
-  waiting_collector: { label: "Menunggu Pengepul", color: "#0284c7", bg: "#e0f2fe", icon: Scale },
-  weighing: { label: "Sedang Ditimbang", color: "#ea580c", bg: "#ffedd5", icon: Scale },
-  completed: { label: "Selesai", color: "var(--brand)", bg: "var(--success-light)", icon: CheckCircle2 },
-  cancelled: { label: "Dibatalkan", color: "var(--danger)", bg: "var(--danger-light)", icon: XCircle },
+  pending:          { label: "Menunggu",         color: "#d97706", bg: "#fffbeb",  icon: Clock },
+  accepted:         { label: "Diterima",          color: "#2563eb", bg: "#eff6ff",  icon: CheckCircle2 },
+  on_the_way:       { label: "Menuju Lokasi",     color: "#16a34a", bg: "#f0fdf4",  icon: Truck },
+  arrived:          { label: "Tiba di Lokasi",    color: "#8b5cf6", bg: "#f5f3ff",  icon: MapPin },
+  collected:        { label: "Sampah Dijemput",   color: "#ec4899", bg: "#fdf2f8",  icon: Package },
+  waiting_collector:{ label: "Menuju Pengepul",   color: "#0284c7", bg: "#f0f9ff",  icon: Truck },
+  weighing:         { label: "Penimbangan",        color: "#ea580c", bg: "#fff7ed",  icon: Scale },
+  completed:        { label: "Selesai",            color: "#16a34a", bg: "#f0fdf4",  icon: CheckCircle2 },
+  cancelled:        { label: "Dibatalkan",         color: "#ef4444", bg: "#fff1f2",  icon: XCircle },
 };
 
+/* ── Timeline — urutan baru sesuai permintaan user ── */
 const TIMELINE = [
-  { key: "pending", label: "Order Masuk", desc: "Permintaan diterima" },
-  { key: "accepted", label: "Diterima Petugas", desc: "Petugas mengkonfirmasi" },
-  { key: "on_the_way", label: "Dalam Perjalanan", desc: "Petugas menuju lokasi" },
-  { key: "arrived", label: "Tiba di Lokasi", desc: "Petugas telah sampai" },
-  { key: "collected", label: "Sampah Dijemput", desc: "Sampah telah diangkut" },
-  { key: "waiting_collector", label: "Dikirim ke Pengepul", desc: "Menunggu pengepul menerima" },
-  { key: "weighing", label: "Sedang Ditimbang", desc: "Pengepul menimbang sampah" },
-  { key: "completed", label: "Selesai", desc: "Transaksi selesai" },
+  { key: "pending",           label: "Order Masuk",     desc: "Permintaan penjemputan diterima" },
+  { key: "accepted",          label: "Diterima",         desc: "Petugas mengkonfirmasi order" },
+  { key: "on_the_way",        label: "Menuju Lokasi",   desc: "Petugas dalam perjalanan ke lokasi" },
+  { key: "arrived",           label: "Tiba di Lokasi",  desc: "Petugas telah sampai" },
+  { key: "collected",         label: "Sampah Dijemput",  desc: "Sampah berhasil diangkut" },
+  { key: "waiting_collector", label: "Menuju Pengepul",  desc: "Dalam perjalanan ke pengepul" },
+  { key: "weighing",          label: "Penimbangan",      desc: "Sampah sedang ditimbang pengepul" },
+  { key: "completed",         label: "Selesai",          desc: "Transaksi selesai, saldo diperbarui" },
 ];
 
-const statusOrder = ["pending", "accepted", "on_the_way", "arrived", "collected", "waiting_collector", "weighing", "completed"];
+const statusOrder = TIMELINE.map(t => t.key);
 
 function OrderDetail() {
   const { id } = useParams();
@@ -43,13 +45,14 @@ function OrderDetail() {
   const [actionLoading, setActionLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const [error, setError] = useState("");
-  const [confirmComplete, setConfirmComplete] = useState(false);
 
+  /* ── Toast (tidak diubah) ── */
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
   };
 
+  /* ── Fetch (tidak diubah) ── */
   const fetchOrder = async () => {
     setLoading(true);
     try {
@@ -64,6 +67,7 @@ function OrderDetail() {
 
   useEffect(() => { fetchOrder(); }, [id]);
 
+  /* ── Handlers (semua logika tetap sama) ── */
   const handleAccept = async () => {
     setActionLoading(true);
     try {
@@ -81,7 +85,7 @@ function OrderDetail() {
     setActionLoading(true);
     try {
       await updatePickupStatus(id, status);
-      showToast(`Status diperbarui: ${STATUS_CONFIG[status]?.label}`);
+      showToast(`Status: ${STATUS_CONFIG[status]?.label}`);
       fetchOrder();
     } catch (err) {
       showToast(err.response?.data?.message || "Gagal update status", "error");
@@ -91,38 +95,40 @@ function OrderDetail() {
   };
 
   const handleKirimPengepul = async () => {
-    // Navigate to a form where Petugas selects Pengepul and uploads photo, but for now we can just navigate to a send page or update directly if we have pengepul_id.
-    // Actually, Petugas needs to select a Pengepul. So we redirect them to a page to select pengepul.
     navigate(`/orders/${id}/send`);
   };
 
   const currentStatusIdx = statusOrder.indexOf(order?.status);
   const cfg = STATUS_CONFIG[order?.status] || STATUS_CONFIG.pending;
 
+  /* ── Loading state ── */
   if (loading) {
     return (
       <>
-        <Navbar title="Detail Order" hideActions={true} />
+        <Navbar title="Detail Order" hideActions={true} showBack={true} />
         <div className="page-body">
-          <div className="empty-state" style={{ minHeight: 400 }}>
+          <div className="empty-state" style={{ minHeight: 360 }}>
             <div className="spinner" />
-            <p>Memuat detail...</p>
+            <p style={{ marginTop: "0.75rem", fontSize: "0.8rem", fontWeight: 500 }}>Memuat detail...</p>
           </div>
         </div>
       </>
     );
   }
 
+  /* ── Error state ── */
   if (error || !order) {
     return (
       <>
-        <Navbar title="Detail Order" hideActions={true} />
+        <Navbar title="Detail Order" hideActions={true} showBack={true} />
         <div className="page-body">
-          <div className="empty-state" style={{ minHeight: 400 }}>
-            <div className="empty-state-icon"><AlertTriangle size={32} /></div>
+          <div className="empty-state" style={{ minHeight: 360 }}>
+            <div className="empty-state-icon">
+              <AlertTriangle size={28} />
+            </div>
             <h3>Order Tidak Ditemukan</h3>
             <p>{error}</p>
-            <button className="btn btn-primary btn-sm" onClick={() => navigate("/orders")}>
+            <button className="btn btn-primary btn-sm" onClick={() => navigate("/orders")} style={{ marginTop: "1rem" }}>
               Kembali ke Orders
             </button>
           </div>
@@ -131,133 +137,129 @@ function OrderDetail() {
     );
   }
 
+  const StatusIcon = cfg.icon;
+
   return (
     <>
-      <Navbar title={`Order #${order.id}`} subtitle="Detail & tindakan penjemputan" hideActions={true} />
+      <Navbar title={`Order #${order.id}`} hideActions={true} showBack={true} />
 
       <div className="page-body">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate("/orders")}
-          className="btn btn-ghost btn-sm"
-          style={{ marginBottom: "1.5rem" }}
-        >
-          <ArrowLeft size={14} /> Kembali
-        </button>
+
+        {/* ── STATUS BANNER ── */}
+        <div style={{
+          background: `linear-gradient(135deg, ${cfg.color}15, ${cfg.color}08)`,
+          border: `1.5px solid ${cfg.color}30`,
+          borderRadius: "var(--radius-xl)", padding: "1.15rem",
+          display: "flex", alignItems: "center", gap: "1rem",
+          marginBottom: "1rem"
+        }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: "var(--radius-lg)",
+            background: `${cfg.color}18`, display: "flex",
+            alignItems: "center", justifyContent: "center", color: cfg.color
+          }}>
+            <StatusIcon size={26} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: 600, marginBottom: 3 }}>
+              Status Saat Ini
+            </p>
+            <h2 style={{ color: cfg.color, fontWeight: 900, fontSize: "1.2rem", letterSpacing: -0.5, margin: 0 }}>
+              {cfg.label}
+            </h2>
+          </div>
+          <span className={`badge badge-${order.status}`}>{cfg.label}</span>
+        </div>
 
         <div className="detail-grid">
-          {/* Left Column */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
 
-            {/* Status Banner */}
-            <div style={{
-              background: cfg.bg, border: `1px solid ${cfg.color}30`,
-              borderRadius: "var(--radius-xl)", padding: "1.25rem 1.5rem",
-              display: "flex", alignItems: "center", gap: "1rem"
-            }}>
-              <div style={{
-                width: 52, height: 52, borderRadius: "var(--radius-lg)",
-                background: cfg.color + "20", display: "flex",
-                alignItems: "center", justifyContent: "center", color: cfg.color
-              }}>
-                <cfg.icon size={26} />
-              </div>
-              <div>
-                <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600, marginBottom: 2 }}>
-                  Status Saat Ini
-                </p>
-                <h2 style={{ color: cfg.color, fontWeight: 900, fontSize: "1.4rem", letterSpacing: -0.5 }}>
-                  {cfg.label}
-                </h2>
-              </div>
-              <span className={`badge badge-${order.status}`} style={{ marginLeft: "auto" }}>
-                {cfg.label}
-              </span>
-            </div>
+          {/* ── LEFT COLUMN ── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
 
-            {/* Order Info */}
-            <div className="card">
+            {/* Order Info Card */}
+            <div className="card" style={{ padding: "1.15rem" }}>
               <div className="card-header">
-                <div className="card-title">Informasi Order</div>
-                <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>#{order.id}</span>
+                <span className="card-title">Informasi Order</span>
+                <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 600 }}>#{order.id}</span>
               </div>
 
               <div className="info-row">
-                <div className="info-label"><User size={14} style={{ verticalAlign: -2, marginRight: 4 }} />User ID</div>
-                <div className="info-value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  #{order.user_id}
-                  <button onClick={() => navigate(`/chat?userId=${order.user_id}`)} style={{ background: 'var(--brand)', color: 'white', border: 'none', borderRadius: '50%', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                    <MessageCircle size={14} />
+                <div className="info-label"><User size={13} /> Pengguna</div>
+                <div className="info-value" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {order.user_name || `#${order.user_id}`}
+                  <button
+                    onClick={() => navigate(`/chat?userId=${order.user_id}`)}
+                    style={{
+                      background: "var(--brand)", color: "white", border: "none",
+                      borderRadius: "50%", width: 24, height: 24,
+                      display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer"
+                    }}
+                    aria-label="Chat dengan user"
+                  >
+                    <MessageCircle size={12} />
                   </button>
                 </div>
               </div>
+
               <div className="info-row">
-                <div className="info-label"><Package size={14} style={{ verticalAlign: -2, marginRight: 4 }} />Jenis Sampah</div>
+                <div className="info-label"><Package size={13} /> Jenis Sampah</div>
                 <div className="info-value" style={{ textTransform: "capitalize" }}>{order.waste_type || "-"}</div>
               </div>
+
               <div className="info-row">
-                <div className="info-label"><Weight size={14} style={{ verticalAlign: -2, marginRight: 4 }} />Berat Estimasi</div>
+                <div className="info-label"><Scale size={13} /> Berat Estimasi</div>
                 <div className="info-value">{order.estimated_weight ? `${order.estimated_weight} kg` : "-"}</div>
               </div>
+
               <div className="info-row">
-                <div className="info-label"><Scale size={14} style={{ verticalAlign: -2, marginRight: 4 }} />Berat Aktual</div>
+                <div className="info-label"><Scale size={13} /> Berat Aktual</div>
                 <div className="info-value" style={{ color: order.actual_weight ? "var(--brand)" : "var(--text-muted)" }}>
                   {order.actual_weight ? `${order.actual_weight} kg` : "Belum ditimbang"}
                 </div>
               </div>
+
               <div className="info-row">
-                <div className="info-label"><MapPin size={14} style={{ verticalAlign: -2, marginRight: 4 }} />Alamat</div>
-                <div className="info-value" style={{ maxWidth: 260, textAlign: "right" }}>{order.address || "-"}</div>
+                <div className="info-label"><MapPin size={13} /> Alamat</div>
+                <div className="info-value" style={{ maxWidth: 200, textAlign: "right", lineHeight: 1.5 }}>{order.address || "-"}</div>
               </div>
-              <div className="info-row">
-                <div className="info-label"><Calendar size={14} style={{ verticalAlign: -2, marginRight: 4 }} />Tanggal Pickup</div>
-                <div className="info-value">
-                  {order.pickup_date
-                    ? new Date(order.pickup_date).toLocaleDateString("id-ID", {
-                        day: "numeric", month: "long", year: "numeric"
-                      })
-                    : "-"}
-                </div>
-              </div>
-              {order.petugas_id && (
-                <div className="info-row">
-                  <div className="info-label">Petugas ID</div>
-                  <div className="info-value">#{order.petugas_id}</div>
+
+              {order.address && (
+                <div style={{ marginTop: "0.75rem" }}>
+                  <button
+                    className="btn btn-ghost btn-sm btn-full"
+                    onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.address)}`, "_blank")}
+                  >
+                    <Navigation size={13} /> Buka di Maps
+                  </button>
                 </div>
               )}
+
               <div className="info-row">
-                <div className="info-label">Dibuat</div>
+                <div className="info-label"><Calendar size={13} /> Tanggal</div>
                 <div className="info-value">
-                  {new Date(order.created_at).toLocaleString("id-ID", {
-                    day: "numeric", month: "short", year: "numeric",
-                    hour: "2-digit", minute: "2-digit"
-                  })}
+                  {order.pickup_date
+                    ? new Date(order.pickup_date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
+                    : new Date(order.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* ── ACTION BUTTONS (logika 100% sama) ── */}
             {order.status !== "completed" && order.status !== "cancelled" && (
-              <div className="card">
+              <div className="card" style={{ padding: "1.15rem" }}>
                 <div className="card-title" style={{ marginBottom: "1rem" }}>Tindakan</div>
 
                 {order.status === "pending" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
                     <div style={{
                       background: "var(--warning-light)", borderRadius: "var(--radius-md)",
-                      padding: "0.85rem 1rem", fontSize: "0.85rem",
-                      color: "#92400e", fontWeight: 600,
+                      padding: "0.75rem", fontSize: "0.78rem", color: "#92400e", fontWeight: 600,
                       display: "flex", alignItems: "center", gap: "0.5rem"
                     }}>
-                      <AlertTriangle size={16} />
-                      Order ini menunggu konfirmasi. Terima untuk mulai proses penjemputan.
+                      <AlertTriangle size={14} />
+                      Order menunggu konfirmasi Anda.
                     </div>
-                    <button
-                      id="btn-accept"
-                      className="btn btn-primary btn-lg btn-full"
-                      onClick={handleAccept}
-                      disabled={actionLoading}
-                    >
+                    <button id="btn-accept" className="btn btn-primary btn-lg btn-full" onClick={handleAccept} disabled={actionLoading}>
                       <CheckCircle2 size={18} />
                       {actionLoading ? "Memproses..." : "Terima Order"}
                     </button>
@@ -265,97 +267,70 @@ function OrderDetail() {
                 )}
 
                 {order.status === "accepted" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                    <button
-                      id="btn-on-way"
-                      className="btn btn-success btn-lg btn-full"
-                      onClick={() => handleUpdateStatus("on_the_way")}
-                      disabled={actionLoading}
-                    >
-                      <Truck size={18} />
-                      {actionLoading ? "Memproses..." : "Mulai Perjalanan"}
-                    </button>
-                  </div>
+                  <button id="btn-on-way" className="btn btn-success btn-lg btn-full" onClick={() => handleUpdateStatus("on_the_way")} disabled={actionLoading}>
+                    <Truck size={18} />
+                    {actionLoading ? "Memproses..." : "Mulai Menuju Lokasi"}
+                  </button>
                 )}
 
                 {order.status === "on_the_way" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                    <button
-                      className="btn btn-warning btn-lg btn-full"
-                      onClick={() => handleUpdateStatus("arrived")}
-                      disabled={actionLoading}
-                    >
-                      <MapPin size={18} />
-                      Tiba di Lokasi
-                    </button>
-                  </div>
+                  <button className="btn btn-warning btn-lg btn-full" onClick={() => handleUpdateStatus("arrived")} disabled={actionLoading}>
+                    <MapPin size={18} />
+                    {actionLoading ? "Memproses..." : "Tiba di Lokasi"}
+                  </button>
                 )}
 
                 {order.status === "arrived" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                    <button
-                      className="btn btn-primary btn-lg btn-full"
-                      onClick={() => handleUpdateStatus("collected")}
-                      disabled={actionLoading}
-                    >
-                      <Package size={18} />
-                      Selesai Muat Sampah
+                  <button className="btn btn-primary btn-lg btn-full" onClick={() => handleUpdateStatus("collected")} disabled={actionLoading}>
+                    <Package size={18} />
+                    {actionLoading ? "Memproses..." : "Selesai Muat Sampah"}
+                  </button>
+                )}
+
+                {order.status === "collected" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+                    <div style={{
+                      background: "var(--info-light)", borderRadius: "var(--radius-md)",
+                      padding: "0.75rem", fontSize: "0.78rem", color: "#1e40af", fontWeight: 600,
+                      display: "flex", alignItems: "center", gap: "0.5rem"
+                    }}>
+                      <Truck size={14} /> Bawa sampah ke pengepul untuk ditimbang.
+                    </div>
+                    <button className="btn btn-success btn-lg btn-full" onClick={handleKirimPengepul} disabled={actionLoading}>
+                      <Scale size={18} />
+                      {actionLoading ? "Memproses..." : "Kirim ke Pengepul"}
                     </button>
                   </div>
                 )}
 
-                {order.status === "collected" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                    <div style={{
-                      background: "var(--info-light)", borderRadius: "var(--radius-md)",
-                      padding: "0.85rem 1rem", fontSize: "0.85rem",
-                      color: "#1e40af", fontWeight: 600,
-                      display: "flex", alignItems: "center", gap: "0.5rem"
-                    }}>
-                      <Truck size={16} />
-                      Bawa sampah ke pengepul terdekat untuk ditimbang.
-                    </div>
-                    <button
-                      className="btn btn-success btn-lg btn-full"
-                      onClick={handleKirimPengepul}
-                      disabled={actionLoading}
-                    >
-                      <Scale size={18} />
-                      Kirim ke Pengepul
-                    </button>
-                  </div>
-                )}
-                
                 {["waiting_collector", "weighing"].includes(order.status) && (
-                   <div style={{
-                      background: "var(--warning-light)", borderRadius: "var(--radius-md)",
-                      padding: "0.85rem 1rem", fontSize: "0.85rem",
-                      color: "#92400e", fontWeight: 600,
-                      display: "flex", alignItems: "center", gap: "0.5rem"
-                    }}>
-                      <Clock size={16} />
-                      Menunggu pengepul menyelesaikan penimbangan dan konfirmasi.
-                    </div>
+                  <div style={{
+                    background: "var(--warning-light)", borderRadius: "var(--radius-md)",
+                    padding: "0.85rem", fontSize: "0.78rem", color: "#92400e", fontWeight: 600,
+                    display: "flex", alignItems: "center", gap: "0.5rem"
+                  }}>
+                    <Clock size={14} /> Menunggu pengepul menyelesaikan penimbangan.
+                  </div>
                 )}
               </div>
             )}
 
+            {/* Completed Banner */}
             {order.status === "completed" && (
               <div style={{
-                background: "linear-gradient(135deg, var(--brand), var(--brand-light))",
-                borderRadius: "var(--radius-xl)", padding: "1.5rem", color: "white",
-                display: "flex", alignItems: "center", gap: "1rem"
+                background: "linear-gradient(135deg, var(--brand-darker), var(--brand))",
+                borderRadius: "var(--radius-xl)", padding: "1.25rem",
+                color: "white", display: "flex", alignItems: "center", gap: "1rem"
               }}>
                 <div style={{
-                  width: 52, height: 52, background: "rgba(255,255,255,0.15)",
-                  borderRadius: "var(--radius-lg)", display: "flex",
-                  alignItems: "center", justifyContent: "center"
+                  width: 48, height: 48, background: "rgba(255,255,255,0.15)",
+                  borderRadius: "var(--radius-lg)", display: "flex", alignItems: "center", justifyContent: "center"
                 }}>
-                  <CheckCircle2 size={28} />
+                  <CheckCircle2 size={26} />
                 </div>
                 <div>
-                  <h3 style={{ marginBottom: 4 }}>Penjemputan Selesai!</h3>
-                  <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.88rem" }}>
+                  <h3 style={{ margin: "0 0 4px", fontWeight: 800 }}>Penjemputan Selesai! 🎉</h3>
+                  <p style={{ fontSize: "0.78rem", opacity: 0.75, margin: 0 }}>
                     Berat aktual: {order.actual_weight || "-"} kg · Saldo pengguna telah diperbarui.
                   </p>
                 </div>
@@ -363,26 +338,29 @@ function OrderDetail() {
             )}
           </div>
 
-          {/* Right Column - Timeline */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <div className="card">
-              <div className="card-title" style={{ marginBottom: "1.5rem" }}>Alur Status</div>
+          {/* ── RIGHT COLUMN: TIMELINE ── */}
+          <div>
+            <div className="card" style={{ padding: "1.15rem" }}>
+              <div className="card-title" style={{ marginBottom: "1.25rem" }}>Alur Status</div>
               <div className="timeline">
-                {TIMELINE.map((step, idx) => {
+                {TIMELINE.map((step) => {
                   const stepIdx = statusOrder.indexOf(step.key);
                   const isDone = currentStatusIdx > stepIdx;
                   const isActive = currentStatusIdx === stepIdx;
                   return (
                     <div
                       key={step.key}
-                      className={`timeline-item${isDone ? " active" : ""}`}
+                      className={`timeline-item${isDone ? " is-done" : ""}${isActive ? " is-active" : ""}`}
                     >
-                      <div className={`timeline-dot${isDone ? " done" : isActive ? " active" : ""}`}>
-                        {isDone && <CheckCircle2 size={14} />}
-                        {isActive && <ChevronRight size={14} />}
+                      <div className={`timeline-dot${isDone ? " is-done" : ""}${isActive ? " is-active" : ""}`}>
+                        {isDone && <CheckCircle2 size={13} />}
+                        {isActive && <ChevronRight size={13} />}
                       </div>
                       <div className="timeline-content">
-                        <h4 style={{ color: isDone || isActive ? "var(--text)" : "var(--text-muted)" }}>
+                        <h4 style={{
+                          color: isDone ? "var(--text-muted)" : isActive ? "var(--brand)" : "var(--text-light)",
+                          textDecoration: isDone ? "line-through" : "none"
+                        }}>
                           {step.label}
                         </h4>
                         <p style={{ color: isDone || isActive ? "var(--text-muted)" : "var(--text-light)" }}>
@@ -394,15 +372,14 @@ function OrderDetail() {
                 })}
               </div>
             </div>
-
           </div>
         </div>
       </div>
 
-      {/* Toast Notification */}
+      {/* ── Toast ── */}
       {toast && (
         <div className={`toast ${toast.type}`}>
-          {toast.type === "success" ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+          {toast.type === "success" ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
           {toast.msg}
         </div>
       )}

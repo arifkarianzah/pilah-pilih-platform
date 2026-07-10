@@ -20,6 +20,16 @@ export const updateProfile = async (name) => {
   return res.data;
 };
 
+export const changePassword = async (oldPassword, newPassword) => {
+  const res = await api.post("/auth/change-password", { oldPassword, newPassword });
+  return res.data;
+};
+
+export const updateStatus = async (data) => {
+  const res = await api.put("/auth/update-status", data);
+  return res.data;
+};
+
 export const logout = async () => {
   try {
     await api.post("/auth/logout");
