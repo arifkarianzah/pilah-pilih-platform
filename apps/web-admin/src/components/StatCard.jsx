@@ -1,8 +1,8 @@
 export default function StatCard({ icon, label, value, trend, trendUp, color, bg }) {
   return (
     <div className="stat-card">
-      <div className="stat-icon" style={{ background: bg || '#f0fdf4', color: color || 'var(--brand)' }}>
-        <span style={{ fontSize: '1.4rem' }}>{icon}</span>
+      <div className="stat-icon" style={{ background: bg || '#f0fdf4', color: 'var(--brand)' }}>
+        <span style={{ fontSize: '1.2rem' }}>{icon}</span>
       </div>
       <div className="stat-info">
         <div className="label">{label}</div>

@@ -522,16 +522,16 @@ img { max-width: 100%; }
 .stat-info { flex: 1; min-width: 0; }
 
 .stat-info .label {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
   font-weight: 600;
   margin-bottom: 4px;
 }
 
 .stat-info .value {
-  font-size: 1.7rem;
+  font-size: 1.15rem;
   font-weight: 900;
-  letter-spacing: -1px;
+  letter-spacing: -0.5px;
   line-height: 1;
   color: var(--text);
 }
