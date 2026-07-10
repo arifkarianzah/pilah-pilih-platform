@@ -64,6 +64,9 @@ function JualSampah() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const navigate = useNavigate();
 
+  const [estimateData, setEstimateData] = useState(null);
+  const [isEstimating, setIsEstimating] = useState(false);
+
   const [profile, setProfile] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -129,6 +132,16 @@ function JualSampah() {
       return;
     }
 
+    if (!mapPosition || mapPosition[0] === 0.5333) {
+      alert("Harap pilih lokasi penjemputan terlebih dahulu.");
+      return;
+    }
+
+    if (!estimateData) {
+      alert("Harap cek estimasi biaya terlebih dahulu.");
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
@@ -137,6 +150,8 @@ function JualSampah() {
         waste_type: wasteType,
         estimated_weight: Number(weightEstimate),
         address: addressString,
+        latitude: mapPosition[0],
+        longitude: mapPosition[1],
         pickup_date: new Date().toISOString().split('T')[0]
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -147,6 +162,34 @@ function JualSampah() {
     } catch (err) {
       setIsSubmitting(false);
       setError(err.response?.data?.message || "Gagal mengirim pesanan");
+    }
+  };
+
+  const handleEstimate = async () => {
+    if (!weightEstimate || Number(weightEstimate) < 4) {
+      alert("Oops! Estimasi berat sampah minimal 4 kg ya.");
+      return;
+    }
+    if (!mapPosition || mapPosition[0] === 0.5333) {
+      alert("Harap pilih lokasi penjemputan di peta terlebih dahulu.");
+      return;
+    }
+    setError("");
+    setIsEstimating(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await api.post("/pickups/estimate", {
+        waste_type: wasteType,
+        estimated_weight: Number(weightEstimate),
+        latitude: mapPosition[0],
+        longitude: mapPosition[1]
+      }, { headers: { Authorization: `Bearer ${token}` } });
+      setEstimateData(res.data);
+    } catch (err) {
+      setEstimateData(null);
+      setError(err.response?.data?.message || "Gagal mendapatkan estimasi biaya.");
+    } finally {
+      setIsEstimating(false);
     }
   };
 
@@ -474,23 +517,40 @@ function JualSampah() {
               </button>
             </div>
 
-            <div className="jsp-summary-box">
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1 }}>
-                <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#16a34a", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem" }}>✓</div>
+            <button
+              type="button"
+              onClick={handleEstimate}
+              disabled={isEstimating}
+              style={{ width: "100%", background: "#e2e8f0", color: "#1e293b", border: "none", padding: "1rem", borderRadius: "12px", fontWeight: "700", fontSize: "0.95rem", cursor: "pointer", marginBottom: "1.5rem", transition: "background 0.2s" }}
+            >
+              {isEstimating ? "Mengecek Ketersediaan & Biaya..." : "Cek Ketersediaan & Estimasi Biaya"}
+            </button>
+
+            <div className="jsp-summary-box" style={{ flexDirection: "column", gap: "1rem", alignItems: "flex-start" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", width: "100%" }}>
+                <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: estimateData ? "#16a34a" : "#94a3b8", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem" }}>{estimateData ? "✓" : "?"}</div>
                 <span style={{ fontSize: "0.9rem", fontWeight: "700", color: "#0f172a" }}>Ringkasan Estimasi</span>
               </div>
-              <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", width: "100%" }}>
                 <div className="jsp-summary-item">
-                  <span className="jsp-summary-label">Berat</span>
-                  <span className="jsp-summary-value">{currentWeight ? currentWeight + ' kg' : '-'}</span>
-                </div>
-                <div className="jsp-summary-item">
-                  <span className="jsp-summary-label">Harga / kg</span>
-                  <span className="jsp-summary-value">Rp {currentPrice.toLocaleString("id-ID")}</span>
-                </div>
-                <div className="jsp-summary-item" style={{ alignItems: "flex-start" }}>
-                  <span className="jsp-summary-label">Estimasi Total</span>
+                  <span className="jsp-summary-label">Pendapatan (Perkiraan)</span>
                   <span className="jsp-summary-total">Rp {estimatedTotal.toLocaleString("id-ID")}</span>
+                </div>
+                <div className="jsp-summary-item">
+                  <span className="jsp-summary-label">Biaya Penjemputan</span>
+                  <span className="jsp-summary-value" style={{ color: estimateData?.pickup_fee > 0 ? "#ef4444" : "#16a34a" }}>
+                    {estimateData ? (estimateData.pickup_fee > 0 ? `- Rp ${estimateData.pickup_fee.toLocaleString("id-ID")}` : "Gratis") : "-"}
+                  </span>
+                </div>
+                <div className="jsp-summary-item">
+                  <span className="jsp-summary-label">Jarak Petugas</span>
+                  <span className="jsp-summary-value">{estimateData ? `${estimateData.distance_km.toFixed(1)} km` : "-"}</span>
+                </div>
+                <div className="jsp-summary-item">
+                  <span className="jsp-summary-label">Total Bersih</span>
+                  <span className="jsp-summary-total" style={{ color: "#16a34a" }}>
+                    {estimateData ? `Rp ${Math.max(0, estimatedTotal - estimateData.pickup_fee).toLocaleString("id-ID")}` : "-"}
+                  </span>
                 </div>
               </div>
             </div>
