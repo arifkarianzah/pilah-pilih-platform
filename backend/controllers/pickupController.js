@@ -62,7 +62,7 @@ exports.estimateFee = (req, res) => {
             SELECT id, 
             ( 6371 * acos( least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) ) ) ) AS distance
             FROM users
-            WHERE role = 'petugas' AND availability_status = 'AVAILABLE'
+            WHERE role = 'petugas'
             HAVING distance <= service_radius OR distance IS NULL
             ORDER BY distance ASC
             LIMIT 1
@@ -71,8 +71,8 @@ exports.estimateFee = (req, res) => {
         db.query(haversineSql, [latitude, longitude, latitude], (err, petugasRes) => {
             if(err) {
                 console.error("Haversine error:", err.message);
-                // Fallback: ambil sembarang petugas yang AVAILABLE jika query jarak gagal
-                return db.query("SELECT id FROM users WHERE role = 'petugas' AND availability_status = 'AVAILABLE' LIMIT 1", (err2, fallbackRes) => {
+                // Fallback: ambil sembarang petugas jika query jarak gagal
+                return db.query("SELECT id FROM users WHERE role = 'petugas' LIMIT 1", (err2, fallbackRes) => {
                     if (err2 || fallbackRes.length === 0) return res.status(404).json({ success: false, message: "Belum ada petugas yang tersedia saat ini." });
                     res.json({ success: true, distance_km: 0, pickup_fee: 0, nearestPetugasId: fallbackRes[0].id });
                 });
@@ -119,7 +119,7 @@ exports.createPickup = (req, res) => {
             SELECT id, pengepul_id, service_radius,
             ( 6371 * acos( least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) ) ) ) AS distance
             FROM users
-            WHERE role = 'petugas' AND availability_status = 'AVAILABLE'
+            WHERE role = 'petugas'
             HAVING distance <= service_radius OR distance IS NULL
             ORDER BY distance ASC
             LIMIT 1
@@ -129,7 +129,7 @@ exports.createPickup = (req, res) => {
             if(err) {
                 console.error("Haversine error:", err.message);
                 // Fallback: ambil sembarang petugas jika gagal
-                return db.query("SELECT id, pengepul_id FROM users WHERE role = 'petugas' AND availability_status = 'AVAILABLE' LIMIT 1", (err2, fallbackRes) => {
+                return db.query("SELECT id, pengepul_id FROM users WHERE role = 'petugas' LIMIT 1", (err2, fallbackRes) => {
                     if (err2 || fallbackRes.length === 0) return res.status(404).json({ success: false, message: "Belum ada petugas yang tersedia saat ini." });
                     
                     const nearestPetugas = fallbackRes[0];
