@@ -196,6 +196,7 @@ exports.updateInventory = (req, res) => {
 
 // Ambil performa petugas
 exports.getPetugasPerformance = (req, res) => {
+    const pengepulId = req.user.id;
     const query = `
         SELECT 
             u.id, 
@@ -204,11 +205,11 @@ exports.getPetugasPerformance = (req, res) => {
             SUM(p.actual_weight) as total_berat
         FROM users u
         LEFT JOIN pickups p ON u.id = p.petugas_id AND p.status = 'completed'
-        WHERE u.role = 'petugas'
+        WHERE u.role = 'petugas' AND u.pengepul_id = ?
         GROUP BY u.id
         ORDER BY total_berat DESC
     `;
-    db.query(query, (err, results) => {
+    db.query(query, [pengepulId], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
     });
@@ -356,9 +357,10 @@ exports.changePassword = (req, res) => {
 
 // Ambil daftar Petugas (untuk chat 1-on-1)
 exports.getPetugasList = (req, res) => {
-    // Ambil semua user dengan role petugas
-    const sql = `SELECT id, name, email, role FROM users WHERE role = 'petugas'`;
-    db.query(sql, (err, results) => {
+    const pengepulId = req.user.id;
+    // Ambil semua user dengan role petugas yang milik pengepul ini
+    const sql = `SELECT id, name, email, role FROM users WHERE role = 'petugas' AND pengepul_id = ?`;
+    db.query(sql, [pengepulId], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
     });

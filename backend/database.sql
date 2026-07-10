@@ -22,7 +22,14 @@ CREATE TABLE IF NOT EXISTS users (
     is_active   BOOLEAN        DEFAULT TRUE,
     is_verified BOOLEAN        DEFAULT FALSE,
     role        ENUM('user', 'petugas', 'pengepul', 'admin') DEFAULT 'user',
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    pengepul_id INT            DEFAULT NULL,
+    must_change_password BOOLEAN DEFAULT FALSE,
+    latitude    DECIMAL(10,8)  DEFAULT NULL,
+    longitude   DECIMAL(11,8)  DEFAULT NULL,
+    availability_status ENUM('AVAILABLE', 'BUSY', 'OFFLINE') DEFAULT 'OFFLINE',
+    service_radius DECIMAL(10,2) DEFAULT 5.00,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (pengepul_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- ============================================================
@@ -54,6 +61,12 @@ CREATE TABLE IF NOT EXISTS pickups (
                      ) DEFAULT 'pending',
     cancel_reason    TEXT,
     total_price      DECIMAL(15,2) DEFAULT 0.00,
+    pickup_fee       DECIMAL(15,2) DEFAULT 0.00,
+    latitude         DECIMAL(10,8) DEFAULT NULL,
+    longitude        DECIMAL(11,8) DEFAULT NULL,
+    distance_km      DECIMAL(10,2) DEFAULT NULL,
+    accepted_at      TIMESTAMP NULL DEFAULT NULL,
+    finished_at      TIMESTAMP NULL DEFAULT NULL,
     created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (petugas_id) REFERENCES users(id) ON DELETE SET NULL,
@@ -185,17 +198,18 @@ CREATE TABLE IF NOT EXISTS withdrawals (
 CREATE TABLE IF NOT EXISTS waste_prices (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     waste_type      VARCHAR(100) NOT NULL UNIQUE,
-    price_per_kg    DECIMAL(10,2) NOT NULL
+    price_user_per_kg    DECIMAL(10,2) NOT NULL,
+    price_pengepul_per_kg DECIMAL(10,2) NOT NULL
 );
 
 -- Insert harga dasar
-INSERT IGNORE INTO waste_prices (waste_type, price_per_kg) VALUES 
-('Botol Plastik', 2000.00),
-('Kardus', 1000.00),
-('Buku/HPS', 1500.00),
-('Besi', 5000.00),
-('Aluminium', 8000.00),
-('Minyak Jelantah', 3000.00);
+INSERT IGNORE INTO waste_prices (waste_type, price_user_per_kg, price_pengepul_per_kg) VALUES 
+('Botol Plastik', 2000.00, 2500.00),
+('Kardus', 1000.00, 1500.00),
+('Buku/HPS', 1500.00, 2000.00),
+('Besi', 5000.00, 5500.00),
+('Aluminium', 8000.00, 8500.00),
+('Minyak Jelantah', 3000.00, 3500.00);
 
 -- ============================================================
 -- Tabel: rewards

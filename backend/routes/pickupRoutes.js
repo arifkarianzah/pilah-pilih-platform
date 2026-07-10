@@ -16,11 +16,13 @@ const {
     weighItems,
     confirmAndComplete,
     getPetugasContacts,
-    getAllMyPickups
+    getAllMyPickups,
+    estimateFee
 } = require("../controllers/pickupController");
 
 // ================= USER =================
-router.post("/", verifyToken, roleMiddleware("user"), createPickup);
+router.post("/estimate", verifyToken, roleMiddleware("user"), estimateFee);
+router.post("/", verifyToken, roleMiddleware("user"), upload.single("waste_photo"), createPickup);
 router.get("/my", verifyToken, roleMiddleware("user"), getMyPickups);
 
 // ================= PETUGAS =================
