@@ -162,15 +162,7 @@ function Login() {
             </button>
           </form>
 
-          <p style={{ marginTop: "2rem", fontSize: "0.88rem", color: "var(--text-muted)", textAlign: "center" }}>
-            Belum punya akun petugas?{" "}
-            <Link
-              to="/register"
-              style={{ color: "var(--brand)", fontWeight: 700, textDecoration: "none" }}
-            >
-              Daftar di sini →
-            </Link>
-          </p>
+          {/* Registration link removed since only Pengepul can create Petugas accounts */}
         </div>
       </div>
     </div>

@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom
 import { useState, useEffect } from "react";
 import BottomNav from "./components/BottomNav";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
 import OrderDetail from "./pages/OrderDetail";
@@ -58,7 +57,6 @@ export default function App() {
       <Routes>
         {/* Public */}
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
 
         {/* Protected */}
         <Route element={<RequireAuth />}>
