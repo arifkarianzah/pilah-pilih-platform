@@ -14,31 +14,28 @@ const logStatusChange = (pickupId, status, changedBy) => {
 
 exports.runMigration = async (req, res) => {
     try {
-        await db.promise().query(`ALTER TABLE users 
-            ADD COLUMN pengepul_id INT DEFAULT NULL,
-            ADD COLUMN must_change_password BOOLEAN DEFAULT FALSE,
-            ADD COLUMN latitude DECIMAL(10,8) DEFAULT NULL,
-            ADD COLUMN longitude DECIMAL(11,8) DEFAULT NULL,
-            ADD COLUMN availability_status ENUM('AVAILABLE', 'BUSY', 'OFFLINE') DEFAULT 'OFFLINE',
-            ADD COLUMN service_radius DECIMAL(10,2) DEFAULT 5.00,
-            ADD FOREIGN KEY (pengepul_id) REFERENCES users(id) ON DELETE SET NULL;
-        `).catch(e => console.log(e.message));
+        const queries = [
+            "ALTER TABLE users ADD COLUMN pengepul_id INT DEFAULT NULL",
+            "ALTER TABLE users ADD COLUMN must_change_password BOOLEAN DEFAULT FALSE",
+            "ALTER TABLE users ADD COLUMN latitude DECIMAL(10,8) DEFAULT NULL",
+            "ALTER TABLE users ADD COLUMN longitude DECIMAL(11,8) DEFAULT NULL",
+            "ALTER TABLE users ADD COLUMN availability_status ENUM('AVAILABLE', 'BUSY', 'OFFLINE') DEFAULT 'OFFLINE'",
+            "ALTER TABLE users ADD COLUMN service_radius DECIMAL(10,2) DEFAULT 5.00",
+            "ALTER TABLE users ADD FOREIGN KEY (pengepul_id) REFERENCES users(id) ON DELETE SET NULL",
+            "ALTER TABLE pickups ADD COLUMN pickup_fee DECIMAL(15,2) DEFAULT 0.00",
+            "ALTER TABLE pickups ADD COLUMN latitude DECIMAL(10,8) DEFAULT NULL",
+            "ALTER TABLE pickups ADD COLUMN longitude DECIMAL(11,8) DEFAULT NULL",
+            "ALTER TABLE pickups ADD COLUMN distance_km DECIMAL(10,2) DEFAULT NULL",
+            "ALTER TABLE pickups ADD COLUMN accepted_at TIMESTAMP NULL DEFAULT NULL",
+            "ALTER TABLE pickups ADD COLUMN finished_at TIMESTAMP NULL DEFAULT NULL",
+            "ALTER TABLE waste_prices CHANGE COLUMN price_per_kg price_user_per_kg DECIMAL(10,2) NOT NULL",
+            "ALTER TABLE waste_prices ADD COLUMN price_pengepul_per_kg DECIMAL(10,2) NOT NULL DEFAULT 0.00",
+            "UPDATE waste_prices SET price_pengepul_per_kg = price_user_per_kg + 500"
+        ];
 
-        await db.promise().query(`ALTER TABLE pickups
-            ADD COLUMN pickup_fee DECIMAL(15,2) DEFAULT 0.00,
-            ADD COLUMN latitude DECIMAL(10,8) DEFAULT NULL,
-            ADD COLUMN longitude DECIMAL(11,8) DEFAULT NULL,
-            ADD COLUMN distance_km DECIMAL(10,2) DEFAULT NULL,
-            ADD COLUMN accepted_at TIMESTAMP NULL DEFAULT NULL,
-            ADD COLUMN finished_at TIMESTAMP NULL DEFAULT NULL;
-        `).catch(e => console.log(e.message));
-
-        await db.promise().query(`ALTER TABLE waste_prices 
-            CHANGE COLUMN price_per_kg price_user_per_kg DECIMAL(10,2) NOT NULL,
-            ADD COLUMN price_pengepul_per_kg DECIMAL(10,2) NOT NULL DEFAULT 0.00;
-        `).catch(e => console.log(e.message));
-
-        await db.promise().query(`UPDATE waste_prices SET price_pengepul_per_kg = price_user_per_kg + 500;`).catch(e => console.log(e.message));
+        for (let q of queries) {
+            await db.promise().query(q).catch(e => console.log("Migration warning:", e.message));
+        }
 
         res.json({ success: true, message: "Migration completed successfully on server!" });
     } catch (err) {
