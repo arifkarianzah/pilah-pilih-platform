@@ -6,7 +6,8 @@ const TambahPetugas = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: ''
+    password: '',
+    service_radius: 5.0
   });
   const [loading, setLoading] = useState(false);
 
@@ -28,7 +29,7 @@ const TambahPetugas = () => {
       const res = await registerPetugas(formData);
       if (res.data.success) {
         toast.success('Petugas berhasil didaftarkan');
-        setFormData({ name: '', email: '', password: '' });
+        setFormData({ name: '', email: '', password: '', service_radius: 5.0 });
       } else {
         toast.error(res.data.message || 'Gagal mendaftarkan petugas');
       }
@@ -79,7 +80,7 @@ const TambahPetugas = () => {
             </div>
 
             <div className="form-group">
-              <label>Password</label>
+              <label>Password Sementara</label>
               <input
                 type="password"
                 name="password"
@@ -89,6 +90,23 @@ const TambahPetugas = () => {
                 placeholder="Minimal 6 karakter"
                 required
               />
+              <small style={{ color: 'var(--text-muted)' }}>Berikan password ini kepada petugas untuk login pertama kali.</small>
+            </div>
+
+            <div className="form-group">
+              <label>Radius Layanan (Km)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0.1"
+                name="service_radius"
+                className="form-input"
+                value={formData.service_radius}
+                onChange={handleChange}
+                placeholder="Contoh: 5.0"
+                required
+              />
+              <small style={{ color: 'var(--text-muted)' }}>Jarak maksimal penjemputan dari lokasi petugas.</small>
             </div>
 
             <div style={{ marginTop: '1rem' }}>
