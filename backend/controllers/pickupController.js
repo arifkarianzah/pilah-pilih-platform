@@ -61,10 +61,9 @@ exports.estimateFee = (req, res) => {
 
         const haversineSql = `
             SELECT id, 
-            ( 6371 * acos( least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) ) ) ) AS distance
+            ( 6371 * acos( greatest(-1.0, least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) )) ) ) AS distance
             FROM users
             WHERE role = 'petugas'
-            HAVING distance <= service_radius OR distance IS NULL
             ORDER BY distance ASC
             LIMIT 1
         `;
@@ -75,7 +74,8 @@ exports.estimateFee = (req, res) => {
                 // Fallback: ambil sembarang petugas jika query jarak gagal
                 return db.query("SELECT id FROM users WHERE role = 'petugas' LIMIT 1", (err2, fallbackRes) => {
                     if (err2 || fallbackRes.length === 0) return res.status(404).json({ success: false, message: "Belum ada petugas yang tersedia saat ini." });
-                    res.json({ success: true, distance_km: 0, pickup_fee: 0, nearestPetugasId: fallbackRes[0].id });
+                    // Return 999 to easily debug that fallback was hit
+                    res.json({ success: true, distance_km: 999.9, pickup_fee: total_price_est * 0.05, nearestPetugasId: fallbackRes[0].id, debug_err: err.message });
                 });
             }
             
@@ -118,10 +118,9 @@ exports.createPickup = (req, res) => {
         // 2. Cari Petugas terdekat yang AVAILABLE menggunakan Haversine Formula
         const haversineSql = `
             SELECT id, pengepul_id, service_radius,
-            ( 6371 * acos( least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) ) ) ) AS distance
+            ( 6371 * acos( greatest(-1.0, least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) )) ) ) AS distance
             FROM users
             WHERE role = 'petugas'
-            HAVING distance <= service_radius OR distance IS NULL
             ORDER BY distance ASC
             LIMIT 1
         `;
@@ -134,8 +133,8 @@ exports.createPickup = (req, res) => {
                     if (err2 || fallbackRes.length === 0) return res.status(404).json({ success: false, message: "Belum ada petugas yang tersedia saat ini." });
                     
                     const nearestPetugas = fallbackRes[0];
-                    const distance_km = 0;
-                    const pickup_fee = 0;
+                    const distance_km = 999.9;
+                    const pickup_fee = total_price_est * 0.05;
                     
                     const insertSql = `
                         INSERT INTO pickups
