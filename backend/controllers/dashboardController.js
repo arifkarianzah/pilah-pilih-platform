@@ -7,7 +7,7 @@ exports.userDashboard = (req, res) => {
     const totalPickupQuery = `SELECT COUNT(*) as total_pickup FROM pickups WHERE user_id = ? AND status = 'completed'`;
     const recentTxQuery = `
         SELECT p.id, p.waste_type as name, p.estimated_weight as qty, 
-               (p.estimated_weight * wp.price_per_kg) as price, 
+               (p.estimated_weight * wp.price_user_per_kg) as price, 
                p.created_at as date, p.status
         FROM pickups p
         LEFT JOIN waste_prices wp ON p.waste_type = wp.waste_type
@@ -112,7 +112,7 @@ exports.adminDashboard = (req, res) => {
     );
 };
 exports.getWastePrices = (req, res) => {
-    const sql = `SELECT wp.waste_type as type, wp.price_per_kg as price, wt.icon, wt.description as \`desc\` FROM waste_prices wp LEFT JOIN waste_types wt ON wp.waste_type = wt.name`;
+    const sql = `SELECT wp.waste_type as type, wp.price_user_per_kg as price, wt.icon, wt.description as \`desc\` FROM waste_prices wp LEFT JOIN waste_types wt ON wp.waste_type = wt.name`;
     db.query(sql, (err, results) => {
         if (err) return res.status(500).json({ success: false, message: err.message });
         res.json({ success: true, data: results });

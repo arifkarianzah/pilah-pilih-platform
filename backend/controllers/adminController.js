@@ -316,11 +316,11 @@ exports.getAllPrices = (req, res) => {
 // ============================================================
 exports.updatePrice = (req, res) => {
   const { id } = req.params;
-  const { price_per_kg } = req.body;
+  const { price_per_kg } = req.body; // tetapkan price_per_kg dari API body agar kompatibel dengan frontend lama
   if (!price_per_kg) return res.status(400).json({ success: false, message: "Harga wajib diisi" });
 
   // Simpan riwayat dulu
-  db.query("SELECT waste_type, price_per_kg FROM waste_prices WHERE id=?", [id], (err, result) => {
+  db.query("SELECT waste_type, price_user_per_kg as price_per_kg FROM waste_prices WHERE id=?", [id], (err, result) => {
     if (err) return res.status(500).json({ success: false, message: err.message });
     if (result.length === 0) return res.status(404).json({ success: false, message: "Harga tidak ditemukan" });
 
@@ -331,7 +331,8 @@ exports.updatePrice = (req, res) => {
       () => {}
     );
 
-    db.query("UPDATE waste_prices SET price_per_kg=? WHERE id=?", [price_per_kg, id], (err2) => {
+    // Update both user and pengepul price (pengepul is +500)
+    db.query("UPDATE waste_prices SET price_user_per_kg=?, price_pengepul_per_kg=? WHERE id=?", [price_per_kg, Number(price_per_kg) + 500, id], (err2) => {
       if (err2) return res.status(500).json({ success: false, message: err2.message });
       res.json({ success: true, message: "Harga berhasil diperbarui" });
     });
