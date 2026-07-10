@@ -17,6 +17,7 @@ const {
     confirmAndComplete,
     getPetugasContacts,
     estimateFee,
+    getAllMyPickups,
     runMigration
 } = require("../controllers/pickupController");
 
