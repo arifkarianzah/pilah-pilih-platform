@@ -18,6 +18,7 @@ import Notifikasi from './pages/Notifikasi';
 import Chat from './pages/Chat';
 import Profil from './pages/Profil';
 import Pengaturan from './pages/Pengaturan';
+import TambahPetugas from './pages/TambahPetugas';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -82,6 +83,7 @@ function App() {
           <Route path="laporan" element={<Laporan />} />
           <Route path="notifikasi" element={<Notifikasi />} />
           <Route path="chat" element={<Chat />} />
+          <Route path="tambah-petugas" element={<TambahPetugas />} />
           <Route path="profil" element={<Profil />} />
           <Route path="pengaturan" element={<Pengaturan />} />
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import {
   FiHome, FiInbox, FiBox, FiTruck, FiShoppingCart,
   FiDollarSign, FiBarChart2, FiFileText, FiBell,
-  FiMessageSquare, FiUser, FiSettings, FiLogOut
+  FiMessageSquare, FiUser, FiUserPlus, FiSettings, FiLogOut
 } from 'react-icons/fi';
 import { getNotifications } from '../../api/pengepulAPI';
 
@@ -61,6 +61,7 @@ const Sidebar = ({ onLogout, isOpen, setSidebarOpen }) => {
       label: 'Akun',
       items: [
         { path: '/profil', name: 'Profil', icon: <FiUser /> },
+        { path: '/tambah-petugas', name: 'Tambah Petugas', icon: <FiUserPlus /> },
         { path: '/pengaturan', name: 'Pengaturan', icon: <FiSettings /> },
       ]
     },

@@ -47,3 +47,4 @@ export const sendMessage = (data) => axiosInstance.post('/messages', data);
 export const updateProfile = (data) => axiosInstance.put('/pengepul/profile', data);
 export const changePassword = (data) => axiosInstance.put('/pengepul/change-password', data);
 export const getPetugasList = () => axiosInstance.get('/pengepul/petugas-list');
+export const registerPetugas = (data) => axiosInstance.post('/auth/register-petugas', data);
