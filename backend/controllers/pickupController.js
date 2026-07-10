@@ -60,16 +60,23 @@ exports.estimateFee = (req, res) => {
 
         const haversineSql = `
             SELECT id, 
-            ( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) ) ) AS distance
+            ( 6371 * acos( least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) ) ) ) AS distance
             FROM users
             WHERE role = 'petugas' AND availability_status = 'AVAILABLE'
-            HAVING distance <= service_radius
+            HAVING distance <= service_radius OR distance IS NULL
             ORDER BY distance ASC
             LIMIT 1
         `;
 
         db.query(haversineSql, [latitude, longitude, latitude], (err, petugasRes) => {
-            if(err) return res.status(500).json({ success: false, message: err.message });
+            if(err) {
+                console.error("Haversine error:", err.message);
+                // Fallback: ambil sembarang petugas yang AVAILABLE jika query jarak gagal
+                return db.query("SELECT id FROM users WHERE role = 'petugas' AND availability_status = 'AVAILABLE' LIMIT 1", (err2, fallbackRes) => {
+                    if (err2 || fallbackRes.length === 0) return res.status(404).json({ success: false, message: "Belum ada petugas yang tersedia saat ini." });
+                    res.json({ success: true, distance_km: 0, pickup_fee: 0, nearestPetugasId: fallbackRes[0].id });
+                });
+            }
             
             if (petugasRes.length === 0) {
                 return res.status(404).json({ success: false, message: "Belum ada petugas yang tersedia di wilayah Anda saat ini." });
@@ -110,16 +117,42 @@ exports.createPickup = (req, res) => {
         // 2. Cari Petugas terdekat yang AVAILABLE menggunakan Haversine Formula
         const haversineSql = `
             SELECT id, pengepul_id, service_radius,
-            ( 6371 * acos( cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) ) ) AS distance
+            ( 6371 * acos( least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) ) ) ) AS distance
             FROM users
             WHERE role = 'petugas' AND availability_status = 'AVAILABLE'
-            HAVING distance <= service_radius
+            HAVING distance <= service_radius OR distance IS NULL
             ORDER BY distance ASC
             LIMIT 1
         `;
 
         db.query(haversineSql, [latitude, longitude, latitude], (err, petugasRes) => {
-            if(err) return res.status(500).json({ success: false, message: err.message });
+            if(err) {
+                console.error("Haversine error:", err.message);
+                // Fallback: ambil sembarang petugas jika gagal
+                return db.query("SELECT id, pengepul_id FROM users WHERE role = 'petugas' AND availability_status = 'AVAILABLE' LIMIT 1", (err2, fallbackRes) => {
+                    if (err2 || fallbackRes.length === 0) return res.status(404).json({ success: false, message: "Belum ada petugas yang tersedia saat ini." });
+                    
+                    const nearestPetugas = fallbackRes[0];
+                    const distance_km = 0;
+                    const pickup_fee = 0;
+                    
+                    const insertSql = `
+                        INSERT INTO pickups
+                        (user_id, petugas_id, pengepul_id, address, waste_type, estimated_weight, pickup_date, notes, latitude, longitude, distance_km, pickup_fee)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    `;
+
+                    db.query(insertSql, [user_id, nearestPetugas.id, nearestPetugas.pengepul_id, address, waste_type, estimated_weight, pickup_date, notes, latitude, longitude, distance_km, pickup_fee], (errInsert, result) => {
+                        if(errInsert) return res.status(500).json({ success: false, message: errInsert.message });
+                        
+                        const pickupId = result.insertId;
+                        db.query("UPDATE users SET availability_status = 'BUSY' WHERE id = ?", [nearestPetugas.id]);
+                        logStatusChange(pickupId, 'pending', user_id);
+                        
+                        res.status(201).json({ success: true, message: "Permintaan penjemputan berhasil dibuat (Fallback GPS)", pickup_id: pickupId, distance_km, pickup_fee });
+                    });
+                });
+            }
             
             if (petugasRes.length === 0) {
                 return res.status(404).json({ success: false, message: "Belum ada petugas yang tersedia di wilayah Anda saat ini." });
