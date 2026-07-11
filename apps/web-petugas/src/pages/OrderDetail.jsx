@@ -16,9 +16,6 @@ const STATUS_CONFIG = {
   accepted:         { label: "Diterima",          color: "#2563eb", bg: "#eff6ff",  icon: CheckCircle2 },
   on_the_way:       { label: "Menuju Lokasi",     color: "#16a34a", bg: "#f0fdf4",  icon: Truck },
   arrived:          { label: "Tiba di Lokasi",    color: "#8b5cf6", bg: "#f5f3ff",  icon: MapPin },
-  collected:        { label: "Sampah Dijemput",   color: "#ec4899", bg: "#fdf2f8",  icon: Package },
-  waiting_collector:{ label: "Menuju Pengepul",   color: "#0284c7", bg: "#f0f9ff",  icon: Truck },
-  weighing:         { label: "Penimbangan",        color: "#ea580c", bg: "#fff7ed",  icon: Scale },
   completed:        { label: "Selesai",            color: "#16a34a", bg: "#f0fdf4",  icon: CheckCircle2 },
   cancelled:        { label: "Dibatalkan",         color: "#ef4444", bg: "#fff1f2",  icon: XCircle },
 };
