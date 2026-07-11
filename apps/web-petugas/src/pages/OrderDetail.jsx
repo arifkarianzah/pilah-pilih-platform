@@ -300,7 +300,7 @@ function OrderDetail() {
                   </button>
                 )}
 
-                {order.status === "arrived" && (
+                {["arrived", "collected", "waiting_collector", "weighing"].includes(order.status) && (
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
                     <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1e293b" }}>Timbang & Bayar Langsung</div>
                     
@@ -333,32 +333,6 @@ function OrderDetail() {
                       <Scale size={18} />
                       {actionLoading ? "Memproses..." : "Timbang & Selesaikan"}
                     </button>
-                  </div>
-                )}
-
-                {order.status === "collected" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
-                    <div style={{
-                      background: "var(--info-light)", borderRadius: "var(--radius-md)",
-                      padding: "0.75rem", fontSize: "0.78rem", color: "#1e40af", fontWeight: 600,
-                      display: "flex", alignItems: "center", gap: "0.5rem"
-                    }}>
-                      <Truck size={14} /> Bawa sampah ke pengepul untuk ditimbang.
-                    </div>
-                    <button className="btn btn-success btn-lg btn-full" onClick={handleKirimPengepul} disabled={actionLoading}>
-                      <Scale size={18} />
-                      {actionLoading ? "Memproses..." : "Kirim ke Pengepul"}
-                    </button>
-                  </div>
-                )}
-
-                {["waiting_collector", "weighing"].includes(order.status) && (
-                  <div style={{
-                    background: "var(--warning-light)", borderRadius: "var(--radius-md)",
-                    padding: "0.85rem", fontSize: "0.78rem", color: "#92400e", fontWeight: 600,
-                    display: "flex", alignItems: "center", gap: "0.5rem"
-                  }}>
-                    <Clock size={14} /> Menunggu pengepul menyelesaikan penimbangan.
                   </div>
                 )}
               </div>
