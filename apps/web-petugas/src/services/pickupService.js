@@ -46,5 +46,11 @@ export const uploadPickupPhoto = async (id, file, photoType) => {
 
 // Legacy exports for old components
 export const acceptPickup = async (id) => updatePickupStatus(id, "accepted");
-export const weighPickup = async (id, data) => api.post(`/pickups/weigh/${id}`, data);
-export const completePickup = async (id) => updatePickupStatus(id, "completed");
+export const weighPickup = async (id, items) => {
+  const res = await api.put(`/pickups/pengepul/weigh/${id}`, { items });
+  return res.data;
+};
+export const completePickupTransaction = async (id, payment_method) => {
+  const res = await api.put(`/pickups/pengepul/confirm/${id}`, { payment_method });
+  return res.data;
+};

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import {
-  getPickupById, acceptPickup, updatePickupStatus, completePickup
+  getPickupById, acceptPickup, updatePickupStatus, weighPickup, completePickupTransaction
 } from "../services/pickupService";
 import {
   ArrowLeft, MapPin, Calendar, User,
@@ -45,6 +45,26 @@ function OrderDetail() {
   const [actionLoading, setActionLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const [error, setError] = useState("");
+  const [actualWeight, setActualWeight] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+
+  const handleTimbangDanSelesai = async () => {
+    if (!actualWeight || Number(actualWeight) <= 0) {
+      showToast("Masukkan berat aktual yang valid", "error");
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await weighPickup(id, [{ waste_type: order.waste_type, weight: Number(actualWeight) }]);
+      await completePickupTransaction(id, paymentMethod);
+      showToast("Order berhasil diselesaikan!");
+      fetchOrder();
+    } catch (err) {
+      showToast(err.response?.data?.message || "Gagal memproses order", "error");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   /* ── Toast (tidak diubah) ── */
   const showToast = (msg, type = "success") => {
@@ -281,10 +301,39 @@ function OrderDetail() {
                 )}
 
                 {order.status === "arrived" && (
-                  <button className="btn btn-primary btn-lg btn-full" onClick={() => handleUpdateStatus("collected")} disabled={actionLoading}>
-                    <Package size={18} />
-                    {actionLoading ? "Memproses..." : "Selesai Muat Sampah"}
-                  </button>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1e293b" }}>Timbang & Bayar Langsung</div>
+                    
+                    <div>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 600, color: "#64748b", marginBottom: "4px", display: "block" }}>Berat Aktual (KG)</label>
+                      <input 
+                        type="number" 
+                        className="input" 
+                        placeholder="Contoh: 5.5" 
+                        value={actualWeight} 
+                        onChange={e => setActualWeight(e.target.value)} 
+                        style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                      />
+                    </div>
+                    
+                    <div>
+                      <label style={{ fontSize: "0.75rem", fontWeight: 600, color: "#64748b", marginBottom: "4px", display: "block" }}>Metode Pencairan</label>
+                      <select 
+                        className="input" 
+                        value={paymentMethod} 
+                        onChange={e => setPaymentMethod(e.target.value)}
+                        style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", backgroundColor: "white" }}
+                      >
+                        <option value="cash">Tunai (Bayar Langsung)</option>
+                        <option value="saldo">Saldo Dompet Digital</option>
+                      </select>
+                    </div>
+
+                    <button className="btn btn-primary btn-lg btn-full" onClick={handleTimbangDanSelesai} disabled={actionLoading} style={{ marginTop: "0.5rem" }}>
+                      <Scale size={18} />
+                      {actionLoading ? "Memproses..." : "Timbang & Selesaikan"}
+                    </button>
+                  </div>
                 )}
 
                 {order.status === "collected" && (
