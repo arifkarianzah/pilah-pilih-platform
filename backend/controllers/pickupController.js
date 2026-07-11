@@ -146,7 +146,7 @@ exports.createPickup = (req, res) => {
                         if(errInsert) return res.status(500).json({ success: false, message: errInsert.message });
                         
                         const pickupId = result.insertId;
-                        db.query("UPDATE users SET availability_status = 'BUSY' WHERE id = ?", [nearestPetugas.id]);
+                        // db.query("UPDATE users SET availability_status = 'BUSY' WHERE id = ?", [nearestPetugas.id]); // Dihapus agar bisa terima order gabungan
                         logStatusChange(pickupId, 'pending', user_id);
                         
                         res.status(201).json({ success: true, message: "Permintaan penjemputan berhasil dibuat (Fallback GPS)", pickup_id: pickupId, distance_km, pickup_fee });
@@ -182,8 +182,8 @@ exports.createPickup = (req, res) => {
                 
                 const pickupId = result.insertId;
                 
-                // Ubah status Petugas menjadi BUSY
-                db.query("UPDATE users SET availability_status = 'BUSY' WHERE id = ?", [nearestPetugas.id]);
+                // Ubah status Petugas menjadi BUSY (Dihapus agar bisa terima order gabungan)
+                // db.query("UPDATE users SET availability_status = 'BUSY' WHERE id = ?", [nearestPetugas.id]);
 
                 logStatusChange(pickupId, 'pending', user_id);
                 
