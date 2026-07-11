@@ -413,7 +413,8 @@ exports.weighItems = (req, res) => {
 // ============================================================
 exports.confirmAndComplete = (req, res) => {
     const pickupId = req.params.id;
-    const pengepul_id = req.user.id;
+    const action_user_id = req.user.id; // Bisa pengepul atau petugas
+    const { payment_method } = req.body; // 'cash' atau 'saldo'
 
     db.query("SELECT * FROM pickups WHERE id = ?", [pickupId], (err, results) => {
         if(err) return res.status(500).json({ success: false, message: err.message });
@@ -431,9 +432,27 @@ exports.confirmAndComplete = (req, res) => {
                 db.query("UPDATE users SET availability_status = 'AVAILABLE' WHERE id = ?", [pickup.petugas_id]);
             }
 
-            // Wallet/Saldo transfer tidak diimplementasikan (sesuai instruksi: Keuntungan dihitung dari selisih harga User & Pengepul)
-            logStatusChange(pickupId, 'completed', pengepul_id);
-            res.json({ success: true, message: "Transaksi dikonfirmasi." });
+            // Wallet/Saldo transfer jika user memilih 'saldo'
+            const finalAmount = Math.max(0, pickup.total_price - pickup.pickup_fee);
+            if (payment_method === 'saldo' && finalAmount > 0) {
+                // Pastikan wallet user ada
+                db.query("SELECT id FROM wallets WHERE user_id = ?", [pickup.user_id], (errWal, walRes) => {
+                    if (!errWal && walRes.length === 0) {
+                        db.query("INSERT INTO wallets (user_id, balance) VALUES (?, ?)", [pickup.user_id, finalAmount]);
+                    } else if (!errWal) {
+                        db.query("UPDATE wallets SET balance = balance + ? WHERE user_id = ?", [finalAmount, pickup.user_id]);
+                    }
+                    
+                    // Catat transaksi
+                    db.query(
+                        "INSERT INTO wallet_transactions (user_id, amount, type, description) VALUES (?, ?, 'credit', ?)", 
+                        [pickup.user_id, finalAmount, `Penjualan sampah (Order #${pickupId})`]
+                    );
+                });
+            }
+
+            logStatusChange(pickupId, 'completed', action_user_id);
+            res.json({ success: true, message: `Transaksi dikonfirmasi menggunakan ${payment_method === 'saldo' ? 'Saldo Dompet' : 'Cash'}.` });
         });
     });
 };

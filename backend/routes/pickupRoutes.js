@@ -33,10 +33,10 @@ router.get("/petugas/active", verifyToken, roleMiddleware("petugas"), getMyActiv
 router.get("/petugas/all", verifyToken, roleMiddleware("petugas"), getAllMyPickups);
 router.get("/contacts", verifyToken, roleMiddleware("petugas", "admin"), getPetugasContacts);
 
-// ================= PENGEPUL =================
+// ================= PENGEPUL & PETUGAS (Proses Selesai) =================
 router.get("/pengepul/waiting", verifyToken, roleMiddleware("pengepul"), getWaitingPickups);
-router.put("/pengepul/weigh/:id", verifyToken, roleMiddleware("pengepul"), weighItems);
-router.put("/pengepul/confirm/:id", verifyToken, roleMiddleware("pengepul"), confirmAndComplete);
+router.put("/pengepul/weigh/:id", verifyToken, roleMiddleware("pengepul", "petugas"), weighItems);
+router.put("/pengepul/confirm/:id", verifyToken, roleMiddleware("pengepul", "petugas"), confirmAndComplete);
 
 // ================= SHARED MUTATIONS =================
 router.put("/status/:id", verifyToken, roleMiddleware("user", "petugas", "pengepul", "admin"), updateStatus);
