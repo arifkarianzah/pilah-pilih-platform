@@ -22,9 +22,6 @@ const STATUS_CONFIG = {
   accepted:         { label: "Diterima",        badgeClass: "badge-accepted",         dot: "#3b82f6" },
   on_the_way:       { label: "Di Jalan",        badgeClass: "badge-on_the_way",       dot: "#16a34a" },
   arrived:          { label: "Tiba",            badgeClass: "badge-arrived",          dot: "#8b5cf6" },
-  collected:        { label: "Dijemput",        badgeClass: "badge-collected",        dot: "#ec4899" },
-  waiting_collector:{ label: "Ke Pengepul",     badgeClass: "badge-waiting_collector",dot: "#0284c7" },
-  weighing:         { label: "Ditimbang",       badgeClass: "badge-weighing",         dot: "#ea580c" },
   completed:        { label: "Selesai",         badgeClass: "badge-completed",        dot: "#10b981" },
   cancelled:        { label: "Dibatalkan",      badgeClass: "badge-cancelled",        dot: "#ef4444" },
 };

@@ -12,21 +12,21 @@ import {
 
 /* ── Status config (label diperbaiki) ── */
 const STATUS_CONFIG = {
-  pending:          { label: "Menunggu",         color: "#d97706", bg: "#fffbeb",  icon: Clock },
-  accepted:         { label: "Diterima",          color: "#2563eb", bg: "#eff6ff",  icon: CheckCircle2 },
-  on_the_way:       { label: "Menuju Lokasi",     color: "#16a34a", bg: "#f0fdf4",  icon: Truck },
-  arrived:          { label: "Tiba di Lokasi",    color: "#8b5cf6", bg: "#f5f3ff",  icon: MapPin },
-  completed:        { label: "Selesai",            color: "#16a34a", bg: "#f0fdf4",  icon: CheckCircle2 },
-  cancelled:        { label: "Dibatalkan",         color: "#ef4444", bg: "#fff1f2",  icon: XCircle },
+  pending: { label: "Menunggu", color: "#d97706", bg: "#fffbeb", icon: Clock },
+  accepted: { label: "Diterima", color: "#2563eb", bg: "#eff6ff", icon: CheckCircle2 },
+  on_the_way: { label: "Menuju Lokasi", color: "#16a34a", bg: "#f0fdf4", icon: Truck },
+  arrived: { label: "Tiba di Lokasi", color: "#8b5cf6", bg: "#f5f3ff", icon: MapPin },
+  completed: { label: "Selesai", color: "#16a34a", bg: "#f0fdf4", icon: CheckCircle2 },
+  cancelled: { label: "Dibatalkan", color: "#ef4444", bg: "#fff1f2", icon: XCircle },
 };
 
 /* ── Timeline — urutan baru sesuai permintaan user ── */
 const TIMELINE = [
-  { key: "pending",           label: "Order Masuk",     desc: "Permintaan penjemputan diterima" },
-  { key: "accepted",          label: "Diterima",         desc: "Petugas mengkonfirmasi order" },
-  { key: "on_the_way",        label: "Menuju Lokasi",   desc: "Petugas dalam perjalanan ke lokasi" },
-  { key: "arrived",           label: "Tiba di Lokasi",  desc: "Petugas menimbang sampah & bayar" },
-  { key: "completed",         label: "Selesai",          desc: "Transaksi selesai, saldo diperbarui" },
+  { key: "pending", label: "Order Masuk", desc: "Permintaan penjemputan diterima" },
+  { key: "accepted", label: "Diterima", desc: "Petugas mengkonfirmasi order" },
+  { key: "on_the_way", label: "Menuju Lokasi", desc: "Petugas dalam perjalanan ke lokasi" },
+  { key: "arrived", label: "Tiba di Lokasi", desc: "Petugas menimbang sampah & bayar" },
+  { key: "completed", label: "Selesai", desc: "Transaksi selesai, saldo diperbarui" },
 ];
 
 const statusOrder = TIMELINE.map(t => t.key);
@@ -297,24 +297,24 @@ function OrderDetail() {
                 {["arrived", "collected", "waiting_collector", "weighing"].includes(order.status) && (
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
                     <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1e293b" }}>Timbang & Bayar Langsung</div>
-                    
+
                     <div>
                       <label style={{ fontSize: "0.75rem", fontWeight: 600, color: "#64748b", marginBottom: "4px", display: "block" }}>Berat Aktual (KG)</label>
-                      <input 
-                        type="number" 
-                        className="input" 
-                        placeholder="Contoh: 5.5" 
-                        value={actualWeight} 
-                        onChange={e => setActualWeight(e.target.value)} 
+                      <input
+                        type="number"
+                        className="input"
+                        placeholder="Contoh: 5.5"
+                        value={actualWeight}
+                        onChange={e => setActualWeight(e.target.value)}
                         style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1" }}
                       />
                     </div>
-                    
+
                     <div>
                       <label style={{ fontSize: "0.75rem", fontWeight: 600, color: "#64748b", marginBottom: "4px", display: "block" }}>Metode Pencairan</label>
-                      <select 
-                        className="input" 
-                        value={paymentMethod} 
+                      <select
+                        className="input"
+                        value={paymentMethod}
                         onChange={e => setPaymentMethod(e.target.value)}
                         style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", backgroundColor: "white" }}
                       >
