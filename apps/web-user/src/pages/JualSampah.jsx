@@ -539,17 +539,17 @@ function JualSampah() {
                 <div className="jsp-summary-item">
                   <span className="jsp-summary-label">Biaya Penjemputan</span>
                   <span className="jsp-summary-value" style={{ color: estimateData?.pickup_fee > 0 ? "#ef4444" : "#16a34a" }}>
-                    {estimateData ? (estimateData.pickup_fee > 0 ? `- Rp ${estimateData.pickup_fee.toLocaleString("id-ID")}` : "Gratis") : "-"}
+                    {estimateData ? ((estimateData.pickup_fee || 0) > 0 ? `- Rp ${(estimateData.pickup_fee || 0).toLocaleString("id-ID")}` : "Gratis") : "-"}
                   </span>
                 </div>
                 <div className="jsp-summary-item">
                   <span className="jsp-summary-label">Jarak Petugas</span>
-                  <span className="jsp-summary-value">{estimateData ? `${estimateData.distance_km.toFixed(1)} km` : "-"}</span>
+                  <span className="jsp-summary-value">{estimateData && estimateData.distance_km != null ? `${Number(estimateData.distance_km).toFixed(1)} km` : "-"}</span>
                 </div>
                 <div className="jsp-summary-item">
                   <span className="jsp-summary-label">Total Bersih</span>
                   <span className="jsp-summary-total" style={{ color: "#16a34a" }}>
-                    {estimateData ? `Rp ${Math.max(0, estimatedTotal - estimateData.pickup_fee).toLocaleString("id-ID")}` : "-"}
+                    {estimateData ? `Rp ${Math.max(0, estimatedTotal - (estimateData.pickup_fee || 0)).toLocaleString("id-ID")}` : "-"}
                   </span>
                 </div>
               </div>
