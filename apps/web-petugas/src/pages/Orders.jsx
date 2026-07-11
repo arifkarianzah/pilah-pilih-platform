@@ -58,7 +58,10 @@ function Orders() {
     setError("");
     try {
       const res = await getAllPickups();
-      setPickups(res.data || []);
+      const seenOrderIds = JSON.parse(localStorage.getItem("seenOrderIds") || "[]");
+      // Sembunyikan order pending yang sudah ditolak
+      const validPickups = (res.data || []).filter(p => !(p.status === "pending" && seenOrderIds.includes(p.id)));
+      setPickups(validPickups);
     } catch {
       setError("Gagal memuat order. Pastikan server berjalan.");
     } finally {

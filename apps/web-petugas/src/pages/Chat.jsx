@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { getPetugasContacts, getMessagesByUser, sendMessage } from "../services/messageService";
 import { Search, Send, User, MessageCircle, ArrowLeft } from "lucide-react";
 
 function Chat() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialUserId = searchParams.get("userId");
+  const navigate = useNavigate();
 
   const [contacts, setContacts] = useState([]);
   const [activeContact, setActiveContact] = useState(null);

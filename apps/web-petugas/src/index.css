@@ -16,15 +16,15 @@
   --primary-light: #dcfce7;
   --primary-mid: #bbf7d0;
 
-  /* Semantic Colors */
+  /* Semantic Colors (semua diubah ke hijau tua/hijau sesuai request) */
   --success: #10b981;
   --success-light: #d1fae5;
-  --warning: #f59e0b;
-  --warning-light: #fef3c7;
-  --danger: #ef4444;
-  --danger-light: #fee2e2;
-  --info: #3b82f6;
-  --info-light: #dbeafe;
+  --warning: #15803d;
+  --warning-light: #dcfce7;
+  --danger: #0f4c2a;
+  --danger-light: #dcfce7;
+  --info: #0f4c2a;
+  --info-light: #dcfce7;
 
   /* Surfaces */
   --bg: #f0fdf4;
@@ -40,8 +40,8 @@
   --text-light: #94a3b8;
 
   /* Accent */
-  --accent: #f59e0b;
-  --accent-light: #fef3c7;
+  --accent: #0f4c2a;
+  --accent-light: #dcfce7;
 
   /* Radius */
   --radius-xs: 6px;

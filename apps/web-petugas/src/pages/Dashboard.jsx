@@ -25,6 +25,10 @@ const WASTE_EMOJI = {
   besi: "⚙️", kardus: "📦", default: "🗑️"
 };
 
+/* ── Global Audio Object ── */
+const notifAudio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+notifAudio.preload = "auto";
+
 function Dashboard() {
   const [pickups, setPickups] = useState([]);
   const [walletBalance, setWalletBalance] = useState(0);
@@ -48,8 +52,34 @@ function Dashboard() {
   const [activeTab, setActiveTab] = useState("pesanan");
 
   const navigate = useNavigate();
-  const audioRef = useRef(null);
   const countdownRef = useRef(null);
+  const isNotifActiveRef = useRef(false);
+
+  /* Unlock audio pada interaksi pertama */
+  useEffect(() => {
+    const unlockAudio = () => {
+      notifAudio.play().then(() => {
+        notifAudio.pause();
+        notifAudio.currentTime = 0;
+      }).catch(e => console.log("Unlock audio gagal:", e));
+
+      // Unlock Speech Synthesis
+      if ("speechSynthesis" in window) {
+        const silentMsg = new SpeechSynthesisUtterance("");
+        silentMsg.volume = 0;
+        window.speechSynthesis.speak(silentMsg);
+      }
+
+      document.removeEventListener("click", unlockAudio);
+      document.removeEventListener("touchstart", unlockAudio);
+    };
+    document.addEventListener("click", unlockAudio);
+    document.addEventListener("touchstart", unlockAudio);
+    return () => {
+      document.removeEventListener("click", unlockAudio);
+      document.removeEventListener("touchstart", unlockAudio);
+    };
+  }, []);
 
   /* ── Fetch dashboard data (tidak diubah) ── */
   const fetchDashboardData = useCallback(async () => {
@@ -99,6 +129,53 @@ function Dashboard() {
     return () => clearTimeout(countdownRef.current);
   }, [showNotifPopup, countdown]);
 
+  /* Play sound when popup shows */
+  useEffect(() => {
+    let intervalId;
+
+    if (showNotifPopup) {
+      const playNotification = () => {
+        // 1. Putar suara Ting Ting
+        notifAudio.currentTime = 0;
+        notifAudio.volume = 1.0;
+        notifAudio.play().catch(e => console.log("Auto-play blocked:", e));
+
+        // 2. Putar Suara Asisten (Text-to-Speech)
+        if ("speechSynthesis" in window) {
+          // Catatan: JANGAN memanggil window.speechSynthesis.cancel() di sini 
+          // sebelum speak(), karena di Chrome sering menyebabkan suara jadi bisu (silent failure bug).
+          const msg = new SpeechSynthesisUtterance("Order penjemputan sampah baru telah masuk. Silakan periksa pesanan Anda.");
+          msg.lang = "id-ID"; // Bahasa Indonesia
+          msg.rate = 0.9;     // Sedikit lebih lambat
+          msg.pitch = 1.1;    // Sedikit lebih tinggi
+          msg.volume = 1.0;   // Volume penuh
+          window.speechSynthesis.speak(msg);
+        }
+      };
+
+      // Jalankan langsung pertama kali
+      playNotification();
+
+      // Ulangi terus setiap 7 detik selama popup terbuka
+      intervalId = setInterval(() => {
+        playNotification();
+      }, 7000);
+
+    } else {
+      // Matikan semua suara jika popup ditutup
+      notifAudio.pause();
+      notifAudio.currentTime = 0;
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (intervalId) clearInterval(intervalId);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [showNotifPopup]);
+
   /* ── Tutup popup notifikasi ── */
   const dismissNotif = () => {
     if (notifOrder) {
@@ -130,8 +207,21 @@ function Dashboard() {
 
   /* ── Toggle status ONLINE/OFFLINE ── */
   const handleToggleStatus = async () => {
-    if (availability === "BUSY") return;
-    const newStatus = availability === "AVAILABLE" ? "OFFLINE" : "AVAILABLE";
+    // === UNLOCK AUDIO SECARA EKSPLISIT ===
+    // Karena ini dipanggil langsung dari klik pengguna, browser pasti mengizinkannya!
+    notifAudio.play().then(() => {
+      notifAudio.pause();
+      notifAudio.currentTime = 0;
+    }).catch(e => console.log("Unlock audio gagal:", e));
+    
+    if ("speechSynthesis" in window) {
+      const silentMsg = new SpeechSynthesisUtterance("");
+      silentMsg.volume = 0;
+      window.speechSynthesis.speak(silentMsg);
+    }
+    // =====================================
+
+    const newStatus = (availability === "AVAILABLE" || availability === "BUSY") ? "OFFLINE" : "AVAILABLE";
 
     setStatusLoading(true);
     try {
@@ -139,17 +229,28 @@ function Dashboard() {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             async (pos) => {
-              const { latitude, longitude } = pos.coords;
-              await updateStatus({ availability_status: newStatus, latitude, longitude });
-              setAvailability(newStatus);
-              localStorage.setItem("availability_status", newStatus);
+              try {
+                const { latitude, longitude } = pos.coords;
+                await updateStatus({ availability_status: newStatus, latitude, longitude });
+                setAvailability(newStatus);
+                localStorage.setItem("availability_status", newStatus);
+              } catch (err) {
+                console.error(err);
+                alert("Gagal mengupdate status ke server.");
+              } finally {
+                setStatusLoading(false);
+              }
+            },
+            (error) => {
+              console.error("Geolocation error:", error);
+              alert("Gagal mendapatkan lokasi. Pastikan izin lokasi (GPS) diaktifkan di browser/HP Anda.");
               setStatusLoading(false);
             },
-            () => {
-              setStatusLoading(false);
-            }
+            { timeout: 10000, enableHighAccuracy: true }
           );
           return;
+        } else {
+          alert("Browser Anda tidak mendukung fitur lokasi GPS.");
         }
       } else {
         await updateStatus({ availability_status: newStatus });
@@ -158,8 +259,12 @@ function Dashboard() {
       }
     } catch (err) {
       console.error(err);
+      alert("Terjadi kesalahan sistem saat mengubah status.");
     } finally {
-      setStatusLoading(false);
+      // If we didn't return early (for Geolocation), we clear loading here
+      if (newStatus !== "AVAILABLE") {
+        setStatusLoading(false);
+      }
     }
   };
 
@@ -175,7 +280,8 @@ function Dashboard() {
   /* ── Compute stats ── */
   const today = new Date().toDateString();
   const todayPickups = pickups.filter(p => new Date(p.created_at).toDateString() === today);
-  const pending = pickups.filter(p => p.status === "pending");
+  // Sembunyikan order pending yang sudah ditolak (ada di seenOrderIds) dari daftar
+  const pending = pickups.filter(p => p.status === "pending" && !seenOrderIds.includes(p.id));
   const activePickups = pickups.filter(p => ["accepted", "on_the_way"].includes(p.status));
   const todayCompleted = todayPickups.filter(p => p.status === "completed");
 
@@ -205,9 +311,10 @@ function Dashboard() {
     ? user.name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()
     : "P";
 
-  const statusLabel = availability === "AVAILABLE" ? "ONLINE" : availability === "BUSY" ? "SIBUK" : "OFFLINE";
-  const statusClass = availability === "AVAILABLE" ? "online" : availability === "BUSY" ? "busy" : "offline";
-  const statusColor = availability === "AVAILABLE" ? "var(--success)" : availability === "BUSY" ? "var(--warning)" : "var(--text-light)";
+  const isOnline = availability === "AVAILABLE" || availability === "BUSY";
+  const statusLabel = isOnline ? "ONLINE" : "OFFLINE";
+  const statusClass = isOnline ? "online" : "offline";
+  const statusColor = isOnline ? "var(--success)" : "var(--text-light)";
 
   if (loading) {
     return (
@@ -267,28 +374,20 @@ function Dashboard() {
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{
                     fontSize: "0.7rem", fontWeight: 700,
-                    color: availability === "AVAILABLE" ? "#16a34a" : "#9ca3af"
+                    color: isOnline ? "#16a34a" : "#9ca3af"
                   }}>
                     {statusLabel}
                   </span>
-                  {availability !== "BUSY" ? (
-                    <label className="toggle-switch" style={{ transform: "scale(0.85)" }}>
-                      <input
-                        type="checkbox"
-                        checked={availability === "AVAILABLE"}
-                        onChange={handleToggleStatus}
-                        disabled={statusLoading}
-                        aria-label="Toggle status kerja"
-                      />
-                      <span className="toggle-slider" />
-                    </label>
-                  ) : (
-                    <span style={{
-                      background: "#fef3c7", color: "#92400e",
-                      fontSize: "0.65rem", fontWeight: 700, padding: "3px 8px",
-                      borderRadius: 99
-                    }}>BUSY</span>
-                  )}
+                  <label className="toggle-switch" style={{ transform: "scale(0.85)" }}>
+                    <input
+                      type="checkbox"
+                      checked={isOnline}
+                      onChange={handleToggleStatus}
+                      disabled={statusLoading}
+                      aria-label="Toggle status kerja"
+                    />
+                    <span className="toggle-slider" />
+                  </label>
                 </div>
               </div>
 
@@ -522,12 +621,12 @@ function Dashboard() {
                 ) : (
                   <div className="sf-avatar-initial">{initials}</div>
                 )}
-                <span className={`sf-status-dot ${availability === "AVAILABLE" ? "sf-online" : "sf-offline"}`} />
+                <span className={`sf-status-dot ${isOnline ? "sf-online" : "sf-offline"}`} />
               </div>
               <div className="sf-user-text">
                 <div className="sf-user-name">{(user.name || "PETUGAS").toUpperCase()}</div>
                 <div className="sf-user-status-text">
-                  {availability === "AVAILABLE" ? "Status kerja aktif" : "Status kerja tidak aktif"}
+                  {isOnline ? "Status kerja aktif" : "Status kerja tidak aktif"}
                 </div>
               </div>
             </div>
@@ -564,7 +663,7 @@ function Dashboard() {
         </div>
 
         {/* INFO BANNER */}
-        {availability !== "AVAILABLE" && (
+        {!isOnline && (
           <div className="sf-info-banner">
             <Bell size={16} color="#d97706" style={{flexShrink: 0}} />
             <span>Aktifkan status kerja untuk mulai menerima pesanan dan mendapatkan penghasilan.</span>
@@ -589,75 +688,81 @@ function Dashboard() {
                 ></iframe>
               </div>
             </div>
-          ) : currentOrder ? (
-            /* Active Order */
-            <div className="sf-active-order-card">
-              <div className="sf-order-header">
-                <span className="sf-order-type">
-                  {WASTE_EMOJI[currentOrder.waste_type?.toLowerCase()] || "🗑️"} {currentOrder.waste_type}
-                </span>
-                <span className={`sf-order-status ${currentOrder.status === "on_the_way" ? "sf-status-otw" : "sf-status-acc"}`}>
-                  {currentOrder.status === "on_the_way" ? "Di Jalan" : "Menunggu Jemput"}
-                </span>
-              </div>
-              <div className="sf-order-body">
-                <div className="sf-order-detail">
-                  <MapPin size={18} color="var(--brand)" style={{ marginTop: 2, flexShrink: 0 }} />
-                  <div>
-                    <div className="sf-order-address">{currentOrder.address}</div>
-                    <div className="sf-order-weight">
-                      ~{currentOrder.estimated_weight} kg • Estimasi Pendapatan: Rp {estPrice.toLocaleString("id-ID")}
+          ) : (
+            <>
+              {/* Active Order (Tampilkan jika ada) */}
+              {currentOrder && (
+                <div className="sf-active-order-card" style={{ marginBottom: "1rem" }}>
+                  <div className="sf-order-header">
+                    <span className="sf-order-type">
+                      {WASTE_EMOJI[currentOrder.waste_type?.toLowerCase()] || "🗑️"} {currentOrder.waste_type}
+                    </span>
+                    <span className={`sf-order-status ${currentOrder.status === "on_the_way" ? "sf-status-otw" : "sf-status-acc"}`}>
+                      {currentOrder.status === "on_the_way" ? "Di Jalan" : "Menunggu Jemput"}
+                    </span>
+                  </div>
+                  <div className="sf-order-body">
+                    <div className="sf-order-detail">
+                      <MapPin size={18} color="var(--brand)" style={{ marginTop: 2, flexShrink: 0 }} />
+                      <div>
+                        <div className="sf-order-address">{currentOrder.address}</div>
+                        <div className="sf-order-weight">
+                          ~{currentOrder.estimated_weight} kg • Estimasi Pendapatan: Rp {estPrice.toLocaleString("id-ID")}
+                        </div>
+                      </div>
                     </div>
+                    <button
+                      className="sf-chat-btn"
+                      onClick={() => navigate(`/chat?userId=${currentOrder.user_id}`)}
+                    >
+                      <MessageCircle size={18} />
+                    </button>
+                  </div>
+                  <div className="sf-order-actions">
+                    <button className="sf-btn-outline" onClick={() => navigate(`/orders/${currentOrder.id}`)}>Lihat Detail</button>
+                    {currentOrder.status !== "on_the_way" ? (
+                      <button className="sf-btn-primary" onClick={handleMulaiJemput}>Mulai Jemput</button>
+                    ) : (
+                      <button className="sf-btn-success" onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentOrder.address)}`, "_blank")}>Navigasi Peta</button>
+                    )}
                   </div>
                 </div>
-                <button
-                  className="sf-chat-btn"
-                  onClick={() => navigate(`/chat?userId=${currentOrder.user_id}`)}
-                >
-                  <MessageCircle size={18} />
-                </button>
-              </div>
-              <div className="sf-order-actions">
-                <button className="sf-btn-outline" onClick={() => navigate(`/orders/${currentOrder.id}`)}>Lihat Detail</button>
-                {currentOrder.status !== "on_the_way" ? (
-                  <button className="sf-btn-primary" onClick={handleMulaiJemput}>Mulai Jemput</button>
-                ) : (
-                  <button className="sf-btn-success" onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentOrder.address)}`, "_blank")}>Navigasi Peta</button>
-                )}
-              </div>
-            </div>
-          ) : pending.length > 0 ? (
-            /* Pending Orders */
-            <div className="sf-pending-list">
-               <div className="sf-section-title">Order Menunggu ({pending.length})</div>
-               {pending.map(p => (
-                 <div key={p.id} className="sf-pending-card" onClick={() => navigate(`/orders/${p.id}`)}>
-                    <div className="sf-pending-icon">
-                      {WASTE_EMOJI[p.waste_type?.toLowerCase()] || "🗑️"}
+              )}
+
+              {/* Pending Orders (Tampilkan juga jika ada, jadi bisa ambil lebih dari satu) */}
+              {pending.length > 0 && (
+                <div className="sf-pending-list">
+                  <div className="sf-section-title">Order Menunggu ({pending.length})</div>
+                  {pending.map(p => (
+                    <div key={p.id} className="sf-pending-card" onClick={() => navigate(`/orders/${p.id}`)}>
+                        <div className="sf-pending-icon">
+                          {WASTE_EMOJI[p.waste_type?.toLowerCase()] || "🗑️"}
+                        </div>
+                        <div className="sf-pending-info">
+                          <div className="sf-pending-name">{p.user_name || `User #${p.user_id}`}</div>
+                          <div className="sf-pending-addr">{p.address}</div>
+                        </div>
+                        <ChevronRight size={16} color="#94a3b8" />
                     </div>
-                    <div className="sf-pending-info">
-                      <div className="sf-pending-name">{p.user_name || `User #${p.user_id}`}</div>
-                      <div className="sf-pending-addr">{p.address}</div>
-                    </div>
-                    <ChevronRight size={16} color="#94a3b8" />
-                 </div>
-               ))}
-            </div>
-          ) : (
-            /* Empty State */
-            <div className="sf-empty-state">
-              <div className="sf-illustration">
-                <div className="sf-circle-bg">
+                  ))}
+                </div>
+              )}
+
+              {/* Empty State (Tampilkan jika tidak ada order sama sekali) */}
+              {!currentOrder && pending.length === 0 && (
+                <div className="sf-empty-state">
+                  <div className="sf-illustration">
+                    <div className="sf-circle-bg">
                   {/* Ilustrasi Motor / Kurir sederhana */}
                   <Truck size={48} color="#1e293b" />
                   <div className="sf-box-icon"><Package size={14} color="white" /></div>
                 </div>
               </div>
               <div className="sf-empty-title">
-                {availability === "AVAILABLE" ? "Mencari Pesanan..." : "Status kerja tidak aktif"}
+                {isOnline ? "Mencari Pesanan..." : "Status kerja tidak aktif"}
               </div>
               <div className="sf-empty-subtitle">
-                {availability === "AVAILABLE" ? (
+                {isOnline ? (
                   "Pastikan aplikasi tetap terbuka. Kami sedang mencari pesanan sampah di sekitar Anda."
                 ) : (
                   <>
@@ -669,10 +774,9 @@ function Dashboard() {
               </div>
             </div>
           )}
+          </>
+        )}
         </div>
-
-
-
       </div>
     </>
   );
