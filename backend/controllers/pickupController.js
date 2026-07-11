@@ -63,7 +63,7 @@ exports.estimateFee = (req, res) => {
             SELECT id, 
             ( 6371 * acos( greatest(-1.0, least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) )) ) ) AS distance
             FROM users
-            WHERE role = 'petugas'
+            WHERE role = 'petugas' AND latitude IS NOT NULL AND longitude IS NOT NULL
             ORDER BY distance ASC
             LIMIT 1
         `;
