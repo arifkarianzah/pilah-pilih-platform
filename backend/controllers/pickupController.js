@@ -121,6 +121,7 @@ exports.createPickup = (req, res) => {
             ( 6371 * acos( greatest(-1.0, least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) )) ) ) AS distance
             FROM users
             WHERE role = 'petugas'
+            AND availability_status = 'AVAILABLE'
             ORDER BY distance ASC
             LIMIT 1
         `;
@@ -129,8 +130,8 @@ exports.createPickup = (req, res) => {
             if(err) {
                 console.error("Haversine error:", err.message);
                 // Fallback: ambil sembarang petugas jika gagal
-                return db.query("SELECT id, pengepul_id FROM users WHERE role = 'petugas' LIMIT 1", (err2, fallbackRes) => {
-                    if (err2 || fallbackRes.length === 0) return res.status(404).json({ success: false, message: "Belum ada petugas yang tersedia saat ini." });
+                return db.query("SELECT id, pengepul_id FROM users WHERE role = 'petugas' AND availability_status = 'AVAILABLE' LIMIT 1", (err2, fallbackRes) => {
+                    if (err2 || fallbackRes.length === 0) return res.status(404).json({ success: false, message: "Tidak ada petugas yang sedang online. Silakan coba beberapa saat lagi." });
                     
                     const nearestPetugas = fallbackRes[0];
                     const distance_km = 999.9;
@@ -155,7 +156,7 @@ exports.createPickup = (req, res) => {
             }
             
             if (petugasRes.length === 0) {
-                return res.status(404).json({ success: false, message: "Belum ada petugas yang tersedia di wilayah Anda saat ini." });
+                return res.status(404).json({ success: false, message: "Tidak ada petugas yang sedang online di wilayah Anda saat ini. Silakan coba lagi nanti." });
             }
 
             const nearestPetugas = petugasRes[0];
