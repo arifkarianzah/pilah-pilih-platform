@@ -28,10 +28,7 @@ const TIMELINE = [
   { key: "pending",           label: "Order Masuk",     desc: "Permintaan penjemputan diterima" },
   { key: "accepted",          label: "Diterima",         desc: "Petugas mengkonfirmasi order" },
   { key: "on_the_way",        label: "Menuju Lokasi",   desc: "Petugas dalam perjalanan ke lokasi" },
-  { key: "arrived",           label: "Tiba di Lokasi",  desc: "Petugas telah sampai" },
-  { key: "collected",         label: "Sampah Dijemput",  desc: "Sampah berhasil diangkut" },
-  { key: "waiting_collector", label: "Menuju Pengepul",  desc: "Dalam perjalanan ke pengepul" },
-  { key: "weighing",          label: "Penimbangan",      desc: "Sampah sedang ditimbang pengepul" },
+  { key: "arrived",           label: "Tiba di Lokasi",  desc: "Petugas menimbang sampah & bayar" },
   { key: "completed",         label: "Selesai",          desc: "Transaksi selesai, saldo diperbarui" },
 ];
 
