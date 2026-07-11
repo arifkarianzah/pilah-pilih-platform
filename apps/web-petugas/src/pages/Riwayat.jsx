@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from "react";
 import Navbar from "../components/Navbar";
-import { getAllPickups, weighPickup, completePickup } from "../services/pickupService";
+import { getAllPickups, weighPickup } from "../services/pickupService";
 import {
   History, CheckCircle2, XCircle, Clock, Filter, Download,
   MapPin, Calendar, Weight, ChevronDown, ChevronUp

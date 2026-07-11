@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
-import { getAllPickups, weighPickup, completePickup } from "../services/pickupService";
+import { getAllPickups, weighPickup } from "../services/pickupService";
 import { Scale, Search, CheckCircle2, AlertTriangle, User, Package, Weight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
