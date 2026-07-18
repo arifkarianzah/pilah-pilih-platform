@@ -1,0 +1,142 @@
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { authAPI } from '../services/api';
+
+export default function Register() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setLoading(true);
+    try {
+      const res = await authAPI.registerAdmin(form.name, form.email, form.password);
+      if (res.success) {
+        setSuccess('Registrasi admin berhasil! Silakan login.');
+        setTimeout(() => {
+          navigate('/login', { replace: true });
+        }, 2000);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registrasi gagal. Periksa kembali data Anda.');
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #0f4c2a 0%, #196b3a 50%, #22c55e 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '1rem',
+    }}>
+      {/* Background decoration */}
+      <div style={{ position: 'fixed', top: '-100px', right: '-100px', width: 400, height: 400, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
+      <div style={{ position: 'fixed', bottom: '-80px', left: '-80px', width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+
+      <div style={{
+        background: 'white',
+        borderRadius: 'var(--radius-xl)',
+        padding: '2.5rem',
+        width: '100%',
+        maxWidth: 420,
+        boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+        position: 'relative',
+      }}>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{
+            width: 72, height: 72, background: 'var(--brand)', borderRadius: 'var(--radius-xl)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '2rem', margin: '0 auto 1rem',
+            boxShadow: '0 8px 24px rgba(15,76,42,0.3)',
+          }}>📝</div>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.5px' }}>
+            Daftar Admin Baru
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+            Buat akun untuk panel administrasi
+          </p>
+        </div>
+
+        {/* Status Messages */}
+        {error && (
+          <div style={{
+            background: 'var(--danger-light)', color: '#991b1b', padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600,
+            marginBottom: '1rem', border: '1px solid #fecaca',
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
+        {success && (
+          <div style={{
+            background: '#dcfce7', color: '#166534', padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600,
+            marginBottom: '1rem', border: '1px solid #bbf7d0',
+          }}>
+            ✅ {success}
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="form-group">
+            <label className="form-label">Nama Lengkap</label>
+            <input
+              className="form-control"
+              type="text"
+              placeholder="Masukkan nama"
+              value={form.name}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              required
+              autoFocus
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Email Admin</label>
+            <input
+              className="form-control"
+              type="email"
+              placeholder="admin@pilahpilih.id"
+              value={form.email}
+              onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input
+              className="form-control"
+              type="password"
+              placeholder="••••••••"
+              value={form.password}
+              onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+              required
+              minLength={6}
+            />
+          </div>
+          <button
+            type="submit"
+            className="btn btn-primary btn-lg"
+            disabled={loading}
+            style={{ marginTop: '0.5rem', width: '100%' }}
+          >
+            {loading ? <><span className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> Mendaftar...</> : '🚀 Daftar Admin'}
+          </button>
+        </form>
+
+        <p style={{ textAlign: 'center', fontSize: '0.875rem', marginTop: '1.5rem', color: 'var(--text-muted)' }}>
+          Sudah punya akun admin? <Link to="/login" style={{ color: 'var(--brand)', fontWeight: 600, textDecoration: 'none' }}>Masuk di sini</Link>
+        </p>
+      </div>
+    </div>
+  );
+}
