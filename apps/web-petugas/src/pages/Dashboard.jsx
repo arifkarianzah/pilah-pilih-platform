@@ -242,7 +242,7 @@ function Dashboard() {
               }
             },
             (error) => {
-              console.error("Geolocation error:", error);
+              console.error(`Geolocation error [Code: ${error.code}]: ${error.message}`);
               alert("Gagal mendapatkan lokasi. Pastikan izin lokasi (GPS) diaktifkan di browser/HP Anda.");
               setStatusLoading(false);
             },
