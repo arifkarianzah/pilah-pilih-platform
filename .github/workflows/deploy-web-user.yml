@@ -1,17 +1,7 @@
 name: Deploy web-user to Azure Static Web Apps
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'apps/web-user/**'
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
-    paths:
-      - 'apps/web-user/**'
+  workflow_dispatch:
 
 jobs:
   build_and_deploy_job:
