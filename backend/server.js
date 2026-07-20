@@ -72,13 +72,18 @@ const migrations = [
   `ALTER TABLE messages MODIFY COLUMN pickup_id INT DEFAULT NULL`
 ];
 
-migrations.forEach(sql => {
-  db.query(sql, (err) => {
-    if (err && !err.message.includes("Duplicate")) {
-      console.warn("Migration warning:", err.message.slice(0, 80));
+const runMigrations = async () => {
+  for (const sql of migrations) {
+    try {
+      await db.promise().query(sql);
+    } catch (err) {
+      if (err && !err.message.includes("Duplicate")) {
+        console.warn("Migration warning:", err.message.slice(0, 80));
+      }
     }
-  });
-});
+  }
+};
+runMigrations();
 
 // (tabel notifications sudah di-migrate di atas)
 
