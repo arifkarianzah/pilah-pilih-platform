@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 // Get base URL without /api at the end for socket
 const getBaseUrl = () => {
     // If running on local development
-    return "https://pilahpilih-backend-abc-gfa9dgdtfmfjbsgp.southeastasia-01.azurewebsites.net";
+    return import.meta.env.VITE_SOCKET_URL || "https://pilahpilih-backend-abc-gfa9dgdtfmfjbsgp.southeastasia-01.azurewebsites.net";
 };
 
 const socket = io(getBaseUrl(), {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import Sidebar from "../components/Layout/Sidebar";
@@ -98,9 +98,14 @@ function Dashboard() {
     fetchSales();
   }, [salesMonth]);
 
+  const socketConnectedRef = useRef(false);
+
   useEffect(() => {
-    // Socket connection
-    socket.connect();
+    // Socket connection controlled by ref to prevent StrictMode race conditions
+    if (!socketConnectedRef.current) {
+        socket.connect();
+        socketConnectedRef.current = true;
+    }
     
     if (user && user.id) {
         socket.emit("join", user.id);
@@ -109,9 +114,6 @@ function Dashboard() {
     const handlePickupUpdate = (data) => {
         // Refresh dashboard data if there is an update
         if (data.pickupId) {
-            // Optional: check if the pickup belongs to user, but since we just refresh, it's fine.
-            // A more optimized way is to only refresh if data.pickupId matches activePickup, 
-            // but for simplicity we can just trigger a fetch.
             // Fetching just the user dashboard data:
             const token = localStorage.getItem("token");
             if(token) {
@@ -134,7 +136,7 @@ function Dashboard() {
 
     return () => {
         socket.off("pickup_status_changed", handlePickupUpdate);
-        socket.disconnect();
+        // Intentionally not calling socket.disconnect() here to avoid React StrictMode race condition
     };
   }, [user]);
 
