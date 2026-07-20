@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // ─── Base URL ──────────────────────────────────────────────────────────────────
-const BASE_URL = 'https://pilahpilih-backend-abc-gfa9dgdtfmfjbsgp.southeastasia-01.azurewebsites.net/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://pilahpilih-backend-abc-gfa9dgdtfmfjbsgp.southeastasia-01.azurewebsites.net/api';
 
 // ─── Axios Instance ────────────────────────────────────────────────────────────
 const api = axios.create({ baseURL: BASE_URL });
