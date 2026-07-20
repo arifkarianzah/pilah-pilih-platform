@@ -337,7 +337,7 @@ function JualSampah() {
         </div>
         
         <div className="jsp-header-right" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <div className="jsp-btn-bell" onClick={() => navigate('/notifications')} style={{ position: "relative", cursor: "pointer", background: "white", width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
+          <div className="jsp-btn-bell" onClick={() => {/* TODO: halaman notifikasi belum dibuat navigate('/notifications') */}} style={{ position: "relative", cursor: "pointer", background: "white", width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
             <Bell size={20} color="#475569" style={{margin: "auto"}} />
             {unreadCount > 0 && (
               <div className="jsp-btn-profile-badge" style={{ position: "absolute", top: "-2px", right: "-2px", width: "16px", height: "16px", background: "#ef4444", borderRadius: "50%", border: "2px solid white", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "9px", fontWeight: "bold" }}>{unreadCount > 9 ? '9+' : unreadCount}</div>
