@@ -22,7 +22,9 @@ const {
 } = require("../controllers/pickupController");
 
 // ================= USER =================
-router.get("/run-migration", runMigration);
+// ⛔ ENDPOINT INI DINONAKTIFKAN — risiko keamanan: siapa pun bisa trigger migration tanpa auth.
+// Untuk migration Azure DB, gunakan Azure Cloud Shell atau whitelist IP sementara di firewall.
+// router.get("/run-migration", runMigration);
 router.post("/estimate", verifyToken, roleMiddleware("user"), estimateFee);
 router.post("/", verifyToken, roleMiddleware("user"), upload.single("waste_photo"), createPickup);
 router.get("/my", verifyToken, roleMiddleware("user"), getMyPickups);

@@ -5,7 +5,9 @@ import BottomNav from "../components/BottomNav";
 import { ArrowLeft, Bell, ChevronDown, UploadCloud, ShieldCheck, TrendingUp, MapPin, Search, Menu } from "lucide-react";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import './JualSampah.css';
 import L from 'leaflet';
+import { calculateDistance, calculateFare, DEPOT_LAT } from '../utils/distance';
 
 // Fix Leaflet marker icon issue in React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -57,6 +59,8 @@ function JualSampah() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [locationSaved, setLocationSaved] = useState(false);
+  const [distance, setDistance] = useState(null);
+  const [deliveryFee, setDeliveryFee] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [wastePhoto, setWastePhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -70,9 +74,11 @@ function JualSampah() {
   const [profile, setProfile] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [wastePrices, setWastePrices] = useState({});
-  const [categories, setCategories] = useState([]);
-  const [isLoadingPrices, setIsLoadingPrices] = useState(true);
+  const [wastePrices, setWastePrices] = useState({
+    "Besi": { price: 0, trend: 0, desc: "Menyinkronkan...", icon: "♻️" }
+  });
+  const [categories, setCategories] = useState([{ name: "Besi", type: "Besi" }]);
+  const [isLoadingPrices, setIsLoadingPrices] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -123,6 +129,20 @@ function JualSampah() {
     fetchData();
   }, []);
 
+  // Hitung ulang ongkir preview setiap kali posisi peta berubah
+  useEffect(() => {
+    const [lat, lon] = mapPosition;
+    if (lat === DEPOT_LAT) {
+      setDistance(null);
+      setDeliveryFee(null);
+      return;
+    }
+    const km = calculateDistance(lat, lon);
+    const fee = calculateFare(km);
+    setDistance(km);
+    setDeliveryFee(fee);
+  }, [mapPosition]);
+
   const handleRequest = async (e) => {
     e.preventDefault();
     setError("");
@@ -146,15 +166,30 @@ function JualSampah() {
     
     try {
       const token = localStorage.getItem("token");
-      await api.post("/pickups", {
-        waste_type: wasteType,
-        estimated_weight: Number(weightEstimate),
-        address: addressString,
-        latitude: mapPosition[0],
-        longitude: mapPosition[1],
-        pickup_date: new Date().toISOString().split('T')[0]
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
+      
+      const formData = new FormData();
+      formData.append("waste_type", wasteType);
+      formData.append("estimated_weight", Number(weightEstimate));
+      formData.append("address", addressString);
+      formData.append("latitude", mapPosition[0]);
+      formData.append("longitude", mapPosition[1]);
+      formData.append("pickup_date", new Date().toISOString().split('T')[0]);
+      // Dikirim sebagai display value — backend WAJIB hitung ulang dari koordinat
+      if (distance !== null) formData.append("distance_km", distance);
+      if (deliveryFee !== null) {
+        formData.append("delivery_fee", deliveryFee);
+        formData.append("driver_fee", deliveryFee); // sementara sama; pisahkan saat skema komisi diimplementasi
+      }
+      
+      if (wastePhoto) {
+        formData.append("photo", wastePhoto);
+      }
+
+      await api.post("/pickups", formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
+        }
       });
 
       setIsSubmitting(false);
@@ -219,9 +254,7 @@ function JualSampah() {
     }
   };
 
-  if (isLoadingPrices) {
-    return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>Memuat...</div>;
-  }
+
 
   const currentPrice = wastePrices[wasteType]?.price || 0;
   const currentWeight = Number(weightEstimate) || 0;
@@ -229,100 +262,6 @@ function JualSampah() {
 
   return (
     <div className="app-container" style={{ background: "#f8fafc", minHeight: "100vh", paddingBottom: "100px", fontFamily: "'Inter', sans-serif" }}>
-      <style>{`
-        .jsp-header { background: white; padding: 1.5rem 2.5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; zIndex: 10; border-bottom: 1px solid #f1f5f9; }
-        .jsp-title { font-size: 1.4rem; font-weight: 800; color: #1e293b; margin: 0; }
-        .jsp-subtitle { font-size: 0.85rem; color: #64748b; margin: 0.25rem 0 0 0; }
-        .jsp-back-btn { background: white; border: 1px solid #e2e8f0; border-radius: 12px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
-        .jsp-back-btn:hover { background: #f8fafc; }
-        
-        .jsp-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 2rem; padding: 2rem 2.5%; max-width: 1440px; margin: 0 auto; }
-        
-        .jsp-card { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
-        .jsp-card-title { font-size: 1.2rem; font-weight: 800; color: #0f172a; margin: 0 0 0.25rem 0; }
-        .jsp-card-subtitle { font-size: 0.85rem; color: #64748b; margin: 0 0 1.5rem 0; }
-        
-        .jsp-label { display: block; font-size: 0.85rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; }
-        
-        .jsp-select-container { position: relative; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-        .jsp-native-select { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-        
-        .jsp-cat-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-        .jsp-cat-tab { padding: 0.6rem 1rem; border-radius: 20px; border: 1px solid #e2e8f0; background: white; font-size: 0.85rem; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s; position: relative; }
-        .jsp-cat-tab.active { border-color: #16a34a; color: #16a34a; background: #f0fdf4; }
-        .jsp-cat-tab.active::after { content: "✓"; position: absolute; top: -5px; right: -5px; background: #16a34a; color: white; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; }
-        
-        .jsp-weight-input { border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; display: flex; align-items: center; margin-bottom: 0.5rem; }
-        .jsp-weight-input input { border: none; outline: none; font-size: 1.1rem; font-weight: 700; color: #1e293b; flex: 1; }
-        
-        .jsp-upload-box { border: 2px dashed #e2e8f0; border-radius: 12px; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; background: #f8fafc; cursor: pointer; transition: border-color 0.2s; margin-bottom: 2rem; }
-        .jsp-upload-box:hover { border-color: #16a34a; background: #f0fdf4; }
-        
-        .jsp-summary-box { background: #f0fdf4; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; border: 1px solid #dcfce7; }
-        .jsp-summary-item { display: flex; flex-direction: column; gap: 0.25rem; }
-        .jsp-summary-label { font-size: 0.8rem; font-weight: 600; color: #475569; }
-        .jsp-summary-value { font-size: 1.1rem; font-weight: 800; color: #1e293b; }
-        .jsp-summary-total { font-size: 1.5rem; font-weight: 800; color: #16a34a; }
-        
-        .jsp-btn-submit { width: 100%; background: #064e3b; color: white; border: none; padding: 1.1rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 0.5rem; transition: background 0.2s; box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2); }
-        .jsp-btn-submit:hover { background: #022c22; }
-        
-        .jsp-price-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
-        .jsp-price-item { display: flex; align-items: center; justify-content: space-between; padding-bottom: 1rem; border-bottom: 1px solid #f1f5f9; }
-        .jsp-price-item:last-child { border-bottom: none; padding-bottom: 0; }
-        .jsp-price-left { display: flex; align-items: center; gap: 1rem; }
-        .jsp-price-icon { width: 40px; height: 40px; border-radius: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .jsp-price-right { display: flex; align-items: center; gap: 1rem; }
-        .jsp-trend-badge { background: #dcfce7; color: #166534; padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.25rem; }
-        .jsp-trend-neutral { background: #f1f5f9; color: #64748b; }
-        
-        .jsp-btn-outline { width: 100%; background: transparent; border: 1px solid #e2e8f0; color: #1e293b; padding: 0.85rem; border-radius: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 0.5rem; transition: background 0.2s; }
-        .jsp-btn-outline:hover { background: #f8fafc; }
-        
-        .jsp-tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .jsp-tip-card { background: #f8fafc; border-radius: 12px; padding: 1rem; }
-        .jsp-tip-title { font-size: 0.85rem; font-weight: 700; color: #1e293b; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 0.5rem; }
-        .jsp-tip-desc { font-size: 0.75rem; color: #64748b; margin: 0; line-height: 1.4; }
-        
-        @media (max-width: 1024px) {
-          .jsp-grid { grid-template-columns: 1fr; }
-        }
-
-        @media (max-width: 640px) {
-          .jsp-header { padding: 1rem 4%; }
-          .jsp-title { font-size: 1rem; }
-          .jsp-subtitle { font-size: 0.7rem; }
-          .jsp-header-left { gap: 0.75rem !important; }
-          .jsp-header-right { gap: 0.5rem !important; }
-          .jsp-btn-bell { width: 34px !important; height: 34px !important; }
-          .jsp-btn-profile { padding: 0.3rem 0.6rem 0.3rem 0.3rem !important; gap: 0.5rem !important; }
-          .jsp-btn-profile-img { width: 28px !important; height: 28px !important; }
-          .jsp-btn-profile-text { font-size: 0.8rem !important; }
-          .jsp-btn-profile-badge { font-size: 0.6rem !important; padding: 0.1rem 0.3rem !important; }
-          
-          .jsp-grid { padding: 1rem 4%; gap: 1.25rem; }
-          .jsp-card { padding: 1.25rem; border-radius: 16px; }
-          .jsp-card-title { font-size: 1rem; }
-          .jsp-summary-box { flex-direction: column; gap: 1rem; align-items: flex-start; }
-          .jsp-summary-box > div:last-child { width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
-          .jsp-summary-item { align-items: flex-start; }
-          .jsp-summary-total { font-size: 1.2rem; }
-          .jsp-tips-grid { grid-template-columns: 1fr 1fr; }
-          .jsp-price-right { gap: 0.5rem; }
-          .jsp-price-right span { font-size: 0.78rem; }
-          .jsp-btn-submit { padding: 0.9rem; font-size: 0.95rem; }
-          .jsp-upload-box { padding: 1.5rem; }
-          .jsp-cat-tabs { gap: 0.4rem; }
-          .jsp-cat-tab { padding: 0.5rem 0.75rem; font-size: 0.8rem; }
-        }
-
-        @media (max-width: 400px) {
-          .jsp-tips-grid { grid-template-columns: 1fr; }
-          .jsp-summary-box > div:last-child { grid-template-columns: 1fr 1fr; }
-          .jsp-title { font-size: 0.95rem; }
-          .jsp-subtitle { display: none; }
-        }
-      `}</style>
 
       {/* Header */}
       <div className="jsp-header">
@@ -337,7 +276,7 @@ function JualSampah() {
         </div>
         
         <div className="jsp-header-right" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <div className="jsp-btn-bell" onClick={() => {/* TODO: halaman notifikasi belum dibuat navigate('/notifications') */}} style={{ position: "relative", cursor: "pointer", background: "white", width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
+          <div className="jsp-btn-bell" onClick={() => navigate('/notifications')} style={{ position: "relative", cursor: "pointer", background: "white", width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
             <Bell size={20} color="#475569" style={{margin: "auto"}} />
             {unreadCount > 0 && (
               <div className="jsp-btn-profile-badge" style={{ position: "absolute", top: "-2px", right: "-2px", width: "16px", height: "16px", background: "#ef4444", borderRadius: "50%", border: "2px solid white", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "9px", fontWeight: "bold" }}>{unreadCount > 9 ? '9+' : unreadCount}</div>
@@ -538,8 +477,8 @@ function JualSampah() {
                 </div>
                 <div className="jsp-summary-item">
                   <span className="jsp-summary-label">Biaya Penjemputan</span>
-                  <span className="jsp-summary-value" style={{ color: estimateData?.pickup_fee > 0 ? "#ef4444" : "#16a34a" }}>
-                    {estimateData ? ((estimateData.pickup_fee || 0) > 0 ? `- Rp ${(estimateData.pickup_fee || 0).toLocaleString("id-ID")}` : "Gratis") : "-"}
+                  <span className="jsp-summary-value" style={{ color: estimateData?.delivery_fee > 0 ? "#ef4444" : "#16a34a" }}>
+                    {estimateData ? ((estimateData.delivery_fee || 0) > 0 ? `- Rp ${(estimateData.delivery_fee || 0).toLocaleString("id-ID")}` : "Gratis") : "-"}
                   </span>
                 </div>
                 <div className="jsp-summary-item">
@@ -549,7 +488,7 @@ function JualSampah() {
                 <div className="jsp-summary-item">
                   <span className="jsp-summary-label">Total Bersih</span>
                   <span className="jsp-summary-total" style={{ color: "#16a34a" }}>
-                    {estimateData ? `Rp ${Math.max(0, estimatedTotal - (estimateData.pickup_fee || 0)).toLocaleString("id-ID")}` : "-"}
+                    {estimateData ? `Rp ${Math.max(0, estimatedTotal - (estimateData.delivery_fee || 0)).toLocaleString("id-ID")}` : "-"}
                   </span>
                 </div>
               </div>

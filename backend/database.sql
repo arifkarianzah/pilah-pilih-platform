@@ -61,7 +61,9 @@ CREATE TABLE IF NOT EXISTS pickups (
                      ) DEFAULT 'pending',
     cancel_reason    TEXT,
     total_price      DECIMAL(15,2) DEFAULT 0.00,
-    pickup_fee       DECIMAL(15,2) DEFAULT 0.00,
+    pickup_fee       DECIMAL(15,2) DEFAULT 0.00,  -- [LEGACY] Kolom lama, dipertahankan untuk backward compat. Lihat delivery_fee.
+    delivery_fee     DECIMAL(15,2) DEFAULT NULL,   -- Ongkir dari server (Haversine×1.3→ceil→tarif flat). NULL = order lama sebelum fitur ini.
+    driver_fee       DECIMAL(15,2) DEFAULT NULL,   -- Fee yang diterima driver (saat ini = delivery_fee; update jika skema komisi berubah).
     latitude         DECIMAL(10,8) DEFAULT NULL,
     longitude        DECIMAL(11,8) DEFAULT NULL,
     distance_km      DECIMAL(10,2) DEFAULT NULL,
