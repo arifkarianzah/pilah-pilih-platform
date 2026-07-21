@@ -2,7 +2,51 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import BottomNav from "../components/BottomNav";
-import { ArrowLeft, MapPin, Truck, ChevronDown, Bell, ShieldCheck, Clock, Leaf, Star, MessageSquare, Send } from "lucide-react";
+import { ArrowLeft, MapPin, Truck, ChevronDown, Bell, ShieldCheck, Clock, Leaf, Star, MessageSquare, Send, Search } from "lucide-react";
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import './Pickup.css';
+import { calculateDistance, calculateFare, DEPOT_LAT } from '../utils/distance';
+
+// Fix Leaflet marker icon issue in React
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+function MapUpdater({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, map.getZoom(), { animate: true });
+  }, [center, map]);
+  return null;
+}
+
+function MapPicker({ position, setPosition, setAddress }) {
+  useMapEvents({
+    async click(e) {
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+      setPosition([lat, lng]);
+      setAddress("Mengambil detail lokasi...");
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+        const data = await res.json();
+        if(data && data.display_name) {
+          setAddress(data.display_name);
+        } else {
+          setAddress(`Titik Maps: ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+        }
+      } catch (err) {
+        setAddress(`Titik Maps: ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+      }
+    },
+  });
+  return position ? <Marker position={position} /> : null;
+}
 
 function Pickup() {
   const [wasteType, setWasteType] = useState("Plastik");
@@ -11,6 +55,11 @@ function Pickup() {
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [mapPosition, setMapPosition] = useState([0.5333, 101.4500]); // Pekanbaru default
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [distance, setDistance] = useState(null);
+  const [deliveryFee, setDeliveryFee] = useState(null);
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
@@ -41,6 +90,21 @@ function Pickup() {
     fetchData();
   }, []);
 
+  // Hitung ulang ongkir setiap kali posisi peta berubah
+  useEffect(() => {
+    const [lat, lon] = mapPosition;
+    // Hanya hitung jika user sudah memindahkan pin dari titik default Depot
+    if (lat === DEPOT_LAT) {
+      setDistance(null);
+      setDeliveryFee(null);
+      return;
+    }
+    const km = calculateDistance(lat, lon);
+    const fee = calculateFare(km);
+    setDistance(km);
+    setDeliveryFee(fee);
+  }, [mapPosition]);
+
   const wasteDescriptions = {
     "Plastik": "Botol plastik, kemasan, gelas plastik, dll",
     "Kertas": "Kardus, koran, buku bekas, dll",
@@ -59,13 +123,24 @@ function Pickup() {
       return;
     }
 
+    if (!mapPosition || mapPosition[0] === 0.5333) {
+      setError("Harap pilih lokasi penjemputan di peta terlebih dahulu.");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
       await api.post("/pickups", {
         waste_type: wasteType,
         estimated_weight: Number(weightEstimate),
         address: address + (notes ? ` (Catatan: ${notes})` : ''),
-        pickup_date: new Date().toISOString().split('T')[0]
+        latitude: mapPosition[0],
+        longitude: mapPosition[1],
+        pickup_date: new Date().toISOString().split('T')[0],
+        // Dikirim sebagai display value — backend WAJIB hitung ulang dari koordinat
+        distance_km: distance,
+        delivery_fee: deliveryFee,
+        driver_fee: deliveryFee, // sementara sama; pisahkan saat skema komisi diimplementasi
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -79,56 +154,6 @@ function Pickup() {
 
   return (
     <div style={{ background: "#f8fafc", minHeight: "100vh", paddingBottom: "100px", fontFamily: "'Inter', sans-serif" }}>
-      <style>{`
-        .pkp-header { background: white; padding: 1.5rem 2.5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; zIndex: 10; border-bottom: 1px solid #f1f5f9; }
-        .pkp-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0; }
-        .pkp-back-btn { background: white; border: 1px solid #e2e8f0; border-radius: 12px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
-        .pkp-back-btn:hover { background: #f8fafc; }
-        
-        .pkp-card { background: white; border-radius: 20px; padding: 2rem; max-width: 900px; margin: 2rem auto; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
-        
-        .pkp-banner { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; position: relative; }
-        .pkp-banner-left { display: flex; align-items: center; gap: 1rem; z-index: 2; }
-        .pkp-icon-box { width: 56px; height: 56px; border-radius: 16px; background: #dcfce7; display: flex; align-items: center; justify-content: center; }
-        .pkp-banner-title { font-size: 1.4rem; font-weight: 800; color: #0f172a; margin: 0 0 0.25rem 0; }
-        .pkp-banner-subtitle { font-size: 0.85rem; color: #16a34a; margin: 0; font-weight: 600; }
-        .pkp-banner-bg { position: absolute; right: -2rem; top: -2rem; height: 120px; opacity: 0.8; z-index: 1; pointer-events: none; }
-        
-        .pkp-label { display: block; font-size: 0.75rem; font-weight: 800; color: #475569; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        .pkp-input-container { position: relative; border: 1px solid #cbd5e1; border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; background: white; transition: border-color 0.2s, box-shadow 0.2s; margin-bottom: 1.5rem; overflow: hidden; }
-        .pkp-input-container:focus-within { border-color: var(--brand-green); box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1); }
-        .pkp-input-left { display: flex; align-items: center; gap: 1rem; flex: 1; }
-        .pkp-input-icon { width: 36px; height: 36px; border-radius: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #64748b; }
-        
-        .pkp-input-title { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin: 0 0 0.15rem 0; }
-        .pkp-input-subtitle { font-size: 0.8rem; color: #64748b; margin: 0; }
-        
-        .pkp-native-select { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-        .pkp-native-input { width: 100%; border: none; outline: none; font-size: 0.95rem; font-weight: 700; color: #1e293b; background: transparent; padding: 0; margin-bottom: 0.15rem; }
-        .pkp-native-input::placeholder { color: #94a3b8; font-weight: 500; }
-        
-        .pkp-btn-change { background: transparent; border: 1px solid #e2e8f0; border-radius: 20px; padding: 0.4rem 0.8rem; font-size: 0.75rem; font-weight: 600; color: #16a34a; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.25rem; }
-        .pkp-btn-change:hover { background: #f0fdf4; border-color: #bbf7d0; }
-        
-        .pkp-textarea { width: 100%; border: none; outline: none; font-size: 0.9rem; color: #1e293b; resize: none; background: transparent; padding: 0; height: 40px; }
-        
-        .pkp-benefits { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; background: #f8fafc; border-radius: 16px; padding: 1.25rem; margin-bottom: 1.5rem; }
-        .pkp-benefit-item { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-        .pkp-benefit-title { font-size: 0.75rem; font-weight: 700; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 0.35rem; }
-        .pkp-benefit-desc { font-size: 0.7rem; color: #64748b; margin: 0; line-height: 1.4; }
-        
-        .pkp-btn-submit { width: 100%; background: #064e3b; color: white; border: none; padding: 1.1rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 0.5rem; transition: background 0.2s; box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2); }
-        .pkp-btn-submit:hover { background: #022c22; }
-        .pkp-btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
-        
-        .pkp-footer-note { display: flex; align-items: center; justify-content: center; gap: 0.35rem; font-size: 0.75rem; color: #64748b; margin-top: 1rem; font-weight: 500; }
-        
-        @media (max-width: 768px) {
-          .pkp-benefits { grid-template-columns: 1fr 1fr; }
-          .pkp-banner-bg { display: none; }
-        }
-      `}</style>
 
       {/* Header */}
       <div className="pkp-header">
@@ -138,7 +163,7 @@ function Pickup() {
         <h2 className="pkp-title">Request Pickup</h2>
         
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <div onClick={() => {/* TODO: halaman notifikasi belum dibuat navigate('/notifications') */}} style={{ position: "relative", cursor: "pointer", background: "white", width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
+          <div onClick={() => navigate('/notifications')} style={{ position: "relative", cursor: "pointer", background: "white", width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
             <Bell size={20} color="#475569" style={{margin: "auto"}} />
             {unreadCount > 0 && (
               <div style={{ position: "absolute", top: "-2px", right: "-2px", width: "16px", height: "16px", background: "#ef4444", borderRadius: "50%", border: "2px solid white", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "9px", fontWeight: "bold" }}>{unreadCount > 9 ? '9+' : unreadCount}</div>
@@ -240,15 +265,90 @@ function Pickup() {
                   <input 
                     type="text" 
                     className="pkp-native-input" 
-                    placeholder="Masukkan alamat lengkap..."
+                    placeholder="Masukkan alamat lengkap atau pilih di peta..."
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     required
                   />
-                  <p className="pkp-input-subtitle">Pastikan alamat penjemputan sudah benar</p>
+                  <p className="pkp-input-subtitle">Alamat akan otomatis terisi saat memilih di peta</p>
                 </div>
               </div>
             </div>
+
+            {/* MAP VIEW */}
+            <div style={{ marginBottom: "1.5rem" }}>
+              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                <input 
+                  type="text" 
+                  placeholder="Cari jalan / daerah..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{ flex: 1, border: "1px solid #e2e8f0", borderRadius: "10px", padding: "0.75rem 1rem", outline: "none", fontSize: "0.9rem" }}
+                  onKeyPress={async (e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (!searchQuery.trim()) return;
+                      setIsSearching(true);
+                      try {
+                        const finalQuery = searchQuery.toLowerCase().includes('pekanbaru') ? searchQuery : `${searchQuery}, Pekanbaru`;
+                        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(finalQuery)}&countrycodes=id&limit=1`);
+                        const data = await res.json();
+                        if (data && data.length > 0) {
+                          setMapPosition([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+                          setAddress(data[0].display_name);
+                        } else {
+                          alert("Lokasi tidak ditemukan!");
+                        }
+                      } catch (err) {
+                        alert("Gagal mencari lokasi.");
+                      } finally {
+                        setIsSearching(false);
+                      }
+                    }
+                  }}
+                />
+                <button 
+                  type="button"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!searchQuery.trim()) return;
+                    setIsSearching(true);
+                    try {
+                      const finalQuery = searchQuery.toLowerCase().includes('pekanbaru') ? searchQuery : `${searchQuery}, Pekanbaru`;
+                      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(finalQuery)}&countrycodes=id&limit=1`);
+                      const data = await res.json();
+                      if (data && data.length > 0) {
+                        setMapPosition([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+                        setAddress(data[0].display_name);
+                      } else {
+                        alert("Lokasi tidak ditemukan!");
+                      }
+                    } catch (err) {
+                      alert("Gagal mencari lokasi.");
+                    } finally {
+                      setIsSearching(false);
+                    }
+                  }}
+                  style={{ background: "#16a34a", color: "white", border: "none", borderRadius: "10px", padding: "0 1.25rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}
+                  disabled={isSearching}
+                >
+                  <Search size={18} />
+                  <span style={{ fontSize: "0.85rem", fontWeight: "600" }}>{isSearching ? "..." : "Cari"}</span>
+                </button>
+              </div>
+
+              <div style={{ height: "250px", width: "100%", borderRadius: "12px", overflow: "hidden", border: "1px solid #e2e8f0", position: "relative", zIndex: 1 }}>
+                <MapContainer center={mapPosition} zoom={13} style={{ height: '100%', width: '100%' }}>
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  />
+                  <MapUpdater center={mapPosition} />
+                  <MapPicker position={mapPosition} setPosition={setMapPosition} setAddress={setAddress} />
+                </MapContainer>
+              </div>
+            </div>
+
 
             <label className="pkp-label">Catatan (Opsional)</label>
             <div className="pkp-input-container">
@@ -290,6 +390,21 @@ function Pickup() {
                 <p className="pkp-benefit-desc">Setiap penjemputan dapatkan reward poin</p>
               </div>
             </div>
+
+            {/* Delivery Fee Card */}
+            {distance !== null && deliveryFee !== null && (
+              <div style={{ background: "#064e3b", borderRadius: "14px", padding: "1rem 1.25rem", marginBottom: "1.25rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.15rem" }}>
+                  <span style={{ fontSize: "0.7rem", color: "#86efac", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Jarak Penjemputan</span>
+                  <span style={{ fontSize: "1rem", fontWeight: "700", color: "white" }}>🛵 {distance} KM</span>
+                </div>
+                <div style={{ width: "1px", height: "36px", background: "rgba(255,255,255,0.2)" }} />
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.15rem", alignItems: "flex-end" }}>
+                  <span style={{ fontSize: "0.7rem", color: "#86efac", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Biaya Ongkir</span>
+                  <span style={{ fontSize: "1rem", fontWeight: "700", color: "#4ade80" }}>Rp {deliveryFee.toLocaleString("id-ID")}</span>
+                </div>
+              </div>
+            )}
 
             <button type="submit" className="pkp-btn-submit">
               <Send size={18} /> Kirim Request Pickup

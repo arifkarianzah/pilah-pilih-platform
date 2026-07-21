@@ -65,6 +65,19 @@ async function migrate() {
         // We also need to add price_pengepul_per_kg to pickup_items for accurate records. Actually, the requirement just says we record the price_user_per_kg and calculate difference. 
         // We will leave pickup_items as is for now and just use waste_prices or calculate it at checkout.
 
+        // 5. pickups table — tambah kolom ongkir baru (delivery_fee, driver_fee)
+        //    pickup_fee TIDAK dihapus (backward compat data historis).
+        //    Jalankan migration ini setelah fitur kalkulator ongkir diterapkan.
+        try {
+            await db.promise().query(`ALTER TABLE pickups
+                ADD COLUMN delivery_fee DECIMAL(15,2) DEFAULT NULL COMMENT 'Ongkir dihitung server (Haversine×1.3→ceil→tarif flat). NULL = order sebelum fitur ini.',
+                ADD COLUMN driver_fee   DECIMAL(15,2) DEFAULT NULL COMMENT 'Fee driver. Saat ini = delivery_fee; update jika skema komisi berubah.';
+            `);
+            console.log("Added delivery_fee & driver_fee columns to pickups table.");
+        } catch(e) {
+            console.log("delivery_fee/driver_fee might already exist:", e.message);
+        }
+
         console.log("Migrations completed.");
     } catch(err) {
         console.error("Migration failed:", err);

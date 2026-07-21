@@ -1,4 +1,5 @@
 const db = require("../config/db");
+const { calculateDistance, calculateFare } = require("../utils/distance");
 
 // Helper function to log status change
 const logStatusChange = (pickupId, status, changedBy) => {
@@ -31,7 +32,10 @@ exports.runMigration = async (req, res) => {
             "ALTER TABLE waste_prices CHANGE COLUMN price_per_kg price_user_per_kg DECIMAL(10,2) NOT NULL",
             "ALTER TABLE waste_prices ADD COLUMN price_pengepul_per_kg DECIMAL(10,2) NOT NULL DEFAULT 0.00",
             "UPDATE waste_prices SET price_pengepul_per_kg = price_user_per_kg + 500",
-            "UPDATE users SET latitude = 0.5333, longitude = 101.4500, service_radius = 50.00 WHERE role = 'petugas'"
+            "UPDATE users SET latitude = 0.5333, longitude = 101.4500, service_radius = 50.00 WHERE role = 'petugas'",
+            // Kolom ongkir baru — delivery_fee & driver_fee (pickup_fee tetap ada, backward compat)
+            "ALTER TABLE pickups ADD COLUMN delivery_fee DECIMAL(15,2) DEFAULT NULL",
+            "ALTER TABLE pickups ADD COLUMN driver_fee DECIMAL(15,2) DEFAULT NULL"
         ];
 
         for (let q of queries) {
@@ -50,50 +54,38 @@ exports.runMigration = async (req, res) => {
 exports.estimateFee = (req, res) => {
     const { latitude, longitude, waste_type, estimated_weight } = req.body;
 
-    if (!latitude || !longitude) {
+    // Validasi koordinat — wajib ada sebelum apapun dihitung
+    const lat = parseFloat(latitude);
+    const lon = parseFloat(longitude);
+    if (!latitude || !longitude || isNaN(lat) || isNaN(lon)) {
         return res.status(400).json({ success: false, message: "Lokasi GPS wajib diaktifkan." });
     }
 
+    // Hitung jarak & ongkir di server (identik dengan frontend distance.js)
+    const distance_km = calculateDistance(lat, lon);
+    const delivery_fee = calculateFare(distance_km);
+
     db.query("SELECT price_user_per_kg FROM waste_prices WHERE waste_type = ?", [waste_type], (errPrice, priceRes) => {
         if(errPrice) return res.status(500).json({ success: false, message: errPrice.message });
-        const price_user = priceRes.length > 0 ? priceRes[0].price_user_per_kg : 0;
-        const total_price_est = price_user * (estimated_weight || 0);
 
+        // Cari petugas terdekat untuk ditampilkan (informasi, bukan penentu ongkir)
         const haversineSql = `
-            SELECT id, 
-            ( 6371 * acos( greatest(-1.0, least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) )) ) ) AS distance
+            SELECT id
             FROM users
             WHERE role = 'petugas' AND latitude IS NOT NULL AND longitude IS NOT NULL
-            ORDER BY distance ASC
+            ORDER BY ( 6371 * acos( greatest(-1.0, least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) )) ) ) ASC
             LIMIT 1
         `;
 
-        db.query(haversineSql, [latitude, longitude, latitude], (err, petugasRes) => {
-            if(err) {
-                console.error("Haversine error:", err.message);
-                // Fallback: ambil sembarang petugas jika query jarak gagal
-                return db.query("SELECT id FROM users WHERE role = 'petugas' LIMIT 1", (err2, fallbackRes) => {
-                    if (err2 || fallbackRes.length === 0) return res.status(404).json({ success: false, message: "Belum ada petugas yang tersedia saat ini." });
-                    // Return 999 to easily debug that fallback was hit
-                    res.json({ success: true, distance_km: 999.9, pickup_fee: total_price_est * 0.05, nearestPetugasId: fallbackRes[0].id, debug_err: err.message });
-                });
-            }
-            
-            if (petugasRes.length === 0) {
-                return res.status(404).json({ success: false, message: "Belum ada petugas yang tersedia di wilayah Anda saat ini." });
-            }
-
-            const nearestPetugas = petugasRes[0];
-            const distance_km = nearestPetugas.distance;
-            
-            let pickup_fee = 0;
-            if (distance_km > 10) {
-                pickup_fee = total_price_est * 0.05;
-            } else if (distance_km > 5) {
-                pickup_fee = total_price_est * 0.03;
-            }
-
-            res.json({ success: true, distance_km, pickup_fee, nearestPetugasId: nearestPetugas.id });
+        db.query(haversineSql, [lat, lon, lat], (err, petugasRes) => {
+            const nearestPetugasId = (!err && petugasRes.length > 0) ? petugasRes[0].id : null;
+            res.json({
+                success: true,
+                distance_km,
+                delivery_fee,
+                driver_fee: delivery_fee, // Saat ini driver_fee = delivery_fee (belum ada skema komisi terpisah)
+                nearestPetugasId
+            });
         });
     });
 };
@@ -105,92 +97,95 @@ exports.createPickup = (req, res) => {
     const { address, waste_type, estimated_weight, pickup_date, notes, latitude, longitude } = req.body;
     const user_id = req.user.id;
 
-    if (!latitude || !longitude) {
+    // 1. Validasi koordinat — tolak keras jika tidak ada
+    const lat = parseFloat(latitude);
+    const lon = parseFloat(longitude);
+    if (!latitude || !longitude || isNaN(lat) || isNaN(lon)) {
         return res.status(400).json({ success: false, message: "Lokasi GPS wajib diaktifkan." });
     }
 
-    // 1. Dapatkan harga_user_per_kg untuk menghitung estimasi biaya penjemputan
-    db.query("SELECT price_user_per_kg FROM waste_prices WHERE waste_type = ?", [waste_type], (errPrice, priceRes) => {
-        if(errPrice) return res.status(500).json({ success: false, message: errPrice.message });
-        const price_user = priceRes.length > 0 ? priceRes[0].price_user_per_kg : 0;
-        const total_price_est = price_user * (estimated_weight || 0);
+    // 2. Hitung jarak & ongkir di SERVER — nilai dari client diabaikan
+    //    ⚠️  Rumus harus identik dengan frontend src/utils/distance.js
+    const distance_km = calculateDistance(lat, lon);
+    const delivery_fee = calculateFare(distance_km);
+    const driver_fee   = delivery_fee; // Saat ini 1:1 — update di sini jika skema komisi berubah
 
-        // 2. Cari Petugas terdekat yang AVAILABLE menggunakan Haversine Formula
-        const haversineSql = `
-            SELECT id, pengepul_id, service_radius,
-            ( 6371 * acos( greatest(-1.0, least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) )) ) ) AS distance
-            FROM users
-            WHERE role = 'petugas'
-            AND availability_status = 'AVAILABLE'
-            ORDER BY distance ASC
-            LIMIT 1
-        `;
+    // 3. Cari Petugas terdekat yang AVAILABLE menggunakan Haversine Formula
+    const haversineSql = `
+        SELECT id, pengepul_id, service_radius,
+        ( 6371 * acos( greatest(-1.0, least(1.0, cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) )) ) ) AS distance
+        FROM users
+        WHERE role = 'petugas'
+        AND availability_status = 'AVAILABLE'
+        ORDER BY distance ASC
+        LIMIT 1
+    `;
 
-        db.query(haversineSql, [latitude, longitude, latitude], (err, petugasRes) => {
-            if(err) {
-                console.error("Haversine error:", err.message);
-                // Fallback: ambil sembarang petugas jika gagal
-                return db.query("SELECT id, pengepul_id FROM users WHERE role = 'petugas' AND availability_status = 'AVAILABLE' LIMIT 1", (err2, fallbackRes) => {
-                    if (err2 || fallbackRes.length === 0) return res.status(404).json({ success: false, message: "Tidak ada petugas yang sedang online. Silakan coba beberapa saat lagi." });
-                    
-                    const nearestPetugas = fallbackRes[0];
-                    const distance_km = 999.9;
-                    const pickup_fee = total_price_est * 0.05;
-                    
-                    const insertSql = `
-                        INSERT INTO pickups
-                        (user_id, petugas_id, pengepul_id, address, waste_type, estimated_weight, pickup_date, notes, latitude, longitude, distance_km, pickup_fee)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    `;
+    db.query(haversineSql, [lat, lon, lat], (err, petugasRes) => {
+        if(err) {
+            console.error("Haversine error:", err.message);
+            // Fallback: ambil sembarang petugas jika query gagal
+            return db.query("SELECT id, pengepul_id FROM users WHERE role = 'petugas' AND availability_status = 'AVAILABLE' LIMIT 1", (err2, fallbackRes) => {
+                if (err2 || fallbackRes.length === 0) {
+                    return res.status(404).json({ success: false, message: "Tidak ada petugas yang sedang online. Silakan coba beberapa saat lagi." });
+                }
 
-                    db.query(insertSql, [user_id, nearestPetugas.id, nearestPetugas.pengepul_id, address, waste_type, estimated_weight, pickup_date, notes, latitude, longitude, distance_km, pickup_fee], (errInsert, result) => {
+                const nearestPetugas = fallbackRes[0];
+                // Ongkir tetap dari kalkulasi server (distance_km & delivery_fee sudah dihitung di atas)
+                const insertSql = `
+                    INSERT INTO pickups
+                    (user_id, petugas_id, pengepul_id, address, waste_type, estimated_weight, pickup_date, notes,
+                     latitude, longitude, distance_km, delivery_fee, driver_fee, pickup_fee)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `;
+                // pickup_fee diisi sama dengan delivery_fee untuk backward compat kolom lama
+                db.query(insertSql,
+                    [user_id, nearestPetugas.id, nearestPetugas.pengepul_id, address, waste_type,
+                     estimated_weight, pickup_date, notes, lat, lon,
+                     distance_km, delivery_fee, driver_fee, delivery_fee],
+                    (errInsert, result) => {
                         if(errInsert) return res.status(500).json({ success: false, message: errInsert.message });
-                        
                         const pickupId = result.insertId;
-                        // db.query("UPDATE users SET availability_status = 'BUSY' WHERE id = ?", [nearestPetugas.id]); // Dihapus agar bisa terima order gabungan
                         logStatusChange(pickupId, 'pending', user_id);
-                        
-                        res.status(201).json({ success: true, message: "Permintaan penjemputan berhasil dibuat (Fallback GPS)", pickup_id: pickupId, distance_km, pickup_fee });
-                    });
+                        res.status(201).json({
+                            success: true,
+                            message: "Permintaan penjemputan berhasil dibuat (Fallback GPS)",
+                            pickup_id: pickupId, distance_km, delivery_fee, driver_fee
+                        });
+                    }
+                );
+            });
+        }
+
+        if (petugasRes.length === 0) {
+            return res.status(404).json({ success: false, message: "Tidak ada petugas yang sedang online di wilayah Anda saat ini. Silakan coba lagi nanti." });
+        }
+
+        const nearestPetugas = petugasRes[0];
+
+        // 4. Simpan Order — gunakan nilai kalkulasi server, bukan nilai dari client
+        const insertSql = `
+            INSERT INTO pickups
+            (user_id, petugas_id, pengepul_id, address, waste_type, estimated_weight, pickup_date, notes,
+             latitude, longitude, distance_km, delivery_fee, driver_fee, pickup_fee)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        // pickup_fee diisi sama dengan delivery_fee untuk backward compat kolom lama
+        db.query(insertSql,
+            [user_id, nearestPetugas.id, nearestPetugas.pengepul_id, address, waste_type,
+             estimated_weight, pickup_date, notes, lat, lon,
+             distance_km, delivery_fee, driver_fee, delivery_fee],
+            (errInsert, result) => {
+                if(errInsert) return res.status(500).json({ success: false, message: errInsert.message });
+                const pickupId = result.insertId;
+                logStatusChange(pickupId, 'pending', user_id);
+                res.status(201).json({
+                    success: true,
+                    message: "Permintaan penjemputan berhasil dibuat",
+                    pickup_id: pickupId, distance_km, delivery_fee, driver_fee
                 });
             }
-            
-            if (petugasRes.length === 0) {
-                return res.status(404).json({ success: false, message: "Tidak ada petugas yang sedang online di wilayah Anda saat ini. Silakan coba lagi nanti." });
-            }
-
-            const nearestPetugas = petugasRes[0];
-            const distance_km = nearestPetugas.distance;
-            
-            // Hitung Biaya Penjemputan (0-5 km: Gratis, >5-10 km: 3%, >10 km: 5%)
-            let pickup_fee = 0;
-            if (distance_km > 10) {
-                pickup_fee = total_price_est * 0.05;
-            } else if (distance_km > 5) {
-                pickup_fee = total_price_est * 0.03;
-            }
-
-            // 3. Simpan Order (Petugas langsung di-assign, status = pending/accepted sesuai flow, kita set 'accepted' karena langsung dapat petugas, 
-            // atau 'pending' dan petugas_id diisi. Kita ikuti 'pending' tapi isi petugas_id).
-            const insertSql = `
-                INSERT INTO pickups
-                (user_id, petugas_id, pengepul_id, address, waste_type, estimated_weight, pickup_date, notes, latitude, longitude, distance_km, pickup_fee)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `;
-
-            db.query(insertSql, [user_id, nearestPetugas.id, nearestPetugas.pengepul_id, address, waste_type, estimated_weight, pickup_date, notes, latitude, longitude, distance_km, pickup_fee], (errInsert, result) => {
-                if(errInsert) return res.status(500).json({ success: false, message: errInsert.message });
-                
-                const pickupId = result.insertId;
-                
-                // Ubah status Petugas menjadi BUSY (Dihapus agar bisa terima order gabungan)
-                // db.query("UPDATE users SET availability_status = 'BUSY' WHERE id = ?", [nearestPetugas.id]);
-
-                logStatusChange(pickupId, 'pending', user_id);
-                
-                res.status(201).json({ success: true, message: "Permintaan penjemputan berhasil dibuat", pickup_id: pickupId, distance_km, pickup_fee });
-            });
-        });
+        );
     });
 };
 
@@ -434,7 +429,9 @@ exports.confirmAndComplete = (req, res) => {
             }
 
             // Wallet/Saldo transfer jika user memilih 'saldo'
-            const finalAmount = Math.max(0, pickup.total_price - pickup.pickup_fee);
+            // Gunakan delivery_fee (kolom baru) jika ada, fallback ke pickup_fee (kolom lama) untuk data historis
+            const effectiveFee = pickup.delivery_fee != null ? pickup.delivery_fee : pickup.pickup_fee;
+            const finalAmount = Math.max(0, pickup.total_price - effectiveFee);
             if (payment_method === 'saldo' && finalAmount > 0) {
                 // Pastikan wallet user ada
                 db.query("SELECT id FROM wallets WHERE user_id = ?", [pickup.user_id], (errWal, walRes) => {
